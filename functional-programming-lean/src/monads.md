@@ -263,8 +263,8 @@ The numbering of the Python equivalent of `aTree` is:
 ```
 and its numbering is:
 ```
->>> {{#command {inorder_python} {inorderpy} {python inordernumbering.py} {number(a_tree)}}}
-{{#command_out {inorderpy} {python inordernumbering.py} {inorder_python/expected} }}
+>>> {{#command {inorder_python} {inorderpy} {python3 inordernumbering.py} {number(a_tree)}}}
+{{#command_out {inorderpy} {python3 inordernumbering.py} {inorder_python/expected} }}
 ```
 
 
