@@ -1,0 +1,412 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Worked Example: cat - Functional Programming in Lean</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../custom.css">
+        <link rel="stylesheet" href="../pygments.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../title.html">Functional Programming in Lean</a></li><li class="chapter-item expanded affix "><a href="../introduction.html">Introduction</a></li><li class="chapter-item expanded affix "><a href="../acknowledgments.html">Acknowledgments</a></li><li class="chapter-item expanded "><a href="../getting-to-know.html"><strong aria-hidden="true">1.</strong> Getting to Know Lean</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../getting-to-know/evaluating.html"><strong aria-hidden="true">1.1.</strong> Evaluating Expressions</a></li><li class="chapter-item expanded "><a href="../getting-to-know/types.html"><strong aria-hidden="true">1.2.</strong> Types</a></li><li class="chapter-item expanded "><a href="../getting-to-know/functions-and-definitions.html"><strong aria-hidden="true">1.3.</strong> Functions and Definitions</a></li><li class="chapter-item expanded "><a href="../getting-to-know/structures.html"><strong aria-hidden="true">1.4.</strong> Structures</a></li><li class="chapter-item expanded "><a href="../getting-to-know/datatypes-and-patterns.html"><strong aria-hidden="true">1.5.</strong> Datatypes, Patterns and Recursion</a></li><li class="chapter-item expanded "><a href="../getting-to-know/polymorphism.html"><strong aria-hidden="true">1.6.</strong> Polymorphism</a></li><li class="chapter-item expanded "><a href="../getting-to-know/conveniences.html"><strong aria-hidden="true">1.7.</strong> Additional Conveniences</a></li><li class="chapter-item expanded "><a href="../getting-to-know/summary.html"><strong aria-hidden="true">1.8.</strong> Summary</a></li></ol></li><li class="chapter-item expanded "><a href="../hello-world.html"><strong aria-hidden="true">2.</strong> Hello, World!</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../hello-world/running-a-program.html"><strong aria-hidden="true">2.1.</strong> Running a Program</a></li><li class="chapter-item expanded "><a href="../hello-world/step-by-step.html"><strong aria-hidden="true">2.2.</strong> Step By Step</a></li><li class="chapter-item expanded "><a href="../hello-world/starting-a-project.html"><strong aria-hidden="true">2.3.</strong> Starting a Project</a></li><li class="chapter-item expanded "><a href="../hello-world/cat.html" class="active"><strong aria-hidden="true">2.4.</strong> Worked Example: cat</a></li><li class="chapter-item expanded "><a href="../hello-world/conveniences.html"><strong aria-hidden="true">2.5.</strong> Additional Conveniences</a></li><li class="chapter-item expanded "><a href="../hello-world/summary.html"><strong aria-hidden="true">2.6.</strong> Summary</a></li></ol></li><li class="chapter-item expanded "><a href="../props-proofs-indexing.html"><strong aria-hidden="true">3.</strong> Interlude: Propositions, Proofs, and Indexing</a></li><li class="chapter-item expanded "><a href="../type-classes.html"><strong aria-hidden="true">4.</strong> Overloading and Type Classes</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../type-classes/pos.html"><strong aria-hidden="true">4.1.</strong> Positive Numbers</a></li><li class="chapter-item expanded "><a href="../type-classes/polymorphism.html"><strong aria-hidden="true">4.2.</strong> Type Classes and Polymorphism</a></li><li class="chapter-item expanded "><a href="../type-classes/out-params.html"><strong aria-hidden="true">4.3.</strong> Controlling Instance Search</a></li><li class="chapter-item expanded "><a href="../type-classes/indexing.html"><strong aria-hidden="true">4.4.</strong> Arrays and Indexing</a></li><li class="chapter-item expanded "><a href="../type-classes/standard-classes.html"><strong aria-hidden="true">4.5.</strong> Standard Classes</a></li><li class="chapter-item expanded "><a href="../type-classes/coercion.html"><strong aria-hidden="true">4.6.</strong> Coercions</a></li><li class="chapter-item expanded "><a href="../type-classes/conveniences.html"><strong aria-hidden="true">4.7.</strong> Additional Conveniences</a></li><li class="chapter-item expanded "><a href="../type-classes/summary.html"><strong aria-hidden="true">4.8.</strong> Summary</a></li></ol></li><li class="chapter-item expanded "><a href="../monads.html"><strong aria-hidden="true">5.</strong> Monads</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../monads/class.html"><strong aria-hidden="true">5.1.</strong> The Monad Type Class</a></li><li class="chapter-item expanded "><a href="../monads/arithmetic.html"><strong aria-hidden="true">5.2.</strong> Example: Arithmetic in Monads</a></li><li class="chapter-item expanded "><a href="../monads/do.html"><strong aria-hidden="true">5.3.</strong> do-Notation for Monads</a></li><li class="chapter-item expanded "><a href="../monads/io.html"><strong aria-hidden="true">5.4.</strong> The IO Monad</a></li><li class="chapter-item expanded "><a href="../monads/conveniences.html"><strong aria-hidden="true">5.5.</strong> Additional Conveniences</a></li><li class="chapter-item expanded "><a href="../monads/summary.html"><strong aria-hidden="true">5.6.</strong> Summary</a></li></ol></li><li class="chapter-item expanded "><a href="../functor-applicative-monad.html"><strong aria-hidden="true">6.</strong> Functors, Applicative Functors, and Monads</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../functor-applicative-monad/inheritance.html"><strong aria-hidden="true">6.1.</strong> Structures and Inheritance</a></li><li class="chapter-item expanded "><a href="../functor-applicative-monad/applicative.html"><strong aria-hidden="true">6.2.</strong> Applicative Functors</a></li><li class="chapter-item expanded "><a href="../functor-applicative-monad/applicative-contract.html"><strong aria-hidden="true">6.3.</strong> The Applicative Contract</a></li><li class="chapter-item expanded "><a href="../functor-applicative-monad/alternative.html"><strong aria-hidden="true">6.4.</strong> Alternatives</a></li><li class="chapter-item expanded "><a href="../functor-applicative-monad/universes.html"><strong aria-hidden="true">6.5.</strong> Universes</a></li><li class="chapter-item expanded "><a href="../functor-applicative-monad/complete.html"><strong aria-hidden="true">6.6.</strong> The Complete Definitions</a></li><li class="chapter-item expanded "><a href="../functor-applicative-monad/summary.html"><strong aria-hidden="true">6.7.</strong> Summary</a></li></ol></li><li class="chapter-item expanded "><a href="../monad-transformers.html"><strong aria-hidden="true">7.</strong> Monad Transformers</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../monad-transformers/reader-io.html"><strong aria-hidden="true">7.1.</strong> Combining IO and Reader</a></li><li class="chapter-item expanded "><a href="../monad-transformers/transformers.html"><strong aria-hidden="true">7.2.</strong> A Monad Construction Kit</a></li><li class="chapter-item expanded "><a href="../monad-transformers/order.html"><strong aria-hidden="true">7.3.</strong> Ordering Monad Transformers</a></li><li class="chapter-item expanded "><a href="../monad-transformers/do.html"><strong aria-hidden="true">7.4.</strong> More do Features</a></li><li class="chapter-item expanded "><a href="../monad-transformers/conveniences.html"><strong aria-hidden="true">7.5.</strong> Additional Conveniences</a></li><li class="chapter-item expanded "><a href="../monad-transformers/summary.html"><strong aria-hidden="true">7.6.</strong> Summary</a></li></ol></li><li class="chapter-item expanded "><a href="../dependent-types.html"><strong aria-hidden="true">8.</strong> Programming with Dependent Types</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../dependent-types/indexed-families.html"><strong aria-hidden="true">8.1.</strong> Indexed Families</a></li><li class="chapter-item expanded "><a href="../dependent-types/universe-pattern.html"><strong aria-hidden="true">8.2.</strong> The Universe Design Pattern</a></li><li class="chapter-item expanded "><a href="../dependent-types/typed-queries.html"><strong aria-hidden="true">8.3.</strong> Worked Example: Typed Queries</a></li><li class="chapter-item expanded "><a href="../dependent-types/indices-parameters-universes.html"><strong aria-hidden="true">8.4.</strong> Indices, Parameters, and Universe Levels</a></li><li class="chapter-item expanded "><a href="../dependent-types/pitfalls.html"><strong aria-hidden="true">8.5.</strong> Pitfalls of Programming with Dependent Types</a></li><li class="chapter-item expanded "><a href="../dependent-types/summary.html"><strong aria-hidden="true">8.6.</strong> Summary</a></li></ol></li><li class="chapter-item expanded "><a href="../tactics-induction-proofs.html"><strong aria-hidden="true">9.</strong> Interlude: Tactics, Induction, and Proofs</a></li><li class="chapter-item expanded "><a href="../programs-proofs.html"><strong aria-hidden="true">10.</strong> Programming, Proving, and Performance</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../programs-proofs/tail-recursion.html"><strong aria-hidden="true">10.1.</strong> Tail Recursion</a></li><li class="chapter-item expanded "><a href="../programs-proofs/tail-recursion-proofs.html"><strong aria-hidden="true">10.2.</strong> Proving Equivalence</a></li><li class="chapter-item expanded "><a href="../programs-proofs/arrays-termination.html"><strong aria-hidden="true">10.3.</strong> Arrays and Termination</a></li><li class="chapter-item expanded "><a href="../programs-proofs/inequalities.html"><strong aria-hidden="true">10.4.</strong> More Inequalities</a></li><li class="chapter-item expanded "><a href="../programs-proofs/fin.html"><strong aria-hidden="true">10.5.</strong> Safe Array Indices</a></li><li class="chapter-item expanded "><a href="../programs-proofs/insertion-sort.html"><strong aria-hidden="true">10.6.</strong> Insertion Sort and Array Mutation</a></li><li class="chapter-item expanded "><a href="../programs-proofs/special-types.html"><strong aria-hidden="true">10.7.</strong> Special Types</a></li><li class="chapter-item expanded "><a href="../programs-proofs/summary.html"><strong aria-hidden="true">10.8.</strong> Summary</a></li></ol></li><li class="chapter-item expanded "><a href="../next-steps.html">Next Steps</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Functional Programming in Lean</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="実例catworked-example-cat"><a class="header" href="#実例catworked-example-cat">実例：<code>cat</code>（Worked Example: <code>cat</code>）</a></h1>
+<p>標準のUnixユーティリティである <code>cat</code> は、いくつかのコマンドラインオプションと、ゼロ個以上の入力ファイルを受け取ります。
+ファイルが提供されないか、提供されたファイルの1つがダッシュ（<code>-</code>）である場合、対応する入力としてファイルを読み取る代わりに標準入力を受け取ります。
+入力の内容は、一つの入力の後にもう一つの入力が続く形で標準出力に書き込まれます。
+指定された入力ファイルが存在しない場合、これは標準エラーに注意されますが、<code>cat</code> は残りの入力を連結し続けます。
+入力ファイルのいずれかが存在しない場合、ゼロでない終了コードが返されます。</p>
+<p>このセクションでは、<code>cat</code> の簡略版である <code>feline</code> を説明します。
+一般的に使用される <code>cat</code> のように、<code>feline</code> には行に番号をつけたり、非表示文字を示したり、ヘルプテキストを表示するためのコマンドラインオプションはありません。
+さらに、端末デバイスに関連付けられた標準入力から複数回読み取ることはできません。</p>
+<p>このセクションから最大の利益を得るためには、自分で進行しながら進めてください。
+コードの例をコピーアンドペーストしても問題ありませんが、手動でコードを入力したほうがさらに良いでしょう。
+これにより、コードの入力プロセス、エラーからの回復、コンパイラからのフィードバックの解釈が容易になります。</p>
+<h2 id="getting-started"><a class="header" href="#getting-started">Getting started</a></h2>
+<p><code>feline</code> の実装の最初のステップは、パッケージを作成し、コードの組織方法を決定することです。
+この場合、プログラムが非常にシンプルであるため、すべてのコードは <code>Main.lean</code> に配置されます。
+最初のステップは、<code>lake new feline</code> を実行することです。
+Lakefileを編集してライブラリを削除し、生成されたライブラリコードとその参照を <code>Main.lean</code> から削除します。
+これが完了したら、<code>lakefile.lean</code> は次のようになるはずです：</p>
+<pre><code class="language-lean">import Lake
+open Lake DSL
+
+package «feline» {
+  -- add package configuration options here
+}
+
+@[default_target]
+lean_exe «feline» {
+  root := `Main
+}
+</code></pre>
+<p>そして <code>Main.lean</code> は次のような内容になるはずです：</p>
+<pre><code class="language-lean">def main : IO Unit :=
+  IO.println s!&quot;Hello, cats!&quot;
+</code></pre>
+<p>または、<code>lake new feline exe</code> を実行することで、ライブラリセクションを含まないテンプレートを使用するように <code>lake</code> に指示でき、ファイルを編集する必要がなくなります。</p>
+<p>コードをビルドできることを確認するために、次のコマンドを実行してください： <code>lake build</code></p>
+<h2 id="ストリームの連結concatenating-streams"><a class="header" href="#ストリームの連結concatenating-streams">ストリームの連結（Concatenating Streams）</a></h2>
+<p>プログラムの基本的な骨組みができたので、実際にコードを入力する時がきました。
+<code>cat</code> の適切な実装は <code>/dev/random</code> などの無限のIOストリームで使用できます。つまり、出力する前に入力をメモリに読み込むことはできません。
+さらに、1文字ずつ処理するべきではありません。なぜなら、これは非常に遅いパフォーマンスをもたらすからです。
+代わりに、データを連続したブロックとして一度に読み取り、データを標準出力にブロックごとに送る方が良いです。</p>
+<p>最初のステップは、どれだけの大きさのブロックを読むかを決定することです。
+単純さのために、この実装では慎重な20キロバイトのブロックを使用しています。
+<code>USize</code> は C の <code>size_t</code> に似ており、すべての有効な配列サイズを表現できる十分に大きな符号なし整数型です。</p>
+<pre><code class="language-lean">def bufsize : USize := 20 * 1024
+</code></pre>
+<h3 id="ストリームstreams"><a class="header" href="#ストリームstreams">ストリーム（Streams）</a></h3>
+<p><code>feline</code> の主な作業は <code>dump</code> によって行われ、入力を1つのブロックずつ読み込み、その結果を標準出力にダンプし、入力の終わりに達するまで続けます：</p>
+<pre><code class="language-lean">partial def dump (stream : IO.FS.Stream) : IO Unit := do
+  let buf ← stream.read bufsize
+  if buf.isEmpty then
+    pure ()
+  else
+    let stdout ← IO.getStdout
+    stdout.write buf
+    dump stream
+</code></pre>
+<p><code>dump</code> 関数は <code>partial</code> で宣言されています。なぜなら、引数よりも直ちに小さくない入力に対して再帰的に自分自身を呼び出すからです。
+関数が <code>partial</code> と宣言されると、Leanはそれが終了することの証明を必要としません。
+一方、部分関数は正当性の証明には適しておらず、Leanの論理に無限ループを許可することは非常に非合理です。
+ただし、<code>dump</code> が終了することを証明する方法はないため、（<code>/dev/random</code>などの）無限の入力がある場合、実際には終了しないことになります。
+このような場合、関数を <code>partial</code> と宣言する以外の方法はありません。</p>
+<p>型 <code>IO.FS.Stream</code> はPOSIXストリームを表します。
+内部的には、それは各POSIXストリーム操作に対応する1つのフィールドを持つ構造体として表現されます。
+各操作は、対応する操作を提供するIOアクションとして表現されます：</p>
+<pre><code class="language-lean">structure Stream where
+  flush   : IO Unit
+  read    : USize → IO ByteArray
+  write   : ByteArray → IO Unit
+  getLine : IO String
+  putStr  : String → IO Unit
+</code></pre>
+<p>Leanコンパイラには、標準入力、標準出力、標準エラーを表すストリームを取得するための <code>IO</code> アクション（<code>dump</code> で呼び出される <code>IO.getStdout</code> など）が含まれています。
+これらは通常の定義ではなく <code>IO</code> アクションです。なぜなら Lean はこれらの標準のPOSIXストリームをプロセス内で置き換えることを許可しており、これによりプログラムの出力を文字列にキャプチャするなどの作業が簡単になります。</p>
+<p><code>dump</code> 内の制御フローは基本的に <code>while</code> ループです。
+<code>dump</code> が呼び出されると、ストリームがファイルの終わりに達している場合、<code>pure ()</code> は <code>Unit</code> のコンストラクタを返すことで関数を終了させます。
+ストリームがファイルの終わりに達していない場合、1つのブロックが読み取られ、その内容が <code>stdout</code> に書き込まれた後、<code>dump</code> は直接自分自身を呼び出します。
+再帰呼び出しは、<code>stream.read</code> が空のバイト配列を返すまで続き、これはファイルの終わりに達したことを示します。</p>
+<p><code>if</code> 式が <code>do</code> のステートメントとして現れる場合、例えば <code>dump</code> のように、<code>if</code> の各ブランチは暗黙的に <code>do</code> が提供されます。
+つまり、<code>else</code> の後に続く手順は、<code>do</code> の開始があるかのように実行される <code>IO</code> アクションのシーケンスとして扱われます。
+<code>if</code> のブランチ内で <code>let</code> で導入された名前は、それぞれのブランチ内でのみ見え、<code>if</code> の外部のスコープにはありません。</p>
+<p><code>dump</code> を呼び出す際にスタック領域が枯渇する心配はありません。なぜなら、再帰呼び出しは関数内の非常に最後のステップとして行われ、その結果は操作や計算に利用されるのではなく、直接返されるからです。この種の再帰は「テール再帰」と呼ばれ、<a href="../programs-proofs/tail-recursion.html">この本の後の部分</a>で詳しく説明されています。
+コンパイルされたコードは状態を保持する必要がないため、Leanコンパイラは再帰呼び出しをジャンプにコンパイルできます。</p>
+<p>もし <code>feline</code> が標準入力を標準出力にリダイレクトするだけであれば、<code>dump</code> は十分です。
+しかし、コマンドライン引数として提供されたファイルを開いてその内容を出力できる必要もあります。
+引数が存在するファイルの名前の場合、<code>fileStream</code> はそのファイルの内容を読むストリームを返します。
+引数がファイルでない場合、<code>fileStream</code> はエラーを発生させて <code>none</code> を返します。</p>
+<pre><code class="language-lean">def fileStream (filename : System.FilePath) : IO (Option IO.FS.Stream) := do
+  let fileExists ← filename.pathExists
+  if not fileExists then
+    let stderr ← IO.getStderr
+    stderr.putStrLn s!&quot;File not found: {filename}&quot;
+    pure none
+  else
+    let handle ← IO.FS.Handle.mk filename IO.FS.Mode.read
+    pure (some (IO.FS.Stream.ofHandle handle))
+</code></pre>
+<p>ファイルをストリームとして開くには2つのステップが必要です。
+まず、ファイルハンドルが読み込みモードでファイルを開くことによってファイルハンドルが作成されます。
+Leanファイルハンドルは、基になるファイルディスクリプタを追跡します。
+ファイルハンドル値への参照がない場合、ファイルディスクリプタを閉じるファイナライザが実行されます。
+次に、ファイルハンドルに <code>IO.FS.Stream.ofHandle</code> を使用して、<code>Stream</code> 構造の各フィールドに対応するファイルハンドルで動作する <code>IO</code> アクションを提供します。</p>
+<h3 id="入力の処理handling-input"><a class="header" href="#入力の処理handling-input">入力の処理（Handling Input）</a></h3>
+<p><code>feline</code> のメインループは、別のテール再帰関数である <code>process</code> です。
+入力が読み取れない場合に非ゼロの終了コードを返すために、<code>process</code> はプログラム全体の現在の終了コードを表す引数 <code>exitCode</code> を取ります。
+さらに、処理されるべき入力ファイルのリストを受け取ります。</p>
+<pre><code class="language-lean">def process (exitCode : UInt32) (args : List String) : IO UInt32 := do
+  match args with
+  | [] =&gt; pure exitCode
+  | &quot;-&quot; :: args =&gt;
+    let stdin ← IO.getStdin
+    dump stdin
+    process exitCode args
+  | filename :: args =&gt;
+    let stream ← fileStream ⟨filename⟩
+    match stream with
+    | none =&gt;
+      process 1 args
+    | some stream =&gt;
+      dump stream
+      process exitCode args
+</code></pre>
+<p><code>if</code> と同様に、<code>do</code> のステートメントとして使用される <code>match</code> の各ブランチは、それぞれ独自の <code>do</code> が暗黙的に提供されます。</p>
+<p>3つの可能性があります。
+1つは、処理するファイルがもう残っていない場合で、その場合、<code>process</code> はエラーコードを変更せずに返します。
+もう一つは、指定されたファイル名が <code>&quot;-&quot;</code> の場合、<code>process</code> は標準入力の内容をダンプし、その後残りのファイル名を処理します。
+最後の可能性は、実際のファイル名が指定された場合です。
+この場合、ファイルをPOSIXストリームとして開くために <code>fileStream</code> が使用されます。
+その引数は <code>FilePath</code> で囲まれています。なぜなら、<code>FilePath</code> は文字列を含む単一のフィールド構造体であるからです。
+ファイルを開けない場合はスキップされ、<code>process</code> の再帰呼び出しは終了コードを <code>1</code> に設定します。
+開けた場合、ファイルはダンプされ、<code>process</code> の再帰呼び出しは終了コードを変更しません。</p>
+<p><code>process</code> には <code>partial</code> のマークが必要ありません。なぜなら、それは構造的に再帰的であるからです。
+各再帰呼び出しは入力リストの残り部分で提供され、すべてのLeanリストは有限です。
+したがって、<code>process</code> は非終了を導入しません。</p>
+<h3 id="main"><a class="header" href="#main">Main</a></h3>
+<p>最後のステップは <code>main</code> アクションを記述することです。
+以前の例とは異なり、<code>feline</code> の <code>main</code> は関数です。
+Leanでは、<code>main</code> には3つのタイプがあります：</p>
+<ul>
+<li><code>main : IO Unit</code> は、コマンドライン引数を読み込むことができないプログラムに対応し、常に終了コード <code>0</code> で成功を示します。</li>
+<li><code>main : IO UInt32</code> は、引数を取らずに終了コードを返すプログラムに対応し、Cの <code>int main(void)</code> に対応します。</li>
+<li><code>main : List String → IO UInt32</code> は、引数を取り、成功または失敗を示すプログラムに対応し、Cの <code>int main(int argc, char **argv)</code> に対応します。</li>
+</ul>
+<p>引数が提供されない場合、<code>feline</code> は単一の <code>&quot;-&quot;</code> 引数で呼び出されたかのように標準入力から読み込むべきです。
+それ以外の場合、引数は順番に処理されるべきです。</p>
+<pre><code class="language-lean">def main (args : List String) : IO UInt32 :=
+  match args with
+  | [] =&gt; process 0 [&quot;-&quot;]
+  | _ =&gt;  process 0 args
+</code></pre>
+<h2 id="ニャーmeow"><a class="header" href="#ニャーmeow">ニャー！（Meow!）</a></h2>
+<h2 id="ミャオ"><a class="header" href="#ミャオ">ミャオ！</a></h2>
+<p><code>feline</code> が正しく動作するかどうかを確認するために、最初のステップは <code>lake build</code> を使ってビルドすることです。
+まず、引数なしで呼び出された場合、標準入力から受け取った内容を出力するべきです。
+次のコマンドを確認してください：</p>
+<pre><code>echo &quot;It works!&quot; | ./build/bin/feline
+</code></pre>
+<p>が <code>It works!</code> を出力するか確認してください。</p>
+<p>次に、ファイルを引数として呼び出された場合、それらを印刷するべきです。
+ファイル <code>test1.txt</code> に次の内容が含まれている場合：</p>
+<pre><code>It's time to find a warm spot
+</code></pre>
+<p>そして <code>test2.txt</code> に次の内容が含まれている場合：</p>
+<pre><code>and curl up!
+</code></pre>
+<p>次のコマンド：</p>
+<pre><code>./build/bin/feline test1.txt test2.txt
+</code></pre>
+<p>は次の内容を出力するべきです：</p>
+<pre><code>It's time to find a warm spot
+and curl up!
+</code></pre>
+<p>最後に、<code>-</code> 引数は適切に処理されるべきです。</p>
+<pre><code>echo &quot;and purr&quot; | ./build/bin/feline test1.txt - test2.txt
+</code></pre>
+<p>は次の内容を出力すべきです：</p>
+<pre><code>It's time to find a warm spot
+and purr
+and curl up!
+</code></pre>
+<h2 id="演習exercise"><a class="header" href="#演習exercise">演習（Exercise）</a></h2>
+<p><code>feline</code> を使用情報のサポートと拡張してください。
+拡張バージョンは、コマンドライン引数 <code>--help</code> を受け入れ、利用可能なコマンドラインオプションに関するドキュメンテーションを標準出力に書き込むようにする必要があります。</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../hello-world/starting-a-project.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../hello-world/conveniences.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../hello-world/starting-a-project.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../hello-world/conveniences.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

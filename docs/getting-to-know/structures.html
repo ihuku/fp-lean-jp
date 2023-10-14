@@ -1,0 +1,471 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Structures - Functional Programming in Lean</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../custom.css">
+        <link rel="stylesheet" href="../pygments.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../title.html">Functional Programming in Lean</a></li><li class="chapter-item expanded affix "><a href="../introduction.html">Introduction</a></li><li class="chapter-item expanded affix "><a href="../acknowledgments.html">Acknowledgments</a></li><li class="chapter-item expanded "><a href="../getting-to-know.html"><strong aria-hidden="true">1.</strong> Getting to Know Lean</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../getting-to-know/evaluating.html"><strong aria-hidden="true">1.1.</strong> Evaluating Expressions</a></li><li class="chapter-item expanded "><a href="../getting-to-know/types.html"><strong aria-hidden="true">1.2.</strong> Types</a></li><li class="chapter-item expanded "><a href="../getting-to-know/functions-and-definitions.html"><strong aria-hidden="true">1.3.</strong> Functions and Definitions</a></li><li class="chapter-item expanded "><a href="../getting-to-know/structures.html" class="active"><strong aria-hidden="true">1.4.</strong> Structures</a></li><li class="chapter-item expanded "><a href="../getting-to-know/datatypes-and-patterns.html"><strong aria-hidden="true">1.5.</strong> Datatypes, Patterns and Recursion</a></li><li class="chapter-item expanded "><a href="../getting-to-know/polymorphism.html"><strong aria-hidden="true">1.6.</strong> Polymorphism</a></li><li class="chapter-item expanded "><a href="../getting-to-know/conveniences.html"><strong aria-hidden="true">1.7.</strong> Additional Conveniences</a></li><li class="chapter-item expanded "><a href="../getting-to-know/summary.html"><strong aria-hidden="true">1.8.</strong> Summary</a></li></ol></li><li class="chapter-item expanded "><a href="../hello-world.html"><strong aria-hidden="true">2.</strong> Hello, World!</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../hello-world/running-a-program.html"><strong aria-hidden="true">2.1.</strong> Running a Program</a></li><li class="chapter-item expanded "><a href="../hello-world/step-by-step.html"><strong aria-hidden="true">2.2.</strong> Step By Step</a></li><li class="chapter-item expanded "><a href="../hello-world/starting-a-project.html"><strong aria-hidden="true">2.3.</strong> Starting a Project</a></li><li class="chapter-item expanded "><a href="../hello-world/cat.html"><strong aria-hidden="true">2.4.</strong> Worked Example: cat</a></li><li class="chapter-item expanded "><a href="../hello-world/conveniences.html"><strong aria-hidden="true">2.5.</strong> Additional Conveniences</a></li><li class="chapter-item expanded "><a href="../hello-world/summary.html"><strong aria-hidden="true">2.6.</strong> Summary</a></li></ol></li><li class="chapter-item expanded "><a href="../props-proofs-indexing.html"><strong aria-hidden="true">3.</strong> Interlude: Propositions, Proofs, and Indexing</a></li><li class="chapter-item expanded "><a href="../type-classes.html"><strong aria-hidden="true">4.</strong> Overloading and Type Classes</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../type-classes/pos.html"><strong aria-hidden="true">4.1.</strong> Positive Numbers</a></li><li class="chapter-item expanded "><a href="../type-classes/polymorphism.html"><strong aria-hidden="true">4.2.</strong> Type Classes and Polymorphism</a></li><li class="chapter-item expanded "><a href="../type-classes/out-params.html"><strong aria-hidden="true">4.3.</strong> Controlling Instance Search</a></li><li class="chapter-item expanded "><a href="../type-classes/indexing.html"><strong aria-hidden="true">4.4.</strong> Arrays and Indexing</a></li><li class="chapter-item expanded "><a href="../type-classes/standard-classes.html"><strong aria-hidden="true">4.5.</strong> Standard Classes</a></li><li class="chapter-item expanded "><a href="../type-classes/coercion.html"><strong aria-hidden="true">4.6.</strong> Coercions</a></li><li class="chapter-item expanded "><a href="../type-classes/conveniences.html"><strong aria-hidden="true">4.7.</strong> Additional Conveniences</a></li><li class="chapter-item expanded "><a href="../type-classes/summary.html"><strong aria-hidden="true">4.8.</strong> Summary</a></li></ol></li><li class="chapter-item expanded "><a href="../monads.html"><strong aria-hidden="true">5.</strong> Monads</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../monads/class.html"><strong aria-hidden="true">5.1.</strong> The Monad Type Class</a></li><li class="chapter-item expanded "><a href="../monads/arithmetic.html"><strong aria-hidden="true">5.2.</strong> Example: Arithmetic in Monads</a></li><li class="chapter-item expanded "><a href="../monads/do.html"><strong aria-hidden="true">5.3.</strong> do-Notation for Monads</a></li><li class="chapter-item expanded "><a href="../monads/io.html"><strong aria-hidden="true">5.4.</strong> The IO Monad</a></li><li class="chapter-item expanded "><a href="../monads/conveniences.html"><strong aria-hidden="true">5.5.</strong> Additional Conveniences</a></li><li class="chapter-item expanded "><a href="../monads/summary.html"><strong aria-hidden="true">5.6.</strong> Summary</a></li></ol></li><li class="chapter-item expanded "><a href="../functor-applicative-monad.html"><strong aria-hidden="true">6.</strong> Functors, Applicative Functors, and Monads</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../functor-applicative-monad/inheritance.html"><strong aria-hidden="true">6.1.</strong> Structures and Inheritance</a></li><li class="chapter-item expanded "><a href="../functor-applicative-monad/applicative.html"><strong aria-hidden="true">6.2.</strong> Applicative Functors</a></li><li class="chapter-item expanded "><a href="../functor-applicative-monad/applicative-contract.html"><strong aria-hidden="true">6.3.</strong> The Applicative Contract</a></li><li class="chapter-item expanded "><a href="../functor-applicative-monad/alternative.html"><strong aria-hidden="true">6.4.</strong> Alternatives</a></li><li class="chapter-item expanded "><a href="../functor-applicative-monad/universes.html"><strong aria-hidden="true">6.5.</strong> Universes</a></li><li class="chapter-item expanded "><a href="../functor-applicative-monad/complete.html"><strong aria-hidden="true">6.6.</strong> The Complete Definitions</a></li><li class="chapter-item expanded "><a href="../functor-applicative-monad/summary.html"><strong aria-hidden="true">6.7.</strong> Summary</a></li></ol></li><li class="chapter-item expanded "><a href="../monad-transformers.html"><strong aria-hidden="true">7.</strong> Monad Transformers</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../monad-transformers/reader-io.html"><strong aria-hidden="true">7.1.</strong> Combining IO and Reader</a></li><li class="chapter-item expanded "><a href="../monad-transformers/transformers.html"><strong aria-hidden="true">7.2.</strong> A Monad Construction Kit</a></li><li class="chapter-item expanded "><a href="../monad-transformers/order.html"><strong aria-hidden="true">7.3.</strong> Ordering Monad Transformers</a></li><li class="chapter-item expanded "><a href="../monad-transformers/do.html"><strong aria-hidden="true">7.4.</strong> More do Features</a></li><li class="chapter-item expanded "><a href="../monad-transformers/conveniences.html"><strong aria-hidden="true">7.5.</strong> Additional Conveniences</a></li><li class="chapter-item expanded "><a href="../monad-transformers/summary.html"><strong aria-hidden="true">7.6.</strong> Summary</a></li></ol></li><li class="chapter-item expanded "><a href="../dependent-types.html"><strong aria-hidden="true">8.</strong> Programming with Dependent Types</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../dependent-types/indexed-families.html"><strong aria-hidden="true">8.1.</strong> Indexed Families</a></li><li class="chapter-item expanded "><a href="../dependent-types/universe-pattern.html"><strong aria-hidden="true">8.2.</strong> The Universe Design Pattern</a></li><li class="chapter-item expanded "><a href="../dependent-types/typed-queries.html"><strong aria-hidden="true">8.3.</strong> Worked Example: Typed Queries</a></li><li class="chapter-item expanded "><a href="../dependent-types/indices-parameters-universes.html"><strong aria-hidden="true">8.4.</strong> Indices, Parameters, and Universe Levels</a></li><li class="chapter-item expanded "><a href="../dependent-types/pitfalls.html"><strong aria-hidden="true">8.5.</strong> Pitfalls of Programming with Dependent Types</a></li><li class="chapter-item expanded "><a href="../dependent-types/summary.html"><strong aria-hidden="true">8.6.</strong> Summary</a></li></ol></li><li class="chapter-item expanded "><a href="../tactics-induction-proofs.html"><strong aria-hidden="true">9.</strong> Interlude: Tactics, Induction, and Proofs</a></li><li class="chapter-item expanded "><a href="../programs-proofs.html"><strong aria-hidden="true">10.</strong> Programming, Proving, and Performance</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../programs-proofs/tail-recursion.html"><strong aria-hidden="true">10.1.</strong> Tail Recursion</a></li><li class="chapter-item expanded "><a href="../programs-proofs/tail-recursion-proofs.html"><strong aria-hidden="true">10.2.</strong> Proving Equivalence</a></li><li class="chapter-item expanded "><a href="../programs-proofs/arrays-termination.html"><strong aria-hidden="true">10.3.</strong> Arrays and Termination</a></li><li class="chapter-item expanded "><a href="../programs-proofs/inequalities.html"><strong aria-hidden="true">10.4.</strong> More Inequalities</a></li><li class="chapter-item expanded "><a href="../programs-proofs/fin.html"><strong aria-hidden="true">10.5.</strong> Safe Array Indices</a></li><li class="chapter-item expanded "><a href="../programs-proofs/insertion-sort.html"><strong aria-hidden="true">10.6.</strong> Insertion Sort and Array Mutation</a></li><li class="chapter-item expanded "><a href="../programs-proofs/special-types.html"><strong aria-hidden="true">10.7.</strong> Special Types</a></li><li class="chapter-item expanded "><a href="../programs-proofs/summary.html"><strong aria-hidden="true">10.8.</strong> Summary</a></li></ol></li><li class="chapter-item expanded "><a href="../next-steps.html">Next Steps</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Functional Programming in Lean</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="構造体structures"><a class="header" href="#構造体structures">構造体（Structures）</a></h1>
+<p>プログラムを書く際の最初のステップは通常、問題領域の概念を特定し、それらをコード内で適切に表現する方法を見つけることです。時に、ある問題領域の概念は、他のより単純な概念の集合であることがあります。その場合、これらより単純な要素を一つの「パッケージ」としてまとめ、それに意味のある名前を付けることが便利です。Leanでは、これは「構造体 (structures)」を用いて行われ、これはCやRustの<code>struct</code>やC#の<code>record</code>と類似しています。</p>
+<p>構造を定義することは、Leanに完全に新しい型を導入することを意味し、他の型に還元できません。これは、異なる概念を表現する複数の構造が同じデータを含むような場面を考えると、有用なものになります。例えば、点は直交座標または極座標を使用して表現できますが、データとしては、どちらも浮動小数点数のペアとなるでしょう。別々の構造を定義することで、APIクライアントがそれらを混同しないようにするのに役立ちます。</p>
+<p>Leanの浮動小数点数型は<code>Float</code>と呼ばれ、浮動小数点数は通常の表記法で書かれます。</p>
+<pre><code class="language-lean">#check 1.2
+</code></pre>
+<pre><code class="language-output info">1.2 : Float
+</code></pre>
+<pre><code class="language-lean">#check -454.2123215
+</code></pre>
+<pre><code class="language-output info">-454.2123215 : Float
+</code></pre>
+<pre><code class="language-lean">#check 0.0
+</code></pre>
+<pre><code class="language-output info">0.0 : Float
+</code></pre>
+<p>浮動小数点数が小数点を伴って書かれている場合、Leanは型<code>Float</code>を自動的に推論します。小数点を伴わない場合、型の注釈が必要かもしれません。</p>
+<pre><code class="language-lean">#check 0
+</code></pre>
+<pre><code class="language-output info">0 : Nat
+</code></pre>
+<pre><code class="language-lean">#check (0 : Float)
+</code></pre>
+<pre><code class="language-output info">0 : Float
+</code></pre>
+<p>直交座標点は、<code>x</code> と <code>y</code> と呼ばれる2つの「Float」フィールドを持つ構造です。
+これは<code>structure</code>キーワードを使用して宣言されます。</p>
+<pre><code class="language-lean">structure Point where
+  x : Float
+  y : Float
+deriving Repr
+</code></pre>
+<p>この宣言の後、<code>Point</code> は新しい構造型です。
+最後の行は「deriving Repr」と書かれており、Leanに対して型 <code>Point</code> の値を表示するコードを生成するように求めています。
+このコードは、プログラマが評価結果を表示するために使用され、Pythonの「repr」関数に類似しています。
+また、コンパイラが生成した表示コードを上書きすることも可能です。</p>
+<p>構造型の値を作成する一般的な方法は、波括弧内でそのすべてのフィールドに値を提供することです。
+直交座標平面の原点は、<code>x</code> と <code>y</code> が両方ともゼロの場所です。</p>
+<pre><code class="language-lean">def origin : Point := { x := 0.0, y := 0.0 }
+</code></pre>
+<p><code>Point</code>の定義内の<code>deriving Repr</code>行が省略された場合、<code>#eval origin</code> を試みると、関数の引数を省略した場合に発生するのと似たエラーが発生します。</p>
+<pre><code class="language-output error">expression
+  origin
+has type
+  Point
+but instance
+  Lean.MetaEval Point
+failed to be synthesized, this instance instructs Lean on how to display the resulting value, recall that any type implementing the `Repr` class also implements the `Lean.MetaEval` class
+</code></pre>
+<p>そのメッセージは、評価の結果をユーザーに伝える方法が評価機構にわからないことを示しています。</p>
+<p>幸運なことに、「deriving Repr」を使用すると、<code>#eval origin</code> の結果は、<code>origin</code> の定義と非常に似ています。</p>
+<pre><code class="language-output info">{ x := 0.000000, y := 0.000000 }
+</code></pre>
+<p>構造がデータのコレクションを「まとめて」1つの単位として扱うために存在するため、構造体の個々のフィールドを取り出すことも重要です。
+これは、C、Python、またはRustのように、ドット記法を使用して行われます。</p>
+<pre><code class="language-lean">#eval origin.x
+</code></pre>
+<pre><code class="language-output info">0.000000
+</code></pre>
+<pre><code class="language-lean">#eval origin.y
+</code></pre>
+<pre><code class="language-output info">0.000000
+</code></pre>
+<p>これは、構造体を引数として受け取る関数を定義するために使用できます。
+たとえば、点の加算は基になる座標値を足すことで実行されます。
+<code>#eval addPoints { x := 1.5, y := 32 } { x := -8, y := 0.2 }</code> が以下のような結果を示すはずです。</p>
+<pre><code class="language-output info">{ x := -6.500000, y := 32.200000 }
+</code></pre>
+<p>この関数自体は、<code>p1</code> と <code>p2</code> と呼ばれる2つの<code>Points</code>を引数として受け取ります。
+生成される点は、<code>p1</code> と <code>p2</code> の両方の<code>x</code>と<code>y</code>のフィールドに基づいています：</p>
+<pre><code class="language-lean">def addPoints (p1 : Point) (p2 : Point) : Point :=
+  { x := p1.x + p2.x, y := p1.y + p2.y }
+</code></pre>
+<p>同様に、2つの点間の距離、つまり<code>x</code>と<code>y</code>の成分の差の二乗の合計の平方根は、次のように記述できます：</p>
+<pre><code class="language-lean">def distance (p1 : Point) (p2 : Point) : Float :=
+  Float.sqrt (((p2.x - p1.x) ^ 2.0) + ((p2.y - p1.y) ^ 2.0))
+</code></pre>
+<p>たとえば、(1, 2) と (5, -1) の間の距離は5です：</p>
+<pre><code class="language-lean">#eval distance { x := 1.0, y := 2.0 } { x := 5.0, y := -1.0 }
+</code></pre>
+<pre><code class="language-output info">5.000000
+</code></pre>
+<p>複数の構造体は同じ名前のフィールドを持つことがあります。
+たとえば、三次元の点データ型はフィールド<code>x</code>と<code>y</code>を共有し、同じフィールド名でインスタンス化できます：</p>
+<pre><code class="language-lean">structure Point3D where
+  x : Float
+  y : Float
+  z : Float
+deriving Repr
+
+def origin3D : Point3D := { x := 0.0, y := 0.0, z := 0.0 }
+</code></pre>
+<p>これは、波括弧の構文を使用するために、構造の予想される型を知っている必要があることを意味します。型が不明な場合、Leanは構造をインスタンス化できません。
+例えば、</p>
+<pre><code class="language-lean">#check { x := 0.0, y := 0.0 }
+</code></pre>
+<p>これはエラーを引き起こします</p>
+<pre><code class="language-output error">invalid {...} notation, expected type is not known
+</code></pre>
+<p>通常通り、型注釈を提供することでこの状況を改善できます。</p>
+<pre><code class="language-lean">#check ({ x := 0.0, y := 0.0 } : Point)
+</code></pre>
+<pre><code class="language-output info">{ x := 0.0, y := 0.0 } : Point
+</code></pre>
+<p>プログラムをより簡潔にするために、Leanは波括弧内で構造体の型注釈を許可します。</p>
+<pre><code class="language-lean">#check { x := 0.0, y := 0.0 : Point}
+</code></pre>
+<pre><code class="language-output info">{ x := 0.0, y := 0.0 } : Point
+</code></pre>
+<h2 id="構造体の更新updating-structures"><a class="header" href="#構造体の更新updating-structures">構造体の更新（Updating Structures）</a></h2>
+<p><code>Point</code> の <code>x</code> フィールドを <code>0.0</code> で置き換える関数 <code>zeroX</code> を想像してみてください。
+ほとんどのプログラミング言語コミュニティでは、この文は <code>x</code> が指すメモリ位置が新しい値で上書きされることを意味するでしょう。
+しかし、Lean には可変状態がありません。
+関数型プログラミングコミュニティでは、ほとんどの場合、この種の文によって意味されるのは、新しい <code>x</code> フィールドを持つ新しい <code>Point</code> が割り当てられ、他のすべてのフィールドは入力からの元の値を指すことです。
+<code>zeroX</code> を書く方法の一つは、この説明を文字通りに実行し、新しい <code>x</code> の値を埋めて <code>y</code> を手動で転送することです：</p>
+<pre><code class="language-lean">def zeroX (p : Point) : Point :=
+  { x := 0, y := p.y }
+</code></pre>
+<p>しかし、このプログラミングスタイルには欠点があります。
+まず第一に、構造に新しいフィールドが追加されると、すべてのフィールドを更新するすべての場所を更新する必要があり、保守の難しさが生じます。
+第二に、構造に同じ型の複数のフィールドが含まれている場合、コピーアンドペーストのコーディングによってフィールドの内容が重複したり入れ替わったりするリスクがあります。
+最後に、プログラムは長くて煩雑になります。</p>
+<p>Lean は、構造体内の一部のフィールドを置き換えながら他のフィールドをそのままにするための便利な構文を提供しています。
+これは、構造体の初期化で <code>with</code> キーワードを使用して行われます。
+変更されていないフィールドの情報は <code>with</code> の前に来て、新しいフィールドはその後に続きます。
+たとえば、<code>zeroX</code> は新しい <code>x</code> 値のみで書くことができます：</p>
+<pre><code class="language-lean">def zeroX (p : Point) : Point :=
+  { p with x := 0 }
+</code></pre>
+<p>この構造体の更新構文は既存の値を変更するのではなく、古い値と一部のフィールドを共有する新しい値を作成することを覚えておいてください。
+例えば、点 <code>fourAndThree</code> が与えられた場合：</p>
+<pre><code class="language-lean">def fourAndThree : Point :=
+  { x := 4.3, y := 3.4 }
+</code></pre>
+<p>それを評価し、次に <code>zeroX</code> を使用して更新し、再度評価すると元の値が返されます：</p>
+<pre><code class="language-lean">#eval fourAndThree
+</code></pre>
+<pre><code class="language-output info">{ x := 4.300000, y := 3.400000 }
+</code></pre>
+<pre><code class="language-lean">#eval zeroX fourAndThree
+</code></pre>
+<pre><code class="language-output info">{ x := 0.000000, y := 3.400000 }
+</code></pre>
+<pre><code class="language-lean">#eval fourAndThree
+</code></pre>
+<pre><code class="language-output info">{ x := 4.300000, y := 3.400000 }
+</code></pre>
+<p>構造体の更新が元の構造を変更しないという事実の結果の一つは、新しい値が古い値から計算される場合の理由付けが容易になることです。
+新しい値が提供される場合でも、古い構造へのすべての参照は同じフィールドの値を参照し続けます。</p>
+<h2 id="構造体の裏側behind-the-scenes"><a class="header" href="#構造体の裏側behind-the-scenes">構造体の裏側（Behind the Scenes）</a></h2>
+<p>すべての構造体には「コンストラクタ (constructor)」があります。
+ここでの用語「コンストラクタ」は混乱の原因となるかもしれません。
+JavaやPythonなどの言語のコンストラクタとは異なり、Leanのコンストラクタはデータ型の初期化時に実行される任意のコードではありません。
+代わりに、コンストラクタは単に新たに割り当てられたデータ構造に格納されるデータを収集するものです。
+カスタムコンストラクタを提供してデータを前処理するか無効な引数を拒否することはできません。
+これは、言葉「コンストラクタ」が2つの文脈で異なるが関連する意味を持つケースです。</p>
+<p>デフォルトで、構造体<code>S</code>のコンストラクタの名前は<code>S.mk</code>となります。
+ここで、<code>S</code>は名前空間修飾子であり、<code>mk</code>はコンストラクタ自体の名前です。
+波括弧の初期化構文を使用する代わりに、コンストラクタは直接適用することもできます。</p>
+<pre><code class="language-lean">#check Point.mk 1.5 2.8
+</code></pre>
+<p>ただし、これは一般的には良いLeanのスタイルとは考えられておらず、Leanは標準の構造体の初期化構文を使用してフィードバックを返します。</p>
+<pre><code class="language-output info">{ x := 1.5, y := 2.8 } : Point
+</code></pre>
+<p>コンストラクタは関数型を持っており、これは関数が期待される場所でどこでも使用できることを意味します。
+例えば、<code>Point.mk</code> は2つの「Float」（それぞれ <code>x</code> と <code>y</code>）を受け入れ、新しい「Point」を返す関数です。</p>
+<pre><code class="language-lean">#check (Point.mk)
+</code></pre>
+<pre><code class="language-output info">Point.mk : Float → Float → Point
+</code></pre>
+<p>構造体のコンストラクタ名を上書きするには、名前の冒頭にコロンを2つ付けて書きます。
+例えば、<code>Point.mk</code> の代わりに <code>Point.point</code> を使用するには、次のように記述します：</p>
+<pre><code class="language-lean">structure Point where
+  point ::
+  x : Float
+  y : Float
+deriving Repr
+</code></pre>
+<p>コンストラクタのほかに、構造体の各フィールドに対してアクセッサ関数が定義されます。
+これらは構造体の名前空間内でフィールドと同じ名前を持っています。
+<code>Point</code>の場合、アクセッサ関数として<code>Point.x</code>と<code>Point.y</code>が生成されます。</p>
+<pre><code class="language-lean">#check (Point.x)
+</code></pre>
+<pre><code class="language-output info">Point.x : Point → Float
+</code></pre>
+<pre><code class="language-lean">#check (Point.y)
+</code></pre>
+<pre><code class="language-output info">Point.y : Point → Float
+</code></pre>
+<p>実際、波括弧で囲んだ構造の構築構文が裏で構造体のコンストラクタの呼び出しに変換されるのと同様に、前述の「addPoints」の定義内の「p1.x」という構文は「Point.x」アクセッサの呼び出しに変換されます。
+つまり、<code>#eval origin.x</code> と <code>#eval Point.x origin</code> はどちらも次の結果を示します：</p>
+<pre><code class="language-output info">0.000000
+</code></pre>
+<p>アクセッサのドット表記は、構造体のフィールドだけでなく、任意の数の引数を取る関数にも使用できます。
+より一般的に、アクセッサ表記は <code>TARGET.f ARG1 ARG2 ...</code> の形を持ちます。
+<code>TARGET</code> の型が <code>T</code> である場合、<code>T.f</code> という名前の関数が呼び出されます。
+<code>TARGET</code> は、通常は最初の引数ですが、必ずしも最初の引数ではない場合があり、<code>ARG1 ARG2 ...</code> は残りの引数として順番に提供されます。
+例えば、<code>String.append</code> はアクセッサ表記から文字列から呼び出すことができます。<code>String</code> は <code>append</code> フィールドを持つ構造体ではないにもかかわらずです。</p>
+<pre><code class="language-lean">#eval &quot;one string&quot;.append &quot; and another&quot;
+</code></pre>
+<pre><code class="language-output info">&quot;one string and another&quot;
+</code></pre>
+<p>この例では、<code>TARGET</code> は <code>&quot;one string&quot;</code> を表し、<code>ARG1</code> は <code>&quot; and another&quot;</code> を表します。</p>
+<p>関数 <code>Point.modifyBoth</code>（つまり、<code>Point</code>名前空間で定義された<code>modifyBoth</code>）は、<code>Point</code> の両方のフィールドに関数を適用します：</p>
+<pre><code class="language-lean">def Point.modifyBoth (f : Float → Float) (p : Point) : Point :=
+  { x := f p.x, y := f p.y }
+</code></pre>
+<p>関数の引数が後に続くにもかかわらず、アクセッサ表記を使用しても構いません：</p>
+<pre><code class="language-lean">#eval fourAndThree.modifyBoth Float.floor
+</code></pre>
+<pre><code class="language-output info">{ x := 4.000000, y := 3.000000 }
+</code></pre>
+<p>この場合、<code>TARGET</code> は <code>fourAndThree</code> を表し、<code>ARG1</code> は <code>Float.floor</code> を表します。
+これは、アクセッサ表記の対象は、型が一致する最初の引数として使用されるためであり、必ずしも最初の引数ではないことに注意してください。</p>
+<h2 id="演習exercises"><a class="header" href="#演習exercises">演習（Exercises）</a></h2>
+<ul>
+<li>
+<p><code>RectangularPrism</code> という名前の構造体を定義してください。この構造体は直方体の高さ、幅、奥行きをそれぞれ <code>Float</code> 型で含む必要があります。</p>
+</li>
+<li>
+<p><code>volume : RectangularPrism → Float</code> という名前の関数を定義してください。この関数は直方体の体積を計算する必要があります。</p>
+</li>
+<li>
+<p><code>Segment</code> という名前の構造体を定義してください。この構造体は線分をその端点で表現する必要があり、<code>length : Segment → Float</code> という名前の関数を定義してください。この関数は線分の長さを計算する必要があります。また、<code>Segment</code> は最大で2つのフィールドを持つべきです。</p>
+</li>
+<li>
+<p><code>RectangularPrism</code> の宣言によって導入される名前は何でしょうか？</p>
+</li>
+<li>
+<p><code>Hamster</code> と <code>Book</code> の後続の宣言によって導入される名前は何でしょうか？また、それらの型は何でしょうか？</p>
+</li>
+</ul>
+<pre><code class="language-lean">structure Hamster where
+  name : String
+  fluffy : Bool
+</code></pre>
+<pre><code class="language-lean">structure Book where
+  makeBook ::
+  title : String
+  author : String
+  price : Float
+</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../getting-to-know/functions-and-definitions.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../getting-to-know/datatypes-and-patterns.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../getting-to-know/functions-and-definitions.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../getting-to-know/datatypes-and-patterns.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>
