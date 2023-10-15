@@ -180,6 +180,31 @@
 <p><em>by David Thrane Christiansen</em></p>
 <p><em>Copyright Microsoft Corporation 2023</em></p>
 <p>This is a free book on using Lean 4 as a programming language. All code samples are tested with Lean 4 release <code>4.1.0</code>.</p>
+<h2 id="日本語版について"><a class="header" href="#日本語版について">日本語版について</a></h2>
+<p>非公式日本語訳です。以下の章は一通り翻訳済みです。</p>
+<ul>
+<li>
+<p>Getting to Know Lean</p>
+<ul>
+<li>Structures</li>
+<li>Datatypes and Patterns</li>
+</ul>
+</li>
+<li>
+<p>Hello, World!</p>
+<ul>
+<li>Running a Program</li>
+<li>Step By Step</li>
+<li>Starting a Project</li>
+<li>Worked Example: cat</li>
+<li>Additional Conveniences</li>
+<li>Summary</li>
+</ul>
+</li>
+<li>
+<p>Interlude: Propositions, Proofs, and Indexing）</p>
+</li>
+</ul>
 <h2 id="release-history"><a class="header" href="#release-history">Release history</a></h2>
 <h3 id="october-2023"><a class="header" href="#october-2023">October, 2023</a></h3>
 <p>In this first maintenance release, a number of smaller issues were fixed and the text was brought up to date with the latest release of Lean.</p>
@@ -2764,18 +2789,18 @@ Leanは脱出口を提供します。その定義が<code>partial</code>とマ�
 型がLean言語の一等の要素であるため、関数は型を返すことができます。
 部分関数は型チェック中に評価されないため、関数内の無限ループは型チェッカーが無限ループに入る可能性があるためです。
 さらに、数学的な証拠は部分関数の定義を調べることができないため、これらを使用するプログラムは形式的な証明には適していないことがあります。</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="interlude-propositions-proofs-and-indexing"><a class="header" href="#interlude-propositions-proofs-and-indexing">Interlude: Propositions, Proofs, and Indexing</a></h1>
-<p>Like many languages, Lean uses square brackets for indexing into arrays and lists.
-For instance, if <code>woodlandCritters</code> is defined as follows:</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="間奏-命題証明およびインデックスinterlude-propositions-proofs-and-indexing"><a class="header" href="#間奏-命題証明およびインデックスinterlude-propositions-proofs-and-indexing">間奏: 命題、証明、およびインデックス（Interlude: Propositions, Proofs, and Indexing）</a></h1>
+<p>Leanは多くの言語と同様に、配列やリストへのインデックスに角かっこを使用します。
+例えば、<code>woodlandCritters</code>が以下のように定義されている場合：</p>
 <pre><code class="language-lean">def woodlandCritters : List String :=
   [&quot;hedgehog&quot;, &quot;deer&quot;, &quot;snail&quot;]
 </code></pre>
-<p>then the individual components can be extracted:</p>
+<p>個々のコンポーネントは以下のように抽出できます：</p>
 <pre><code class="language-lean">def hedgehog := woodlandCritters[0]
 def deer := woodlandCritters[1]
 def snail := woodlandCritters[2]
 </code></pre>
-<p>However, attempting to extract the fourth element results in a compile-time error, rather than a run-time error:</p>
+<p>しかし、4番目の要素を抽出しようとすると、実行時のエラーではなく、コンパイル時のエラーが発生します：</p>
 <pre><code class="language-lean">def oops := woodlandCritters[3]
 </code></pre>
 <pre><code class="language-output error">failed to prove index is valid, possible solutions:
@@ -2785,47 +2810,47 @@ def snail := woodlandCritters[2]
   - Use `a[i]'h` notation instead, where `h` is a proof that index is valid
 ⊢ 3 &lt; List.length woodlandCritters
 </code></pre>
-<p>This error message is saying Lean tried to automatically mathematically prove that <code>3 &lt; List.length woodlandCritters</code>, which would mean that the lookup was safe, but that it could not do so.
-Out-of-bounds errors are a common class of bugs, and Lean uses its dual nature as a programming language and a theorem prover to rule out as many as possible.</p>
-<p>Understanding how this works requires an understanding of three key ideas: propositions, proofs, and tactics.</p>
-<h2 id="propositions-and-proofs"><a class="header" href="#propositions-and-proofs">Propositions and Proofs</a></h2>
-<p>A <em>proposition</em> is a statement that can be true or false.
-All of the following are propositions:</p>
+<p>このエラーメッセージは、Leanが自動的に <code>3 &lt; List.length woodlandCritters</code> を数学的に証明しようと試みたことを示しており、これは参照が安全であることを意味しますが、それができなかったことを示しています。
+範囲外のエラーは一般的なバグの一種であり、Leanはプログラム言語と定理証明器としての二重の性質を活かして、できる限りこれを排除しようとします。</p>
+<p>これがどのように機能するかを理解するには、「命題」、「証明」、および「戦術」という、3つの重要な概念を理解する必要があります。</p>
+<h2 id="命題と証明propositions-and-proofs"><a class="header" href="#命題と証明propositions-and-proofs">命題と証明（Propositions and Proofs）</a></h2>
+<p>命題（proposition）は真または偽であると言える文です。
+以下はすべて命題です：</p>
 <ul>
 <li>1 + 1 = 2</li>
-<li>Addition is commutative</li>
-<li>There are infinitely many prime numbers</li>
+<li>足し算は可換である</li>
+<li>無限に多くの素数が存在する</li>
 <li>1 + 1 = 15</li>
-<li>Paris is the capital of France</li>
-<li>Buenos Aires is the capital of South Korea</li>
-<li>All birds can fly</li>
+<li>パリはフランスの首都である</li>
+<li>ブエノスアイレスは韓国の首都である</li>
+<li>すべての鳥は飛べる</li>
 </ul>
-<p>On the other hand, nonsense statements are not propositions.
-None of the following are propositions:</p>
+<p>一方、無意味な文は命題ではありません。
+以下はすべて命題ではありません：</p>
 <ul>
 <li>1 + green = ice cream</li>
-<li>All capital cities are prime numbers</li>
-<li>At least one gorg is a fleep</li>
+<li>すべての首都は素数である</li>
+<li>少なくとも1つのゴーグはフリープである</li>
 </ul>
-<p>Propositions come in two varieties: those that are purely mathematical, relying only on our definitions of concepts, and those that are facts about the world.
-Theorem provers like Lean are concerned with the former category, and have nothing to say about the flight capabilities of penguins or the legal status of cities.</p>
-<p>A <em>proof</em> is a convincing argument that a proposition is true.
-For mathematical propositions, these arguments make use of the definitions of the concepts that are involved as well as the rules of logical argumentation.
-Most proofs are written for people to understand, and leave out many tedious details.
-Computer-aided theorem provers like Lean are designed to allow mathematicians to write proofs while omitting many details, and it is the software's responsibility to fill in the missing explicit steps.
-This decreases the likelihood of oversights or mistakes.</p>
-<p>In Lean, a program's type describes the ways it can be interacted with.
-For instance, a program of type <code>Nat → List String</code> is a function that takes a <code>Nat</code> argument and produces a list of strings.
-In other words, each type specifies what counts as a program with that type.</p>
-<p>In Lean, propositions are in fact types.
-They specify what counts as evidence that the statement is true.
-The proposition is proved by providing this evidence.
-On the other hand, if the proposition is false, then it will be impossible to construct this evidence.</p>
-<p>For example, the proposition &quot;1 + 1 = 2&quot; can be written directly in Lean.
-The evidence for this proposition is the constructor <code>rfl</code>, which is short for <em>reflexivity</em>:</p>
+<p>命題は2つの種類に分かれます：数学的に完全に定義された概念に依存するものと、世界に関する事実に関するものです。
+Leanのような定理証明器は前者のカテゴリに関心を寄せており、ペンギンの飛行能力や都市の法的地位については何も言うことがありません。</p>
+<p><em>証明（proof）</em> は命題が真であるという説得力のある議論です。
+数学的な命題の場合、これらの議論は関連する概念の定義と論理的論証のルールを使用します。
+ほとんどの証明は他の人が理解できるように書かれ、多くの煩わしい詳細は省略されます。
+Leanのようなコンピュータ支援定理証明器は、数学者が多くの詳細を省略しながら証明を書くことを可能にするように設計されており、欠落している明示的なステップをソフトウェアが補完する責任があります。
+これにより、見落としやミスの発生率が低下します。</p>
+<p>Leanでは、プログラムの型がそれと対話できる方法を記述します。
+たとえば、型が <code>Nat → List String</code> のプログラムは、<code>Nat</code> 引数を受け取り、文字列のリストを生成する関数です。
+言い換えれば、各型はその型のプログラムとして何を考慮するかを指定します。</p>
+<p>Leanでは、実際の命題は実際には型です。
+それらは文が真であるという証拠として何が考慮されるかを指定します。
+命題はこの証拠を提供することによって証明されます。
+一方、命題が偽である場合、この証拠を構築することは不可能です。</p>
+<p>例えば、命題 &quot;1 + 1 = 2&quot; はLeanで直接書くことができます。
+この命題の証拠は、<em>反射性（reflexivity）</em> の略であるコンストラクタ <code>rfl</code> です：</p>
 <pre><code class="language-lean">def onePlusOneIsTwo : 1 + 1 = 2 := rfl
 </code></pre>
-<p>On the other hand, <code>rfl</code> does not prove the false proposition &quot;1 + 1 = 15&quot;:</p>
+<p>一方、<code>rfl</code> は偽の命題 &quot;1 + 1 = 15&quot; を証明しません：</p>
 <pre><code class="language-lean">def onePlusOneIsFifteen : 1 + 1 = 15 := rfl
 </code></pre>
 <pre><code class="language-output error">type mismatch
@@ -2835,92 +2860,90 @@ has type
 but is expected to have type
   1 + 1 = 15 : Prop
 </code></pre>
-<p>This error message indicates that <code>rfl</code> can prove that two expressions are equal when both sides of the equality statement are already the same number.
-Because <code>1 + 1</code> evaluates directly to <code>2</code>, they are considered to be the same, which allows <code>onePlusOneIsTwo</code> to be accepted.
-Just as <code>Type</code> describes types such as <code>Nat</code>, <code>String</code>, and <code>List (Nat × String × (Int → Float))</code> that represent data structures and functions, <code>Prop</code> describes propositions.</p>
-<p>When a proposition has been proven, it is called a <em>theorem</em>.
-In Lean, it is conventional to declare theorems with the <code>theorem</code> keyword instead of <code>def</code>.
-This helps readers see which declarations are intended to be read as mathematical proofs, and which are definitions.
-Generally speaking, with a proof, what matters is that there is evidence that a proposition is true, but it's not particularly important <em>which</em> evidence was provided.
-With definitions, on the other hand, it matters very much which particular value is selected—after all, a definition of addition that always returns <code>0</code> is clearly wrong.</p>
-<p>The prior example could be rewritten as follows:</p>
+<p>このエラーメッセージは、<code>rfl</code> が等式文の両側がすでに同じ数値であるときに2つの式が等しいことを証明できることを示しており、<code>1 + 1</code> が直接 <code>2</code> に評価されるため、それらは同じと考えられるため、<code>onePlusOneIsTwo</code> が受け入れられるとされています。
+<code>Type</code> がデータ構造と関数を表す型（<code>Nat</code>、<code>String</code>、<code>List (Nat × String × (Int → Float))</code>など）を説明するのと同様に、<code>Prop</code> は命題を説明します。</p>
+<p>命題が証明されたとき、それを <em>定理（theorem）</em> と呼びます。
+Leanでは、定義の代わりに <code>def</code> の代わりに <code>theorem</code> キーワードを使用するのが通例です。
+これにより、読者はどの宣言が数学的な証明として読むことを意図しているか、または定義であるかを見分けるのに役立ちます。
+一般的に、証明において重要なのは命題が真である証拠があることであり、提供された具体的な証拠はそれほど重要ではありませんが、一方、定義においては、選択される特定の値が非常に重要です。結局、常に <code>0</code> を返す足し算の定義は明らかに誤っています。</p>
+<p>前の例は以下のように書き直すことができます：</p>
 <pre><code class="language-lean">def OnePlusOneIsTwo : Prop := 1 + 1 = 2
 
 theorem onePlusOneIsTwo : OnePlusOneIsTwo := rfl
 </code></pre>
 <h2 id="tactics"><a class="header" href="#tactics">Tactics</a></h2>
-<p>Proofs are normally written using <em>tactics</em>, rather than by providing evidence directly.
-Tactics are small programs that construct evidence for a proposition.
-These programs run in a <em>proof state</em> that tracks the statement that is to be proved (called the <em>goal</em>) along with the assumptions that are available to prove it.
-Running a tactic on a goal results in a new proof state that contains new goals.
-The proof is complete when all goals have been proven.</p>
-<p>To write a proof with tactics, begin the definition with <code>by</code>.
-Writing <code>by</code> puts Lean into tactic mode until the end of the next indented block.
-While in tactic mode, Lean provides ongoing feedback about the current proof state.
-Written with tactics, <code>onePlusOneIsTwo</code> is still quite short:</p>
+<p>通常、証明は証拠を直接提供するのではなく、<em>戦術（tactics）</em> を使用して書かれます。
+戦術は命題の証拠を構築する小さなプログラムです。
+これらのプログラムは、証明されるべき文（<em>ゴール（goal）</em> と呼ばれる）とそれを証明するために使用できる仮定を追跡する <em>証明状態（proof state）</em> で実行されます。
+ゴールに対して戦術を実行すると、新しい証明状態が生成され、新しいゴールが含まれます。
+全てのゴールが証明されると、証明が完了します。</p>
+<p>戦術を使用して証明を書く場合、定義を <code>by</code> で始めます。
+<code>by</code> を書くことで、Leanは次のインデントされたブロックの終わりまで戦術モードに入ります。
+戦術モードでは、Leanは現在の証明状態に関する進行中のフィードバックを提供します。
+戦術を使用して書かれた場合、<code>onePlusOneIsTwo</code> はまだ非常に短くなります：</p>
 <pre><code class="language-leantac">theorem onePlusOneIsTwo : 1 + 1 = 2 := by
   simp
 </code></pre>
-<p>The <code>simp</code> tactic, short for &quot;simplify&quot;, is the workhorse of Lean proofs.
-It rewrites the goal to as simple a form as possible, taking care of parts of the proof that are small enough.
-In particular, it proves simple equality statements.
-Behind the scenes, a detailed formal proof is constructed, but using <code>simp</code> hides this complexity.</p>
-<p>Tactics are useful for a number of reasons:</p>
+<p><code>simp</code> 戦術（&quot;simplify&quot;、「簡略化」の略）は、Leanの証明の中核です。
+これはゴールをできるだけ簡単な形に書き換え、証明の一部を処理します。
+特に、単純な等式文を証明します。
+裏では詳細な形式的証明が構築されていますが、<code>simp</code>はこの複雑さを隠します。</p>
+<p>戦術はいくつかの理由で役立ちます：</p>
 <ol>
-<li>Many proofs are complicated and tedious when written out down to the smallest detail, and tactics can automate these uninteresting parts.</li>
-<li>Proofs written with tactics are easier to maintain over time, because flexible automation can paper over small changes to definitions.</li>
-<li>Because a single tactic can prove many different theorems, Lean can use tactics behind the scenes to free users from writing proofs by hand. For instance, an array lookup requires a proof that the index is in bounds, and a tactic can typically construct that proof without the user needing to worry about it.</li>
+<li>多くの証明は最も細かい詳細まで書き出すと複雑で面倒であり、戦術はこれらの面白みのない部分を自動化できます。</li>
+<li>戦術を使用して書かれた証明は、時間の経過とともに簡単に保守できるため、柔軟な自動化が定義のわずかな変更を補完できます。</li>
+<li>単一の戦術で多くの異なる定理を証明できるため、Leanはユーザーが手動で証明を書く必要がないように裏で戦術を使用できます。たとえば、配列の検索にはインデックスが境界内にあることを証明する必要があり、通常、ユーザーが心配する必要はありません。</li>
 </ol>
-<p>Behind the scenes, indexing notation uses a tactic to prove that the user's lookup operation is safe.
-This tactic is <code>simp</code>, configured to take certain arithmetic identities into account.</p>
-<h2 id="connectives"><a class="header" href="#connectives">Connectives</a></h2>
-<p>The basic building blocks of logic, such as &quot;and&quot;, &quot;or&quot;, &quot;true&quot;, &quot;false&quot;, and &quot;not&quot;, are called <em>logical connectives</em>.
-Each connective defines what counts as evidence of its truth.
-For example, to prove a statement &quot;<em>A</em> and <em>B</em>&quot;, one must prove both <em>A</em> and <em>B</em>.
-This means that evidence for &quot;<em>A</em> and <em>B</em>&quot; is a pair that contains both evidence for <em>A</em> and evidence for <em>B</em>.
-Similarly, evidence for &quot;<em>A</em> or <em>B</em>&quot; consists of either evidence for <em>A</em> or evidence for <em>B</em>.</p>
-<p>In particular, most of these connectives are defined like datatypes, and they have constructors.
-If <code>A</code> and <code>B</code> are propositions, then &quot;<code>A</code> and <code>B</code>&quot; (written <code>A ∧ B</code>) is a proposition.
-Evidence for <code>A ∧ B</code> consists of the constructor <code>And.intro</code>, which has the type <code>A → B → A ∧ B</code>.
-Replacing <code>A</code> and <code>B</code> with concrete propositions, it is possible to prove <code>1 + 1 = 2 ∧ &quot;Str&quot;.append &quot;ing&quot; = &quot;String&quot;</code> with <code>And.intro rfl rfl</code>.
-Of course, <code>simp</code> is also powerful enough to find this proof:</p>
+<p>裏では、インデックス記法はユーザーの検索操作が安全であることを証明するために戦術を使用します。
+この戦術は、特定の算術的同一性を考慮に入れるように設定された <code>simp</code>戦術です。</p>
+<h2 id="接続詞connectives"><a class="header" href="#接続詞connectives">接続詞（Connectives）</a></h2>
+<p>論理の基本的な構成要素、例えば「かつ」、「または」、「真」、「偽」、および「否定」は <em>論理的な接続詞</em> と呼ばれます。
+各接続詞はその真実性の証拠として何を考慮するかを定義します。
+例えば、文 &quot;<em>A</em> かつ <em>B</em>&quot; を証明するには、<em>A</em> と <em>B</em> の両方を証明する必要があります。
+これは &quot;<em>A</em> かつ <em>B</em>&quot; の証拠が <em>A</em> の証拠と <em>B</em> の証拠の両方を含むペアであることを意味します。
+同様に、&quot;<em>A</em> または <em>B</em>&quot; の証拠は <em>A</em> の証拠または <em>B</em> の証拠から成り立っています。</p>
+<p>特に、これらの接続詞のほとんどはデータ型のように定義され、それぞれのコンストラクタを持っています。
+もし、<code>A</code> と <code>B</code> が命題であるなら、&quot;<code>A</code> かつ <code>B</code>&quot;（<code>A ∧ B</code> と書かれる）は命題です。
+<code>A ∧ B</code> の証拠はコンストラクタ <code>And.intro</code> から成り立ち、その型は <code>A → B → A ∧ B</code> です。
+具体的な命題で <code>A</code> と <code>B</code> を置き換えることで、<code>1 + 1 = 2 ∧ &quot;Str&quot;.append &quot;ing&quot; = &quot;String&quot;</code> を <code>And.intro rfl rfl</code> で証明することができます。
+もちろん、<code>simp</code> もこの証明を見つけるのに十分な力を持っています：</p>
 <pre><code class="language-leantac">theorem addAndAppend : 1 + 1 = 2 ∧ &quot;Str&quot;.append &quot;ing&quot; = &quot;String&quot; := by simp
 </code></pre>
-<p>Similarly, &quot;<code>A</code> or <code>B</code>&quot; (written <code>A ∨ B</code>) has two constructors, because a proof of &quot;<code>A</code> or <code>B</code>&quot; requires only that one of the two underlying propositions be true.
-There are two constructors: <code>Or.inl</code>, with type <code>A → A ∨ B</code>, and <code>Or.inr</code>, with type <code>B → A ∨ B</code>.</p>
-<p>Implication (if <em>A</em> then <em>B</em>) is represented using functions.
-In particular, a function that transforms evidence for <em>A</em> into evidence for <em>B</em> is itself evidence that <em>A</em> implies <em>B</em>.
-This is different from the usual description of implication, in which <code>A → B</code> is shorthand for <code>¬A ∨ B</code>, but the two formulations are equivalent.</p>
-<p>Because evidence for an &quot;and&quot; is a constructor, it can be used with pattern matching.
-For instance, a proof that <em>A</em> and <em>B</em> implies <em>A</em> or <em>B</em> is a function that pulls the evidence of <em>A</em> (or of <em>B</em>) out of the evidence for <em>A</em> and <em>B</em>, and then uses this evidence to produce evidence of <em>A</em> or <em>B</em>:</p>
+<p>同様に、&quot;<code>A</code> または <code>B</code>&quot;（<code>A ∨ B</code> と書かれる）は、その下にある命題のうち少なくとも1つが真であることを証明するために、2つのコンストラクタを持っています。
+2つのコンストラクタがあります：<code>Or.inl</code>（型は <code>A → A ∨ B</code>）と <code>Or.inr</code>（型は <code>B → A ∨ B</code>）です。</p>
+<p>含意（もし <em>A</em> ならば <em>B</em>）は関数を使用して表されます。
+具体的には、<em>A</em> の証拠を <em>B</em> の証拠に変換する関数は、それ自体が <em>A</em> が <em>B</em> を含意する証拠であると言えます。
+これは通常の含意の説明と異なり、ここでは <code>A → B</code> が <code>¬A ∨ B</code> の略記であるのではなく、2つの定式が同等であるということです。</p>
+<p>「かつ」の証拠はコンストラクタであるため、パターンマッチングと一緒に使用できます。
+例えば、<em>A</em> かつ <em>B</em> が <em>A</em> または <em>B</em> を意味することを証明するには、<em>A</em> と <em>B</em> の証拠から <em>A</em> または <em>B</em> の証拠を取り出し、それを使用して <em>A</em> または <em>B</em> の証拠を生成する関数が必要です：</p>
 <pre><code class="language-lean">theorem andImpliesOr : A ∧ B → A ∨ B :=
   fun andEvidence =&gt;
     match andEvidence with
     | And.intro a b =&gt; Or.inl a
 </code></pre>
-<div class="table-wrapper"><table><thead><tr><th>Connective</th><th>Lean Syntax</th><th>Evidence</th></tr></thead><tbody>
-<tr><td>True</td><td><code>True</code></td><td><code>True.intro : True</code></td></tr>
-<tr><td>False</td><td><code>False</code></td><td>No evidence</td></tr>
-<tr><td><em>A</em> and <em>B</em></td><td><code>A ∧ B</code></td><td><code>And.intro : A → B → A ∧ B</code></td></tr>
-<tr><td><em>A</em> or <em>B</em></td><td><code>A ∨ B</code></td><td>Either <code>Or.inl : A → A ∨ B</code> or <code>Or.inr : B → A ∨ B</code></td></tr>
-<tr><td><em>A</em> implies <em>B</em></td><td><code>A → B</code></td><td>A function that transforms evidence of <em>A</em> into evidence of <em>B</em></td></tr>
-<tr><td>not <em>A</em></td><td><code>¬A</code></td><td>A function that would transform evidence of <em>A</em> into evidence of <code>False</code></td></tr>
+<div class="table-wrapper"><table><thead><tr><th>接続詞</th><th>Leanの構文</th><th>証拠</th></tr></thead><tbody>
+<tr><td>真（True）</td><td><code>True</code></td><td><code>True.intro : True</code></td></tr>
+<tr><td>偽（False）</td><td><code>False</code></td><td>証拠なし</td></tr>
+<tr><td><em>A</em> かつ <em>B</em></td><td><code>A ∧ B</code></td><td><code>And.intro : A → B → A ∧ B</code></td></tr>
+<tr><td><em>A</em> または <em>B</em></td><td><code>A ∨ B</code></td><td><code>Or.inl : A → A ∨ B</code> または <code>Or.inr : B → A ∨ B</code></td></tr>
+<tr><td><em>A</em> ならば <em>B</em></td><td><code>A → B</code></td><td><em>A</em> の証拠を <em>B</em> の証拠に変換する関数</td></tr>
+<tr><td>否定（not <em>A</em>）</td><td><code>¬A</code></td><td><em>A</em> の証拠を <code>False</code> の証拠に変換する関数</td></tr>
 </tbody></table>
 </div>
-<p>The <code>simp</code> tactic can prove theorems that use these connectives.
-For example:</p>
+<p><code>simp</code> 戦術はこれらの接続詞を使用する定理を証明することができます。
+例えば以下のような形です：</p>
 <pre><code class="language-leantac">theorem onePlusOneAndLessThan : 1 + 1 = 2 ∨ 3 &lt; 5 := by simp
 theorem notTwoEqualFive : ¬(1 + 1 = 5) := by simp
 theorem trueIsTrue : True := True.intro
 theorem trueOrFalse : True ∨ False := by simp
 theorem falseImpliesTrue : False → True := by simp
 </code></pre>
-<h2 id="evidence-as-arguments"><a class="header" href="#evidence-as-arguments">Evidence as Arguments</a></h2>
-<p>While <code>simp</code> does a great job proving propositions that involve equalities and inequalities of specific numbers, it is not very good at proving statements that involve variables.
-For instance, <code>simp</code> can prove that <code>4 &lt; 15</code>, but it can't easily tell that because <code>x &lt; 4</code>, it's also true that <code>x &lt; 15</code>.
-Because index notation uses <code>simp</code> behind the scenes to prove that array access is safe, it can require a bit of hand-holding.</p>
-<p>One of the easiest ways to make indexing notation work well is to have the function that performs a lookup into a data structure take the required evidence of safety as an argument.
-For instance, a function that returns the third entry in a list is not generally safe because lists might contain zero, one, or two entries:</p>
+<h2 id="引数としての証拠evidence-as-arguments"><a class="header" href="#引数としての証拠evidence-as-arguments">引数としての証拠（Evidence as Arguments）</a></h2>
+<p><code>simp</code> は特定の数値の等式と不等式を含む命題を証明するのに優れていますが、変数を含む文を証明するのは得意ではありません。
+たとえば、<code>simp</code> は <code>4 &lt; 15</code> を証明できますが、<code>x &lt; 4</code> だからといって <code>x &lt; 15</code> が真であることを容易に判別できません。
+インデックス表記は、配列アクセスが安全であることを証明するために裏で <code>simp</code> を使用するため、少し手間がかかることがあります。</p>
+<p>インデックス表記をうまく機能させる最も簡単な方法の1つは、データ構造に対するルックアップを実行する関数が安全性の証拠を必要とする引数として受け取ることです。
+たとえば、リスト内の3番目のエントリを返す関数は一般的には安全ではありません、なぜならリストにはゼロ、一つ、または二つのエントリが含まれているかもしれないからです：</p>
 <pre><code class="language-lean">def third (xs : List α) : α := xs[2]
 </code></pre>
 <pre><code class="language-output error">failed to prove index is valid, possible solutions:
@@ -2932,21 +2955,21 @@ For instance, a function that returns the third entry in a list is not generally
 xs : List α
 ⊢ 2 &lt; List.length xs
 </code></pre>
-<p>However, the obligation to show that the list has at least three entries can be imposed on the caller by adding an argument that consists of evidence that the indexing operation is safe:</p>
+<p>しかし、リストが少なくとも3つのエントリを持つことを示す義務は、インデックス操作が安全である証拠から成る引数を追加することで呼び出し元に課せることができます：</p>
 <pre><code class="language-lean">def third (xs : List α) (ok : xs.length &gt; 2) : α := xs[2]
 </code></pre>
-<p>In this example, <code>xs.length &gt; 2</code> is not a program that checks <em>whether</em> <code>xs</code> has more than 2 entries.
-It is a proposition that could be true or false, and the argument <code>ok</code> must be evidence that it is true.</p>
-<p>When the function is called on a concrete list, its length is known.
-In these cases, <code>by simp</code> can construct the evidence automatically:</p>
+<p>この例では、<code>xs.length &gt; 2</code> は <code>xs</code> が2つ以上のエントリを持っているかどうかをチェックする <em>プログラム</em> ではありません。
+それは真または偽であるかもしれない命題であり、引数 <code>ok</code> はそれが真である証拠である必要があります。</p>
+<p>関数が具体的なリストで呼び出されると、その長さは既知です。
+これらの場合、<code>by simp</code> は証拠を自動的に構築できます：</p>
 <pre><code class="language-leantac">#eval third woodlandCritters (by simp)
 </code></pre>
 <pre><code class="language-output info">&quot;snail&quot;
 </code></pre>
-<h2 id="indexing-without-evidence"><a class="header" href="#indexing-without-evidence">Indexing Without Evidence</a></h2>
-<p>In cases where it's not practical to prove that an indexing operation is in bounds, there are other alternatives.
-Adding a question mark results in an <code>Option</code>, where the result is <code>some</code> if the index is in bounds, and <code>none</code> otherwise.
-For example:</p>
+<h2 id="証拠なしでのインデックスindexing-without-evidence"><a class="header" href="#証拠なしでのインデックスindexing-without-evidence">証拠なしでのインデックス（Indexing Without Evidence）</a></h2>
+<p>インデックス操作が境界内であることを証明するのが実用的でない場合、他の代替手段があります。
+疑問符を追加することで、結果がインデックスが境界内の場合に <code>some</code> になり、それ以外の場合に <code>none</code> になる <code>Option</code> が生成されます。
+たとえば：</p>
 <pre><code class="language-lean">def thirdOption (xs : List α) : Option α := xs[2]?
 
 #eval thirdOption woodlandCritters
@@ -2957,29 +2980,29 @@ For example:</p>
 </code></pre>
 <pre><code class="language-output info">none
 </code></pre>
-<p>There is also a version that crashes the program when the index is out of bounds, rather than returning an <code>Option</code>:</p>
+<p>また、インデックスが境界外の場合に <code>Option</code> を返す代わりに、プログラムをクラッシュさせるバージョンもあります：</p>
 <pre><code class="language-lean">#eval woodlandCritters[1]!
 </code></pre>
 <pre><code class="language-output info">&quot;deer&quot;
 </code></pre>
-<p>Be careful!
-Because code that is run with <code>#eval</code> runs in the context of the Lean compiler, selecting the wrong index can crash your IDE.</p>
-<h2 id="messages-you-may-meet-3"><a class="header" href="#messages-you-may-meet-3">Messages You May Meet</a></h2>
-<p>In addition to the error that occurs when Lean is unable to find compile-time evidence that an indexing operation is safe, polymorphic functions that use unsafe indexing may produce the following message:</p>
+<p>ご注意ください！
+<code>#eval</code> で実行されるコードはLeanコンパイラのコンテキストで実行されるため、誤ったインデックスを選択するとIDEがクラッシュする可能性があります。</p>
+<h2 id="遭遇するかもしれないメッセージmessages-you-may-meet"><a class="header" href="#遭遇するかもしれないメッセージmessages-you-may-meet">遭遇するかもしれないメッセージ（Messages You May Meet）</a></h2>
+<p>インデックス操作が安全であることのコンパイル時の証拠を見つけることができない場合に発生するエラーに加えて、危険なインデックスを使用する多相関数は以下のメッセージを生成する可能性があります：</p>
 <pre><code class="language-lean">def unsafeThird (xs : List α) : α := xs[2]!
 </code></pre>
 <pre><code class="language-output error">failed to synthesize instance
   Inhabited α
 </code></pre>
-<p>This is due to a technical restriction that is part of keeping Lean usable as both a logic for proving theorems and a programming language.
-In particular, only programs whose types contain at least one value are allowed to crash.
-This is because a proposition in Lean is a kind of type that classifies evidence of its truth.
-False propositions have no such evidence.
-If a program with an empty type could crash, then that crashing program could be used as a kind of fake evidence for a false proposition.</p>
-<p>Internally, Lean contains a table of types that are known to have at least one value.
-This error is saying that some arbitrary type <code>α</code> is not necessarily in that table.
-The next chapter describes how to add to this table, and how to successfully write functions like <code>unsafeThird</code>.</p>
-<p>Adding whitespace between a list and the brackets used for lookup can cause another message:</p>
+<p>これは、Leanを定理の証明のための論理として使用することとプログラミング言語として使用することの両方ができるように保つ一部の技術的制限に起因しています。
+特に、少なくとも1つの値を含む型を持つプログラムだけがクラッシュすることを許可されています。
+これは、Leanの命題はその真実性の証拠を分類する種類の型であるためです。
+偽の命題にはそのような証拠はありません。
+空の型を持つプログラムがクラッシュできる場合、そのクラッシングプログラムは偽の命題の種類の偽の証拠として使用できる可能性があります。</p>
+<p>内部的に、Leanは少なくとも1つの値を持つとして知られている型のテーブルを持っています。
+このエラーは、ある任意の型 <code>α</code> がそのテーブルに必ずしも含まれていないことを示しています。
+次の章では、このテーブルに追加する方法や、<code>unsafeThird</code> のような関数を正常に書く方法について説明されています。</p>
+<p>リストとルックアップに使用される角括弧の間にスペースを追加すると、別のメッセージを発生させることがあります：</p>
 <pre><code class="language-lean">#eval woodlandCritters [1]
 </code></pre>
 <pre><code class="language-output error">function expected at
@@ -2987,13 +3010,27 @@ The next chapter describes how to add to this table, and how to successfully wri
 term has type
   List String
 </code></pre>
-<p>Adding a space causes Lean to treat the expression as a function application, and the index as a list that contains a single number.
-This error message results from having Lean attempt to treat <code>woodlandCritters</code> as a function.</p>
-<h2 id="exercises-3"><a class="header" href="#exercises-3">Exercises</a></h2>
+<p>スペースを追加することにより、Leanは式を関数適用として扱い、インデックスを単一の数値を含むリストとして扱おうとします。
+このエラーメッセージは、Leanが <code>woodlandCritters</code> を関数として扱おこうと試みることによって発生します。</p>
+<h2 id="演習exercises-1"><a class="header" href="#演習exercises-1">演習（Exercises）</a></h2>
 <ul>
-<li>Prove the following theorems using <code>rfl</code>: <code>2 + 3 = 5</code>, <code>15 - 8 = 7</code>, <code>&quot;Hello, &quot;.append &quot;world&quot; = &quot;Hello, world&quot;</code>. What happens if <code>rfl</code> is used to prove <code>5 &lt; 18</code>? Why?</li>
-<li>Prove the following theorems using <code>by simp</code>: <code>2 + 3 = 5</code>, <code>15 - 8 = 7</code>, <code>&quot;Hello, &quot;.append &quot;world&quot; = &quot;Hello, world&quot;</code>, <code>5 &lt; 18</code>.</li>
-<li>Write a function that looks up the fifth entry in a list. Pass the evidence that this lookup is safe as an argument to the function.</li>
+<li><code>rfl</code> を使用して以下の定理を証明してください。
+<ul>
+<li><code>2 + 3 = 5</code></li>
+<li><code>15 - 8 = 7</code></li>
+<li><code>&quot;Hello, &quot;.append &quot;world&quot; = &quot;Hello, world&quot;</code></li>
+<li><code>5 &lt; 18</code>（<code>rfl</code> を使用してこれ証明しようとするとどうなるでしょうか？ また、何故このようなことが起こるのでしょうか？）</li>
+</ul>
+</li>
+<li><code>by simp</code> を使用して以下の定理を証明してください。
+<ul>
+<li><code>2 + 3 = 5</code></li>
+<li><code>15 - 8 = 7</code></li>
+<li><code>&quot;Hello, &quot;.append &quot;world&quot; = &quot;Hello, world&quot;</code></li>
+<li><code>5 &lt; 18</code></li>
+</ul>
+</li>
+<li>リスト内の5番目のエントリを検索する関数を書いてください。この検索が安全であることの証拠を関数への引数として渡してください。</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="overloading-and-type-classes"><a class="header" href="#overloading-and-type-classes">Overloading and Type Classes</a></h1>
 <p>In many languages, the built-in datatypes get special treatment.
@@ -3253,7 +3290,7 @@ def zero : Pos := 0
 <pre><code class="language-output error">failed to synthesize instance
   OfNat Pos 0
 </code></pre>
-<h2 id="exercises-4"><a class="header" href="#exercises-4">Exercises</a></h2>
+<h2 id="exercises-3"><a class="header" href="#exercises-3">Exercises</a></h2>
 <h3 id="another-representation"><a class="header" href="#another-representation">Another Representation</a></h3>
 <p>An alternative way to represent a positive number is as the successor of some <code>Nat</code>.
 Replace the definition of <code>Pos</code> with a structure whose constructor is named <code>succ</code> that contains a <code>Nat</code>:</p>
@@ -3366,7 +3403,7 @@ This type can then be used to search for the <code>Add</code> instance.</p>
 This means that Lean would have no information to use when attempting to figure out the implicit argument <code>n</code>.
 The result would be a very inconvenient API.
 Thus, in these cases, Lean uses an explicit argument for the class's method.</p>
-<h2 id="exercises-5"><a class="header" href="#exercises-5">Exercises</a></h2>
+<h2 id="exercises-4"><a class="header" href="#exercises-4">Exercises</a></h2>
 <h3 id="even-number-literals"><a class="header" href="#even-number-literals">Even Number Literals</a></h3>
 <p>Write an instance of <code>OfNat</code> for the even number datatype from the <a href="type-classes/pos.html#even-numbers">previous section's exercises</a> that uses recursive instance search.
 For the base instance, it is necessary to write <code>OfNat Even Nat.zero</code> instead of <code>OfNat Even 0</code>.</p>
@@ -3507,7 +3544,7 @@ The infix operator is replaced with a call to the heterogeneous version, and the
 This is because the <code>OfNat</code> instance for <code>Nat</code> is a default instance.</p>
 <p>Default instances can also be assigned <em>priorities</em> that affect which will be chosen in situations where more than one might apply.
 For more information on default instance priorities, please consult the Lean manual.</p>
-<h2 id="exercises-6"><a class="header" href="#exercises-6">Exercises</a></h2>
+<h2 id="exercises-5"><a class="header" href="#exercises-5">Exercises</a></h2>
 <p>Define an instance of <code>HMul (PPoint α) α (PPoint α)</code> that multiplies both projections by the scalar.
 It should work for any type <code>α</code> for which there is a <code>Mul α</code> instance.
 For example,</p>
@@ -3942,7 +3979,7 @@ Specifically, <code>Functor</code> instances should follow two rules:</p>
 The second rule says that <code>map (fun y =&gt; f (g y)) x</code> equals <code>map f (map g x)</code>.
 The composition <code>fun y =&gt; f (g y)</code> can also be written <code>f ∘ g</code>.
 These rules prevent implementations of <code>map</code> that move the data around or delete some of it.</p>
-<h2 id="messages-you-may-meet-4"><a class="header" href="#messages-you-may-meet-4">Messages You May Meet</a></h2>
+<h2 id="messages-you-may-meet-3"><a class="header" href="#messages-you-may-meet-3">Messages You May Meet</a></h2>
 <p>Lean is not able to derive instances for all classes.
 For example, the code</p>
 <pre><code class="language-lean">deriving instance ToString for NonEmptyList
@@ -3953,7 +3990,7 @@ For example, the code</p>
 <p>Invoking <code>deriving instance</code> causes Lean to consult an internal table of code generators for type class instances.
 If the code generator is found, then it is invoked on the provided type to create the instance.
 This message, however, means that no code generator was found for <code>ToString</code>.</p>
-<h2 id="exercises-7"><a class="header" href="#exercises-7">Exercises</a></h2>
+<h2 id="exercises-6"><a class="header" href="#exercises-6">Exercises</a></h2>
 <ul>
 <li>Write an instance of <code>HAppend (List α) (NonEmptyList α) (NonEmptyList α)</code> and test it.</li>
 <li>Implement a <code>Functor</code> instance for the binary tree datatype.</li>
@@ -4279,7 +4316,7 @@ In an application that just needs to produce JSON strings and doesn't need to ma
 </code></pre>
 <pre><code class="language-output info">&quot;{\\&quot;title\\&quot;: \\&quot;Functional Programming in Lean\\&quot;, \\&quot;status\\&quot;: 200, \\&quot;record\\&quot;: \\&quot;Programming is fun!\\&quot;}&quot;
 </code></pre>
-<h2 id="messages-you-may-meet-5"><a class="header" href="#messages-you-may-meet-5">Messages You May Meet</a></h2>
+<h2 id="messages-you-may-meet-4"><a class="header" href="#messages-you-may-meet-4">Messages You May Meet</a></h2>
 <p>Natural number literals are overloaded with the <code>OfNat</code> type class.
 Because coercions fire in cases where types don't match, rather than in cases of missing instances, a missing <code>OfNat</code> instance for a type does not cause a coercion from <code>Nat</code> to be applied:</p>
 <pre><code class="language-lean">def perhapsPerhapsPerhapsNat : Option (Option (Option Nat)) :=
@@ -5058,7 +5095,7 @@ Finally, <code>bind</code> should be associative, so <code>bind (bind v f) g</co
 <p>This contract specifies the expected properties of programs with effects more generally.
 Because <code>pure</code> has no effects, sequencing its effects with <code>bind</code> shouldn't change the result.
 The associative property of <code>bind</code> basically says that the sequencing bookkeeping itself doesn't matter, so long as the order in which things are happening is preserved.</p>
-<h2 id="exercises-8"><a class="header" href="#exercises-8">Exercises</a></h2>
+<h2 id="exercises-7"><a class="header" href="#exercises-7">Exercises</a></h2>
 <h3 id="mapping-on-a-tree"><a class="header" href="#mapping-on-a-tree">Mapping on a Tree</a></h3>
 <p>Define a function <code>BinTree.mapM</code>.
 By analogy to <code>mapM</code> for lists, this function should apply a monadic function to each data entry in a tree, as a preorder traversal.
@@ -5617,7 +5654,7 @@ Luckily, <code>exampleEnv</code> is available:</p>
 The dynamic or special variables found in Common Lisp, Clojure, and Emacs Lisp can be used like <code>Reader</code>.
 Similarly, Scheme and Racket's parameter objects are an effect that exactly correspond to <code>Reader</code>.
 The Kotlin idiom of context objects can solve a similar problem, but they are fundamentally a means of passing function arguments automatically, so this idiom is more like the encoding as a reader monad than it is an effect in the language.</p>
-<h2 id="exercises-9"><a class="header" href="#exercises-9">Exercises</a></h2>
+<h2 id="exercises-8"><a class="header" href="#exercises-8">Exercises</a></h2>
 <h3 id="checking-contracts"><a class="header" href="#checking-contracts">Checking Contracts</a></h3>
 <p>Check the monad contract for <code>State σ</code> and <code>Except ε</code>.</p>
 <h3 id="readers-with-failure"><a class="header" href="#readers-with-failure">Readers with Failure</a></h3>
@@ -5786,7 +5823,7 @@ def number (t : BinTree α) : BinTree (Nat × α) :=
       pure (BinTree.branch (← helper left) ((← increment), x) (← helper right))
   (helper t 0).snd
 </code></pre>
-<h2 id="exercises-10"><a class="header" href="#exercises-10">Exercises</a></h2>
+<h2 id="exercises-9"><a class="header" href="#exercises-9">Exercises</a></h2>
 <ul>
 <li>Rewrite <code>evaluateM</code>, its helpers, and the different specific use cases using <code>do</code>-notation instead of explicit calls to <code>&gt;&gt;=</code>.</li>
 <li>Rewrite <code>firstThirdFifthSeventh</code> using nested actions.</li>
@@ -7124,7 +7161,7 @@ def evenDivisors (n : Nat) : Many Nat := do
 </code></pre>
 <pre><code class="language-output info">[20, 10, 4, 2]
 </code></pre>
-<h2 id="exercises-11"><a class="header" href="#exercises-11">Exercises</a></h2>
+<h2 id="exercises-10"><a class="header" href="#exercises-10">Exercises</a></h2>
 <h3 id="improve-validation-friendliness"><a class="header" href="#improve-validation-friendliness">Improve Validation Friendliness</a></h3>
 <p>The errors returned from <code>Validate</code> programs that use <code>&lt;|&gt;</code> can be difficult to read, because inclusion in the list of errors simply means that the error can be reached through <em>some</em> code path.
 A more structured error report can be used to guide the user through the process more accurately:</p>
@@ -7468,7 +7505,7 @@ From the perspective of effects, the side effects of <code>a</code> occur, but t
 <p>Tracing the collection of inherited methods and default methods from the entire hierarchy shows that a <code>Monad</code> instance requires only implementations of <code>bind</code> and <code>pure</code>.
 In other words, <code>Monad</code> instances automatically yield implementations of <code>seq</code>, <code>seqLeft</code>, <code>seqRight</code>, <code>map</code>, and <code>mapConst</code>.
 From the perspective of API boundaries, any type with a <code>Monad</code> instance gets instances for <code>Bind</code>, <code>Pure</code>, <code>Seq</code>, <code>Functor</code>, <code>SeqLeft</code>, and <code>SeqRight</code>.</p>
-<h2 id="exercises-12"><a class="header" href="#exercises-12">Exercises</a></h2>
+<h2 id="exercises-11"><a class="header" href="#exercises-11">Exercises</a></h2>
 <ol>
 <li>Understand the default implementations of <code>map</code>, <code>seq</code>, <code>seqLeft</code>, and <code>seqRight</code> in <code>Monad</code> by working through examples such as <code>Option</code> and <code>Except</code>. In other words, substitute their definitions for <code>bind</code> and <code>pure</code> into the default definitions, and simplify them to recover the versions <code>map</code>, <code>seq</code>, <code>seqLeft</code>, and <code>seqRight</code> that would be written by hand.</li>
 <li>On paper or in a text file, prove to yourself that the default implementations of <code>map</code> and <code>seq</code> satisfy the contracts for <code>Functor</code> and <code>Applicative</code>. In this argument, you're allowed to use the rules from the <code>Monad</code> contract as well as ordinary expression evaluation.</li>
@@ -7850,7 +7887,7 @@ Instead, they can be confident in their initial understanding.
 Next, adding further effects to the monad (such as a state effect to count the files in each directory and display a count at the end) requires far fewer changes to the code, because the monad transformers and <code>MonadLift</code> instances provided in the library work well together.
 Finally, using a set of type classes included in the standard library, polymorphic code can be written in such a way that it can work with a variety of monads without having to care about details like the order in which the monad transformers were applied.
 Just as some functions work in any monad, others can work in any monad that provides a certain type of state, or a certain type of exceptions, without having to specifically describe the <em>way</em> in which a particular concrete monad provides the state or exceptions.</p>
-<h2 id="exercises-13"><a class="header" href="#exercises-13">Exercises</a></h2>
+<h2 id="exercises-12"><a class="header" href="#exercises-12">Exercises</a></h2>
 <h3 id="controlling-the-display-of-dotfiles"><a class="header" href="#controlling-the-display-of-dotfiles">Controlling the Display of Dotfiles</a></h3>
 <p>Files whose names begin with a dot character (<code>'.'</code>) typically represent files that should usually be hidden, such as source-control metadata and configuration files.
 Modify <code>doug</code> with an option to show or hide filenames that begin with a dot.
@@ -8274,7 +8311,7 @@ It's generally a good idea to implement the <code>Of</code> version, and then st
 <p>The identity monad <code>Id</code> is the monad that has no effects whatsoever, to be used in contexts that expect a monad for some reason but where none is actually necessary.
 Another use of <code>Id</code> is to serve as the bottom of a stack of monad transformers.
 For instance, <code>StateT σ Id</code> works just like <code>State σ</code>.</p>
-<h2 id="exercises-14"><a class="header" href="#exercises-14">Exercises</a></h2>
+<h2 id="exercises-13"><a class="header" href="#exercises-13">Exercises</a></h2>
 <h3 id="monad-contract"><a class="header" href="#monad-contract">Monad Contract</a></h3>
 <p>Using pencil and paper, check that the rules of the monad transformer contract are satisfied for each monad transformer in this section.</p>
 <h3 id="logging-transformer"><a class="header" href="#logging-transformer">Logging Transformer</a></h3>
@@ -8388,7 +8425,7 @@ In those languages, state that <em>should</em> be rolled back when an exception 
 Monad transformers grant the freedom to choose an interpretation of effect ordering that works for the problem at hand, with both choices being equally easy to program with.
 However, they also require care to be taken in the choice of ordering of transformers.
 With great expressive power comes the responsibility to check that what's being expressed is what is intended, and the type signature of <code>countWithFallback</code> is probably more polymorphic than it should be.</p>
-<h2 id="exercises-15"><a class="header" href="#exercises-15">Exercises</a></h2>
+<h2 id="exercises-14"><a class="header" href="#exercises-14">Exercises</a></h2>
 <ul>
 <li>Check that <code>ReaderT</code> and <code>StateT</code> commute by expanding their definitions and reasoning about the resulting types.</li>
 <li>Do <code>ReaderT</code> and <code>ExceptT</code> commute? Check your answer by expanding their definitions and reasoning about the resulting types.</li>
@@ -9263,7 +9300,7 @@ example : Id Unit := do
 This resemblance is very convenient when translating an imperative algorithm into Lean, and some tasks are just most naturally thought of imperatively.
 The introduction of monads and monad transformers enables imperative programs to be written in purely functional languages, and <code>do</code>-notation as a specialized syntax for monads (potentially locally transformed) allows functional programmers to have the best of both worlds: the strong reasoning principles afforded by immutability and a tight control over available effects through the type system are combined with syntax and libraries that allow programs that use effects to look familiar and be easy to read.
 Monads and monad transformers allow functional versus imperative programming to be a matter of perspective.</p>
-<h2 id="exercises-16"><a class="header" href="#exercises-16">Exercises</a></h2>
+<h2 id="exercises-15"><a class="header" href="#exercises-15">Exercises</a></h2>
 <ul>
 <li>Rewrite <code>doug</code> to use <code>for</code> instead of the <code>doList</code> function. Are there other opportunities to use the features introduced in this section to improve the code? If so, use them!</li>
 </ul>
@@ -9621,7 +9658,7 @@ but is expected to have type
   | 0, .nil, .nil =&gt; .nil
   | k + 1, .cons x xs, .cons y ys =&gt; .cons (x, y) (zip k xs ys)
 </code></pre>
-<h2 id="exercises-17"><a class="header" href="#exercises-17">Exercises</a></h2>
+<h2 id="exercises-16"><a class="header" href="#exercises-16">Exercises</a></h2>
 <p>Getting a feel for programming with dependent types requires experience, and the exercises in this section are very important.
 For each exercise, try to see which mistakes the type checker can catch, and which ones it can't, by experimenting with the code as you go.
 This is also a good way to develop a feel for the error messages.</p>
@@ -9929,7 +9966,7 @@ which is
 \[ 2^{2^4} \]
 or 65536.
 Nested exponentials grow quickly, and there are many higher-order functions.</p>
-<h2 id="exercises-18"><a class="header" href="#exercises-18">Exercises</a></h2>
+<h2 id="exercises-17"><a class="header" href="#exercises-17">Exercises</a></h2>
 <ul>
 <li>Write a function that converts any value from a type coded for by <code>Finite</code> into a string. Functions should be represented as their tables.</li>
 <li>Add the empty type <code>Empty</code> to <code>Finite</code> and <code>Finite.beq</code>.</li>
@@ -10538,7 +10575,7 @@ waterfalls : Query waterfall := table waterfallDiary
 <p>Lean's macro system contains everything needed not only to provide a convenient syntax for queries, but also to arrange for the error messages to be helpful.
 Unfortunately, it is beyond the scope of this book to provide a description of implementing languages with Lean macros.
 An indexed family such as <code>Query</code> is probably best as the core of a typed database interaction library, rather than its user interface.</p>
-<h2 id="exercises-19"><a class="header" href="#exercises-19">Exercises</a></h2>
+<h2 id="exercises-18"><a class="header" href="#exercises-18">Exercises</a></h2>
 <h3 id="dates"><a class="header" href="#dates">Dates</a></h3>
 <p>Define a structure to represent dates. Add it to the <code>DBType</code> universe and update the rest of the code accordingly. Provide the extra <code>DBExpr</code> constructors that seem to be necessary.</p>
 <h3 id="nullable-types"><a class="header" href="#nullable-types">Nullable Types</a></h3>
@@ -11065,7 +11102,7 @@ More generally, new propositions in Lean are often defined as inductive types of
 The process of proving theorems is in fact constructing expressions with these types behind the scenes, in a process not unlike the proofs in this section.
 Also, indexed datatypes are sometimes exactly the right tool for the job.
 Fluency in their use is an important part of knowing when to use them.</p>
-<h2 id="exercises-20"><a class="header" href="#exercises-20">Exercises</a></h2>
+<h2 id="exercises-19"><a class="header" href="#exercises-19">Exercises</a></h2>
 <ul>
 <li>Using a recursive function in the style of <code>plusR_succ_left</code>, prove that for all <code>Nat</code>s <code>n</code> and <code>k</code>, <code>n.plusR k = n + k</code>.</li>
 <li>Write a function on <code>Vect</code> for which <code>plusR</code> is more natural than <code>plusL</code>, where <code>plusL</code> would require proofs to be used in the definition.</li>
@@ -11482,7 +11519,7 @@ In other words, the proof could also be written:</p>
 <pre><code class="language-leantac">theorem BinTree.mirror_count (t : BinTree α) : t.mirror.count = t.count := by
   induction t &lt;;&gt; simp_arith [BinTree.mirror, BinTree.count, *]
 </code></pre>
-<h2 id="exercises-21"><a class="header" href="#exercises-21">Exercises</a></h2>
+<h2 id="exercises-20"><a class="header" href="#exercises-20">Exercises</a></h2>
 <ul>
 <li>Prove <code>plusR_succ_left</code> using the <code>induction ... with</code> tactic.</li>
 <li>Rewrite the proof of <code>plus_succ_left</code> to use <code>&lt;;&gt;</code> in a single line.</li>
@@ -11676,7 +11713,7 @@ This difficulty is similar to the difficulty of rewriting a recursive function t
 However, as in <code>BinTree.mirror</code>, multiple recursive calls often indicate a data structure that has a constructor with multiple recursive occurrences of itself.
 In these cases, the depth of the structure is often logarithmic with respect to its overall size, which makes the tradeoff between stack and heap less stark.
 There are systematic techniques for making these functions tail-recursive, such as using <em>continuation-passing style</em>, but they are outside the scope of this chapter.</p>
-<h2 id="exercises-22"><a class="header" href="#exercises-22">Exercises</a></h2>
+<h2 id="exercises-21"><a class="header" href="#exercises-21">Exercises</a></h2>
 <p>Translate each of the following non-tail-recursive functions into accumulator-passing tail-recursive functions:</p>
 <pre><code class="language-lean">def NonTail.length : List α → Nat
   | [] =&gt; 0
@@ -12385,7 +12422,7 @@ termination_by findHelper arr p i =&gt; arr.size - i
 <p>Not all termination arguments are as quite as simple as this one.
 However, the basic structure of identifying some expression based on the function's arguments that will decrease in each call occurs in all termination proofs.
 Sometimes, creativity can be required in order to figure out just why a function terminates, and sometimes Lean requires additional proofs in order to accept the termination argument.</p>
-<h2 id="exercises-23"><a class="header" href="#exercises-23">Exercises</a></h2>
+<h2 id="exercises-22"><a class="header" href="#exercises-22">Exercises</a></h2>
 <ul>
 <li>Implement a <code>ForM (Array α)</code> instance on arrays using a tail-recursive accumulator-passing function and a <code>termination_by</code> clause.</li>
 <li>Implement a function to reverse arrays using a tail-recursive accumulator-passing function that <em>doesn't</em> need a <code>termination_by</code> clause.</li>
@@ -13062,7 +13099,7 @@ This, <code>n = Nat.succ n'</code>, and <code>Nat.succ n'</code> is clearly grea
     1 + div (n - k) k ok
 termination_by div n k ok =&gt; n
 </code></pre>
-<h2 id="exercises-24"><a class="header" href="#exercises-24">Exercises</a></h2>
+<h2 id="exercises-23"><a class="header" href="#exercises-23">Exercises</a></h2>
 <p>Prove the following theorems:</p>
 <ul>
 <li>For all natural numbers \( n \), \( 0 &lt; n + 1 \).</li>
@@ -13928,7 +13965,7 @@ When running <code>sort --shared</code>, the array is copied as needed to preser
 Lean also attempts to &quot;recycle&quot; constructors whose reference counts are about to fall to zero, reusing them instead of allocating new data.
 This means, for instance, that <code>List.map</code> will mutate a linked list in place, at least in cases when nobody could possibly notice.
 One of the most important steps in optimizing hot loops in Lean code is making sure that the data being modified is not referred to from multiple locations.</p>
-<h2 id="exercises-25"><a class="header" href="#exercises-25">Exercises</a></h2>
+<h2 id="exercises-24"><a class="header" href="#exercises-24">Exercises</a></h2>
 <ul>
 <li>
 <p>Write a function that reverses arrays. Test that if the input array has a reference count of one, then your function does not allocate a new array.</p>
