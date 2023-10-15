@@ -175,27 +175,26 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="proving-equivalence"><a class="header" href="#proving-equivalence">Proving Equivalence</a></h1>
-<p>Programs that have been rewritten to use tail recursion and an accumulator can look quite different from the original program.
-The original recursive function is often much easier to understand, but it runs the risk of exhausting the stack at run time.
-After testing both versions of the program on examples to rule out simple bugs, proofs can be used to show once and for all that the programs are equivalent.</p>
-<h2 id="proving-sum-equal"><a class="header" href="#proving-sum-equal">Proving <code>sum</code> Equal</a></h2>
-<p>To prove that both versions of <code>sum</code> are equal, begin by writing the theorem statement with a stub proof:</p>
+                        <h1 id="等価性の証明proving-equivalence"><a class="header" href="#等価性の証明proving-equivalence">等価性の証明（Proving Equivalence）</a></h1>
+<p>末尾再帰とアキュムレータを使用して書き直されたプログラムは、元のプログラムとはかなり異なる見た目になることがあります。
+元の再帰関数は通常理解しやすいですが、実行時にスタックを枯渇させる危険があります。
+両方のプログラムのバージョンを単純なバグがないことを確認するために例を使用してテストした後、証明を使用してプログラムが等価であることを一度確認できます。</p>
+<h2 id="sum-の等価性の証明"><a class="header" href="#sum-の等価性の証明"><code>sum</code> の等価性の証明</a></h2>
+<p><code>sum</code> の両バージョンが等しいことを証明するために、スタブ証明を含む定理文を記述して始めます：</p>
 <pre><code class="language-leantac">theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
   skip
 </code></pre>
-<p>As expected, Lean describes an unsolved goal:</p>
+<p>予想通り、Leanは未解決のゴールを示します：</p>
 <pre><code class="language-output error">unsolved goals
 ⊢ NonTail.sum = Tail.sum
 </code></pre>
-<p>The <code>rfl</code> tactic cannot be applied here, because <code>NonTail.sum</code> and <code>Tail.sum</code> are not definitionally equal.
-Functions can be equal in more ways than just definitional equality, however.
-It is also possible to prove that two functions are equal by proving that they produce equal outputs for the same input.
-In other words, \( f = g \) can be proved by proving that \( f(x) = g(x) \) for all possible inputs \( x \).
-This principle is called <em>function extensionality</em>.
-Function extensionality is exactly the reason why <code>NonTail.sum</code> equals <code>Tail.sum</code>: they both sum lists of numbers.</p>
-<p>In Lean's tactic language, function extensionality is invoked using <code>funext</code>, followed by a name to be used for the arbitrary argument.
-The arbitrary argument is added as an assumption to the context, and the goal changes to require a proof that the functions applied to this argument are equal:</p>
+<p><code>rfl</code> タクティクはここでは適用できません。なぜなら、<code>NonTail.sum</code> と <code>Tail.sum</code> は定義的に等しくないからです。
+ただし、関数は定義的な等価性だけでなく、他の方法でも等しいことが証明できます。
+つまり、2つの関数が同じ入力に対して同じ出力を生成することを証明することで、2つの関数が等しいことが証明できます。
+言い換えれば、\( f = g \) は、すべての可能な入力 \( x \) に対して \( f(x) = g(x) \) であることを証明することによって証明できます。この原理は <em>関数の拡張性</em> と呼ばれます。
+関数の拡張性は、<code>NonTail.sum</code> が <code>Tail.sum</code> と等しい理由そのままです。両方が数値のリストを合計するからです。</p>
+<p>Leanのタクティク言語では、関数の拡張性は <code>funext</code> を使用して呼び出し、任意の引数に使用する名前に続けて指定されます。
+この任意の引数はコンテキストに仮定として追加され、ゴールはこの引数を使用して関数が等しいことを証明する証明を要求するものに変更されます：</p>
 <pre><code class="language-leantac">theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
   funext xs
 </code></pre>
@@ -204,10 +203,10 @@ case h
 xs : List Nat
 ⊢ NonTail.sum xs = Tail.sum xs
 </code></pre>
-<p>This goal can be proved by induction on the argument <code>xs</code>.
-Both <code>sum</code> functions return <code>0</code> when applied to the empty list, which serves as a base case.
-Adding a number to the beginning of the input list causes both functions to add that number to the result, which serves as an induction step.
-Invoking the <code>induction</code> tactic results in two goals:</p>
+<p>このゴールは <code>xs</code> 引数に対する帰納法によって証明できます。
+両方の <code>sum</code> 関数は空のリストに適用されると <code>0</code> を返し、これが基本ケースとして機能します。
+入力リストの先頭に数値を追加すると、両方の関数はその数値を結果に加えるため、これが帰納ステップとして機能します。
+<code>induction</code> タクティクを呼び出すと、2つのゴールが生成されます。</p>
 <pre><code class="language-leantac">theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
   funext xs
   induction xs with
@@ -225,14 +224,14 @@ ys : List Nat
 ih : NonTail.sum ys = Tail.sum ys
 ⊢ NonTail.sum (y :: ys) = Tail.sum (y :: ys)
 </code></pre>
-<p>The base case for <code>nil</code> can be solved using <code>rfl</code>, because both functions return <code>0</code> when passed the empty list:</p>
+<p><code>nil</code> の基本ケースは、空リストが渡されたときに両方の関数が <code>0</code> を返すため、<code>rfl</code> を使用して解決できます：</p>
 <pre><code class="language-leantac">theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
   funext xs
   induction xs with
   | nil =&gt; rfl
   | cons y ys ih =&gt; skip
 </code></pre>
-<p>The first step in solving the induction step is to simplify the goal, asking <code>simp</code> to unfold <code>NonTail.sum</code> and <code>Tail.sum</code>:</p>
+<p>帰納ステップを解決する最初のステップは、ゴールを簡単にすることで、<code>NonTail.sum</code> と <code>Tail.sum</code> を展開するように <code>simp</code> に要請することです：</p>
 <pre><code class="language-leantac">theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
   funext xs
   induction xs with
@@ -247,7 +246,7 @@ ys : List Nat
 ih : NonTail.sum ys = Tail.sum ys
 ⊢ y + NonTail.sum ys = Tail.sumHelper 0 (y :: ys)
 </code></pre>
-<p>Unfolding <code>Tail.sum</code> revealed that it immediately delegates to <code>Tail.sumHelper</code>, which should also be simplified:</p>
+<p><code>Tail.sum</code> を展開することで、それがすぐに <code>Tail.sumHelper</code> に委譲することが明らかになり、これも簡略化する必要があります：</p>
 <pre><code class="language-leantac">theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
   funext xs
   induction xs with
@@ -255,7 +254,7 @@ ih : NonTail.sum ys = Tail.sum ys
   | cons y ys ih =&gt;
     simp [NonTail.sum, Tail.sum, Tail.sumHelper]
 </code></pre>
-<p>In the resulting goal, <code>sumHelper</code> has taken a step of computation and added <code>y</code> to the accumulator:</p>
+<p>生成されたゴールでは、<code>sumHelper</code> が計算のステップを踏んで、アキュムレータに <code>y</code> を追加しました：</p>
 <pre><code class="language-output error">unsolved goals
 case h.cons
 y : Nat
@@ -263,7 +262,7 @@ ys : List Nat
 ih : NonTail.sum ys = Tail.sum ys
 ⊢ y + NonTail.sum ys = Tail.sumHelper y ys
 </code></pre>
-<p>Rewriting with the induction hypothesis removes all mentions of <code>NonTail.sum</code> from the goal:</p>
+<p>帰納仮説を使用して、ゴールから <code>NonTail.sum</code> のすべての言及を削除できます：</p>
 <pre><code class="language-leantac">theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
   funext xs
   induction xs with
@@ -279,8 +278,8 @@ ys : List Nat
 ih : NonTail.sum ys = Tail.sum ys
 ⊢ y + Tail.sum ys = Tail.sumHelper y ys
 </code></pre>
-<p>This new goal states that adding some number to the sum of a list is the same as using that number as the initial accumulator in <code>sumHelper</code>.
-For the sake of clarity, this new goal can be proved as a separate theorem:</p>
+<p>この新しいゴールでは、リストの合計に何らかの数値を追加することが、その数値を <code>sumHelper</code> の初期アキュムレータとして使用することと同じであることが述べられています。
+明確さのために、この新しいゴールを別の定理として証明できます：</p>
 <pre><code class="language-leantac">theorem helper_add_sum_accum (xs : List Nat) (n : Nat) :
     n + Tail.sum xs = Tail.sumHelper n xs := by
   skip
@@ -290,7 +289,7 @@ xs : List Nat
 n : Nat
 ⊢ n + Tail.sum xs = Tail.sumHelper n xs
 </code></pre>
-<p>Once again, this is a proof by induction where the base case uses <code>rfl</code>:</p>
+<p>これも再び、基本ケースでは <code>rfl</code> を使用した帰納法の証明です：</p>
 <pre><code class="language-leantac">theorem helper_add_sum_accum (xs : List Nat) (n : Nat) :
     n + Tail.sum xs = Tail.sumHelper n xs := by
   induction xs with
@@ -304,8 +303,8 @@ ys : List Nat
 ih : n + Tail.sum ys = Tail.sumHelper n ys
 ⊢ n + Tail.sum (y :: ys) = Tail.sumHelper n (y :: ys)
 </code></pre>
-<p>Because this is an inductive step, the goal should be simplified until it matches the induction hypothesis <code>ih</code>.
-Simplifying, using the definitions of <code>Tail.sum</code> and <code>Tail.sumHelper</code>, results in the following:</p>
+<p>これは帰納ステップなので、ゴールは帰納仮説 <code>ih</code> に一致するように簡略化されるべきです。
+<code>Tail.sum</code> と <code>Tail.sumHelper</code> の定義を使用して簡略化すると、次のようになります：</p>
 <pre><code class="language-leantac">theorem helper_add_sum_accum (xs : List Nat) (n : Nat) :
     n + Tail.sum xs = Tail.sumHelper n xs := by
   induction xs with
@@ -320,39 +319,39 @@ ys : List Nat
 ih : n + Tail.sum ys = Tail.sumHelper n ys
 ⊢ n + Tail.sumHelper y ys = Tail.sumHelper (y + n) ys
 </code></pre>
-<p>Ideally, the induction hypothesis could be used to replace <code>Tail.sumHelper (y + n) ys</code>, but they don't match.
-The induction hypothesis can be used for <code>Tail.sumHelper n ys</code>, not <code>Tail.sumHelper (y + n) ys</code>.
-In other words, this proof is stuck.</p>
-<h2 id="a-second-attempt"><a class="header" href="#a-second-attempt">A Second Attempt</a></h2>
-<p>Rather than attempting to muddle through the proof, it's time to take a step back and think.
-Why is it that the tail-recursive version of the function is equal to the non-tail-recursive version?
-Fundamentally speaking, at each entry in the list, the accumulator grows by the same amount as would be added to the result of the recursion.
-This insight can be used to write an elegant proof.
-Crucially, the proof by induction must be set up such that the induction hypothesis can be applied to <em>any</em> accumulator value.</p>
-<p>Discarding the prior attempt, the insight can be encoded as the following statement:</p>
+<p>理想的には、帰納仮説を使用して <code>Tail.sumHelper (y + n) ys</code> を置き換えることができますが、一致しません。
+帰納仮説は <code>Tail.sumHelper n ys</code> に対してではなく、<code>Tail.sumHelper (y + n) ys</code> に対して使用する必要があります。
+言い換えれば、この証明は行き詰まっているということです。</p>
+<h2 id="2度目の挑戦a-second-attempt"><a class="header" href="#2度目の挑戦a-second-attempt">2度目の挑戦（A Second Attempt）</a></h2>
+<p>証明をこなそうとするのではなく、一歩後ろに退いて考える時が来ました。
+なぜ、関数の末尾再帰バージョンが非末尾再帰バージョンと等しいのか、それは何故でしょうか？
+根本的に言えば、リストの各エントリにおいて、アキュムレータは再帰の結果に追加されるものと同じだけ成長します。
+この洞察を使用して、エレガントな証明を書くことができます。
+重要なのは、帰納法による証明は、帰納仮説が_任意の_アキュムレータ値に適用できるように設定されなければならないことです。</p>
+<p>以前の試みを捨てて、この洞察は以下のように記述できます：</p>
 <pre><code class="language-leantac">theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
     (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
   skip
 </code></pre>
-<p>In this statement, it's very important that <code>n</code> is part of the type that's after the colon.
-The resulting goal begins with <code>∀ (n : Nat)</code>, which is short for &quot;For all <code>n</code>&quot;:</p>
+<p>この文では、<code>n</code>がコロンの後にある型の一部であることが非常に重要です。
+生成されたゴールは「∀（n：Nat）」で始まり、これは「すべての<code>n</code>に対して」という意味です。</p>
 <pre><code class="language-output error">unsolved goals
 xs : List Nat
 ⊢ ∀ (n : Nat), n + NonTail.sum xs = Tail.sumHelper n xs
 </code></pre>
-<p>Using the induction tactic results in goals that include this &quot;for all&quot; statement:</p>
+<p>帰納タクティクを使用すると、ゴールにはこの「すべての」文が含まれるようになります：</p>
 <pre><code class="language-leantac">theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
     (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
   induction xs with
   | nil =&gt; skip
   | cons y ys ih =&gt; skip
 </code></pre>
-<p>In the <code>nil</code> case, the goal is:</p>
+<p>「nil」の場合、ゴールは次のようになります：</p>
 <pre><code class="language-output error">unsolved goals
 case nil
 ⊢ ∀ (n : Nat), n + NonTail.sum [] = Tail.sumHelper n []
 </code></pre>
-<p>For the induction step for <code>cons</code>, both the induction hypothesis and the specific goal contain the &quot;for all <code>n</code>&quot;:</p>
+<p>「cons」の帰細ステップの場合、帰納仮説と特定のゴールの両方が「すべての<code>n</code>」を含むことになります：</p>
 <pre><code class="language-output error">unsolved goals
 case cons
 y : Nat
@@ -360,14 +359,14 @@ ys : List Nat
 ih : ∀ (n : Nat), n + NonTail.sum ys = Tail.sumHelper n ys
 ⊢ ∀ (n : Nat), n + NonTail.sum (y :: ys) = Tail.sumHelper n (y :: ys)
 </code></pre>
-<p>In other words, the goal has become more challenging to prove, but the induction hypothesis is correspondingly more useful.</p>
-<p>A mathematical proof for a statement that beings with &quot;for all \( x \)&quot; should assume some arbitrary \( x \), and prove the statement.
-&quot;Arbitrary&quot; means that no additional properties of \( x \) are assumed, so the resulting statement will work for <em>any</em> \( x \).
-In Lean, a &quot;for all&quot; statement is a dependent function: no matter which specific value it is applied to, it will return evidence of the proposition.
-Similarly, the process of picking an arbitrary \( x \) is the same as using <code>fun x =&gt; ...</code>.
-In the tactic language, this process of selecting an arbitrary \( x \) is performed using the <code>intro</code> tactic, which produces the function behind the scenes when the tactic script has completed.
-The <code>intro</code> tactic should be provided with the name to be used for this arbitrary value.</p>
-<p>Using the <code>intro</code> tactic in the <code>nil</code> case removes the <code>∀ (n : Nat),</code> from the goal, and adds an assumption <code>n : Nat</code>:</p>
+<p>言い換えれば、ゴールは証明が難しくなりましたが、帰納仮説はそれに応じてより有用になりました。</p>
+<p>「すべてのxから始まる」という文の数学的証明は、何らかの任意のxを仮定し、その文を証明するものです。
+「任意の」とは、xの追加のプロパティを仮定しないことを意味し、結果の文は_任意の_ xに対して機能します。
+Leanでは、「すべての」文は依存関数です：それが適用される具体的な値が何であっても、それは命題の証拠を返します。
+同様に、任意のxを選択するプロセスは、<code>fun x =&gt; ...</code>を使用することと同じです。
+タクティク言語では、この任意のxを選択するプロセスは、タクティクスクリプトが完了したときに背後で関数を生成する<code>intro</code>タクティクによって実行されます。
+<code>intro</code>タクティクにはこの任意の値に使用される名前が提供される必要があります。</p>
+<p><code>nil</code>の場合、<code>intro</code>タクティクを使用すると、ゴールから<code>∀ (n : Nat),</code>が削除され、<code>n : Nat</code>という仮定が追加されます：</p>
 <pre><code class="language-leantac">theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
     (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
   induction xs with
@@ -379,7 +378,7 @@ case nil
 n : Nat
 ⊢ n + NonTail.sum [] = Tail.sumHelper n []
 </code></pre>
-<p>Both sides of this propositional equality are definitionally equal to <code>n</code>, so <code>rfl</code> suffices:</p>
+<p>この命題の等式の両側は、定義的に<code>n</code>に等しいため、<code>rfl</code>で十分です：</p>
 <pre><code class="language-leantac">theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
     (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
   induction xs with
@@ -388,7 +387,7 @@ n : Nat
     rfl
   | cons y ys ih =&gt; skip
 </code></pre>
-<p>The <code>cons</code> goal also contains a &quot;for all&quot;:</p>
+<p><code>cons</code>のゴールにも「すべての」が含まれています：</p>
 <pre><code class="language-output error">unsolved goals
 case cons
 y : Nat
@@ -396,7 +395,7 @@ ys : List Nat
 ih : ∀ (n : Nat), n + NonTail.sum ys = Tail.sumHelper n ys
 ⊢ ∀ (n : Nat), n + NonTail.sum (y :: ys) = Tail.sumHelper n (y :: ys)
 </code></pre>
-<p>This suggests the use of <code>intro</code>.</p>
+<p>これは<code>intro</code>の使用を示唆しています。</p>
 <pre><code class="language-leantac">theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
     (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
   induction xs with
@@ -414,8 +413,8 @@ ih : ∀ (n : Nat), n + NonTail.sum ys = Tail.sumHelper n ys
 n : Nat
 ⊢ n + NonTail.sum (y :: ys) = Tail.sumHelper n (y :: ys)
 </code></pre>
-<p>The proof goal now contains both <code>NonTail.sum</code> and <code>Tail.sumHelper</code> applied to <code>y :: ys</code>.
-The simplifier can make the next step more clear:</p>
+<p>証明のゴールには今、<code>y :: ys</code>に適用された<code>NonTail.sum</code>と<code>Tail.sumHelper</code>の両方が含まれています。
+簡略化は次のステップをより明確にできます：</p>
 <pre><code class="language-leantac">theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
     (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
   induction xs with
@@ -434,19 +433,19 @@ ih : ∀ (n : Nat), n + NonTail.sum ys = Tail.sumHelper n ys
 n : Nat
 ⊢ n + (y + NonTail.sum ys) = Tail.sumHelper (y + n) ys
 </code></pre>
-<p>This goal is very close to matching the induction hypothesis.
-There are two ways in which it does not match:</p>
+<p>このゴールは帰納仮説に非常に近いものです。
+一致しない部分は2つあります：</p>
 <ul>
-<li>The left-hand side of the equation is <code>n + (y + NonTail.sum ys)</code>, but the induction hypothesis needs the left-hand side to be a number added to <code>NonTail.sum ys</code>.
-In other words, this goal should be rewritten to <code>(n + y) + NonTail.sum ys</code>, which is valid because addition of natural numbers is associative.</li>
-<li>When the left side has been rewritten to <code>(y + n) + NonTail.sum ys</code>, the accumulator argument on the right side should be <code>n + y</code> rather than <code>y + n</code> in order to match.
-This rewrite is valid because addition is also commutative.</li>
+<li>方程式の左辺は <code>n + (y + NonTail.sum ys)</code> ですが、帰納仮説では左辺が <code>NonTail.sum ys</code> に追加される数値である必要があります。
+言い換えれば、このゴールは <code>(n + y) + NonTail.sum ys</code> に書き換える必要があります。これは自然数の加法が結合的であるため有効です。</li>
+<li>左辺が <code>(y + n) + NonTail.sum ys</code> に書き換えられた場合、右辺のアキュムレータ引数は一致するために <code>y + n</code> ではなく <code>n + y</code> である必要があります。
+この書き換えも有効で、加法は可換であるためです。</li>
 </ul>
-<p>The associativity and commutativity of addition have already been proved in Lean's standard library.
-The proof of associativity is named <code>Nat.add_assoc</code>, and its type is <code>(n m k : Nat) → (n + m) + k = n + (m + k)</code>, while the proof of commutativity is called <code>Nat.add_comm</code> and has type <code>(n m : Nat) → n + m = m + n</code>.
-Normally, the <code>rw</code> tactic is provided with an expression whose type is an equality.
-However, if the argument is instead a dependent function whose return type is an equality, it attempts to find arguments to the function that would allow the equality to match something in the goal.
-There is only one opportunity to apply associativity, though the direction of the rewrite must be reversed because the right side of the equality in <code>Nat.add_assoc</code> is the one that matches the proof goal:</p>
+<p>加法の結合性と可換性は、すでにLeanの標準ライブラリで証明されています。
+結合性の証明は <code>Nat.add_assoc</code> という名前で、その型は <code>(n m k : Nat) → (n + m) + k = n + (m + k)</code> です。一方、可換性の証明は <code>Nat.add_comm</code> と呼ばれ、その型は <code>(n m : Nat) → n + m = m + n</code> です。
+通常、<code>rw</code>タクティクには型が等式である式が提供されます。
+ただし、引数が代数関数で、その戻り値の型が等式である場合、その等式がゴール内の何かに一致するような関数の引数を見つけようとします。
+結合性を適用できる機会は1つだけですが、<code>Nat.add_assoc</code> の等式の右側が証明のゴールに一致するため、書き換えの方向を逆にする必要があります：</p>
 <pre><code class="language-leantac">theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
     (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
   induction xs with
@@ -466,8 +465,8 @@ ih : ∀ (n : Nat), n + NonTail.sum ys = Tail.sumHelper n ys
 n : Nat
 ⊢ n + y + NonTail.sum ys = Tail.sumHelper (y + n) ys
 </code></pre>
-<p>Rewriting directly with <code>Nat.add_comm</code>, however, leads to the wrong result.
-The <code>rw</code> tactic guesses the wrong location for the rewrite, leading to an unintended goal:</p>
+<p>ただし、<code>Nat.add_comm</code> を直接書き換えると、誤った結果につながります。
+<code>rw</code>タクティクは書き換えの位置を誤って推測し、意図しないゴールに導きます：</p>
 <pre><code class="language-leantac">theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
     (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
   induction xs with
@@ -488,7 +487,7 @@ ih : ∀ (n : Nat), n + NonTail.sum ys = Tail.sumHelper n ys
 n : Nat
 ⊢ NonTail.sum ys + (n + y) = Tail.sumHelper (y + n) ys
 </code></pre>
-<p>This can be fixed by explicitly providing <code>y</code> and <code>n</code> as arguments to <code>Nat.add_comm</code>:</p>
+<p>これは、<code>Nat.add_comm</code> に <code>y</code> と <code>n</code> を明示的に引数として提供することで修正できます：</p>
 <pre><code class="language-leantac">theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
     (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
   induction xs with
@@ -509,10 +508,10 @@ ih : ∀ (n : Nat), n + NonTail.sum ys = Tail.sumHelper n ys
 n : Nat
 ⊢ n + y + NonTail.sum ys = Tail.sumHelper (n + y) ys
 </code></pre>
-<p>The goal now matches the induction hypothesis.
-In particular, the induction hypothesis's type is a dependent function type.
-Applying <code>ih</code> to <code>n + y</code> results in exactly the desired type.
-The <code>exact</code> tactic completes a proof goal if its argument has exactly the desired type:</p>
+<p>ゴールは現在、帰納仮説に一致します。
+特に、帰納仮説の型は依存関数型です。
+<code>ih</code> を <code>n + y</code> に適用すると、まさに必要な型が得られます。
+<code>exact</code> タクティクは、その引数がまさに所望の型である場合、証明ゴールを完了させます：</p>
 <pre><code class="language-leantac">theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
     (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
   induction xs with
@@ -524,8 +523,7 @@ The <code>exact</code> tactic completes a proof goal if its argument has exactly
     rw [Nat.add_comm y n]
     exact ih (n + y)
 </code></pre>
-<p>The actual proof requires only a little additional work to get the goal to match the helper's type.
-The first step is still to invoke function extensionality:</p>
+<p>実際の証明には、ゴールを補助定理（ヘルパー）の型に一致させるためにわずかな追加作業しか必要ありません。最初のステップは、まだ関数の拡張性を呼び出すことです：</p>
 <pre><code class="language-leantac">theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
   funext xs
 </code></pre>
@@ -534,7 +532,7 @@ case h
 xs : List Nat
 ⊢ NonTail.sum xs = Tail.sum xs
 </code></pre>
-<p>The next step is unfold <code>Tail.sum</code>, exposing <code>Tail.sumHelper</code>:</p>
+<p>次のステップは、<code>Tail.sum</code>を展開し、<code>Tail.sumHelper</code>を表示することです：</p>
 <pre><code class="language-leantac">theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
   funext xs
   simp [Tail.sum]
@@ -544,11 +542,10 @@ case h
 xs : List Nat
 ⊢ NonTail.sum xs = Tail.sumHelper 0 xs
 </code></pre>
-<p>Having done this, the types almost match.
-However, the helper has an additional addend on the left side.
-In other words, the proof goal is <code>NonTail.sum xs = Tail.sumHelper 0 xs</code>, but applying <code>non_tail_sum_eq_helper_accum</code> to <code>xs</code> and <code>0</code> yields the type <code>0 + NonTail.sum xs = Tail.sumHelper 0 xs</code>.
-Another standard library proof, <code>Nat.zero_add</code>, has type <code>(n : Nat) → 0 + n = n</code>.
-Applying this function to <code>NonTail.sum xs</code> results in an expression with type <code>0 + NonTail.sum xs = NonTail.sum xs</code>, so rewriting from right to left results in the desired goal:</p>
+<p>これを行った後、型はほぼ一致します。ただし、補助定理の左側に追加の被加数があります。
+言い換えれば、証明のゴールは <code>NonTail.sum xs = Tail.sumHelper 0 xs</code> ですが、<code>non_tail_sum_eq_helper_accum</code>を <code>xs</code> と <code>0</code> に適用すると、型は <code>0 + NonTail.sum xs = Tail.sumHelper 0 xs</code> になります。
+もう1つの標準ライブラリの証明、<code>Nat.zero_add</code> は型 <code>(n : Nat) → 0 + n = n</code> を持っています。
+これを <code>NonTail.sum xs</code> に適用すると、所望のゴールになるように右から左に書き換えることができます：</p>
 <pre><code class="language-leantac">theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
   funext xs
   simp [Tail.sum]
@@ -559,46 +556,46 @@ case h
 xs : List Nat
 ⊢ 0 + NonTail.sum xs = Tail.sumHelper 0 xs
 </code></pre>
-<p>Finally, the helper can be used to complete the proof:</p>
+<p>最後に、補助定理を使用して証明を完成させることができます：</p>
 <pre><code class="language-leantac">theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
   funext xs
   simp [Tail.sum]
   rw [←Nat.zero_add (NonTail.sum xs)]
   exact non_tail_sum_eq_helper_accum xs 0
 </code></pre>
-<p>This proof demonstrates a general pattern that can be used when proving that an accumulator-passing tail-recursive function is equal to the non-tail-recursive version.
-The first step is to discover the relationship between the starting accumulator argument and the final result.
-For instance, beginning <code>Tail.sumHelper</code> with an accumulator of <code>n</code> results in the final sum being added to <code>n</code>, and beginning <code>Tail.reverseHelper</code> with an accumulator of <code>ys</code> results in the final reversed list being prepended to <code>ys</code>.
-The second step is to write down this relationship as a theorem statement and prove it by induction.
-While the accumulator is always initialized with some neutral value in practice, such as <code>0</code> or <code>[]</code>, this more general statement that allows the starting accumulator to be any value is what's needed to get a strong enough induction hypothesis.
-Finally, using this helper theorem with the actual initial accumulator value results in the desired proof.
-For example, in <code>non_tail_sum_eq_tail_sum</code>, the accumulator is specified to be <code>0</code>.
-This may require rewriting the goal to make the neutral initial accumulator values occur in the right place.</p>
-<h2 id="exercise"><a class="header" href="#exercise">Exercise</a></h2>
-<h3 id="warming-up"><a class="header" href="#warming-up">Warming Up</a></h3>
-<p>Write your own proofs for <code>Nat.zero_add</code>, <code>Nat.add_assoc</code>, and <code>Nat.add_comm</code> using the <code>induction</code> tactic.</p>
-<h3 id="more-accumulator-proofs"><a class="header" href="#more-accumulator-proofs">More Accumulator Proofs</a></h3>
-<h4 id="reversing-lists"><a class="header" href="#reversing-lists">Reversing Lists</a></h4>
-<p>Adapt the proof for <code>sum</code> into a proof for <code>NonTail.reverse</code> and <code>Tail.reverse</code>.
-The first step is to think about the relationship between the accumulator value being passed to <code>Tail.reverseHelper</code> and the non-tail-recursive reverse.
-Just as adding a number to the accumulator in <code>Tail.sumHelper</code> is the same as adding it to the overall sum, using <code>List.cons</code> to add a new entry to the accumulator in <code>Tail.reverseHelper</code> is equivalent to some change to the overall result.
-Try three or four different accumulator values with pencil and paper until the relationship becomes clear.
-Use this relationship to prove a suitable helper theorem.
-Then, write down the overall theorem.
-Because <code>NonTail.reverse</code> and <code>Tail.reverse</code> are polymorphic, stating their equality requires the use of <code>@</code> to stop Lean from trying to figure out which type to use for <code>α</code>.
-Once <code>α</code> is treated as an ordinary argument, <code>funext</code> should be invoked with both <code>α</code> and <code>xs</code>:</p>
+<p>この証明は、アキュムレータを渡す末尾再帰関数が非末尾再帰バージョンと等しいことを証明する際に使用できる一般的なパターンを示しています。
+最初のステップは、初期アキュムレータ引数と最終結果の関係を見つけることです。
+例えば、初期アキュムレータを <code>n</code> で始めると、最終の合計は <code>n</code> に追加され、初期アキュムレータを <code>ys</code> で始めると、最終の逆順リストが <code>ys</code> に前置されます。
+2番目のステップは、この関係を定理文として書き留め、帰納法によって証明することです。
+実際にはアキュムレータは常に「0」や「[]」などの中立的な値で初期化されますが、初期アキュムレータを任意の値に設定できるようにするこのより一般的な文は、強力な帰納仮説を得るために必要です。
+最後に、この補助定理を実際の初期アキュムレータ値とともに使用して、所望の証明が得られます。
+例えば、<code>non_tail_sum_eq_tail_sum</code>では、アキュムレータが「0」で指定されています。
+このため、中立的な初期アキュムレータ値が正しい位置に現れるようにゴールを書き換える必要があるかもしれません。</p>
+<h2 id="練習exercise"><a class="header" href="#練習exercise">練習（Exercise）</a></h2>
+<h3 id="ウォーミングアップwarming-up"><a class="header" href="#ウォーミングアップwarming-up">ウォーミングアップ（Warming Up）</a></h3>
+<p><code>induction</code>タクティクを使用して、<code>Nat.zero_add</code>、<code>Nat.add_assoc</code>、および <code>Nat.add_comm</code> の証明を自分で行ってください。</p>
+<h3 id="アキュムレータ証明のさらなる例more-accumulator-proofs"><a class="header" href="#アキュムレータ証明のさらなる例more-accumulator-proofs">アキュムレータ証明のさらなる例（More Accumulator Proofs）</a></h3>
+<h4 id="リストの反転reversing-lists"><a class="header" href="#リストの反転reversing-lists">リストの反転（Reversing Lists）</a></h4>
+<p><code>sum</code>の証明を <code>NonTail.reverse</code> と <code>Tail.reverse</code> の証明に適応させてください。
+最初のステップは、<code>Tail.reverseHelper</code> に渡されるアキュムレータ値と非末尾再帰の反転との関係を考えることです。
+<code>Tail.sumHelper</code> にアキュムレータに数値を追加するのが合計全体に数値を追加するのと同じように、<code>Tail.reverseHelper</code> のアキュムレータに新しいエントリを追加することは、全体の結果に何らかの変更をもたらすことに等しいです。
+関係が明確になるまで、鉛筆と紙で3つまたは4つの異なるアキュムレータの値を試してみてください。
+この関係を使用して適切な補助定理を証明してください。
+その後、全体の定理を書き留めます。
+<code>NonTail.reverse</code> と <code>Tail.reverse</code> は多相的なため、その等式を述べるには、Leanが<code>α</code>の型をどれに使用するかを判断しようとしないように、<code>@</code>を使用する必要があります。
+<code>α</code>が通常の引数として扱われると、<code>funext</code>を <code>α</code> と <code>xs</code> の両方に適用すべきです：</p>
 <pre><code class="language-leantac">theorem non_tail_reverse_eq_tail_reverse : @NonTail.reverse = @Tail.reverse := by
   funext α xs
 </code></pre>
-<p>This results in a suitable goal:</p>
+<p>これにより、適切なゴールが生成されます：</p>
 <pre><code class="language-output error">unsolved goals
 case h.h
 α : Type u_1
 xs : List α
 ⊢ NonTail.reverse xs = Tail.reverse xs
 </code></pre>
-<h4 id="factorial"><a class="header" href="#factorial">Factorial</a></h4>
-<p>Prove that <code>NonTail.factorial</code> from the exercises in the previous section is equal to your tail-recursive solution by finding the relationship between the accumulator and the result and proving a suitable helper theorem.</p>
+<h4 id="階乗factorial"><a class="header" href="#階乗factorial">階乗（Factorial）</a></h4>
+<p>前のセクションの演習で示された <code>NonTail.factorial</code> が、末尾再帰による方法と等しいことを証明してください。これは、アキュムレータと結果との関係を見つけ、適切な補助定理を証明することによって行います。</p>
 
                     </main>
 

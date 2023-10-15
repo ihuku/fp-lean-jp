@@ -1,85 +1,87 @@
-# Interlude: Tactics, Induction, and Proofs
+# 間奏：タクティクス、帰納法、そして証明（Interlude: Tactics, Induction, and Proofs）
 
-## A Note on Proofs and User Interfaces
+## 証明とユーザーインターフェースに関する注意（A Note on Proofs and User Interfaces）
 
-This book presents the process of writing proofs as if they are written in one go and submitted to Lean, which then replies with error messages that describe what remains to be done.
-The actual process of interacting with Lean is much more pleasant.
-Lean provides information about the proof as the cursor is moved through it and there are a number of interactive features that make proving easier.
-Please consult the documentation of your Lean development environment for more information.
+この本では、証明が一気に書かれ、Leanに提出され、その後、未だに行われていないことを説明するエラーメッセージが返されるプロセスを提示しています。
+Leanとの対話の実際のプロセスはもっと快適です。
+Leanは、カーソルを移動させながら証明に関する情報を提供し、証明を容易にするいくつかの対話型の機能があります。
+詳細については、Lean開発環境のドキュメンテーションをご参照ください。
 
-The approach in this book that focuses on incrementally building a proof and showing the messages that result demonstrates the kinds of interactive feedback that Lean provides while writing a proof, even though it is much slower than the process used by experts.
-At the same time, seeing incomplete proofs evolve towards completeness is a useful perspective on proving.
-As your skill in writing proofs increases, Lean's feedback will come to feel less like errors and more like support for your own thought processes.
-Learning the interactive approach is very important.
+この本のアプローチは、証明を段階的に構築し、その結果として表示されるメッセージを示すもので、専門家が使用するプロセスよりもはるかに遅いですが、証明を書く際にLeanが提供する対話型フィードバックの種類を示しています。
+同時に、不完全な証明が完全性に向かって進化する様子は、証明に対する有用な視点です。
+証明を書くスキルが向上するにつれて、Leanのフィードバックはエラーというよりも、自分自身の思考プロセスをサポートしているように感じるようになるでしょう。
+対話的なアプローチを学ぶことは非常に重要です。
 
-## Recursion and Induction
 
-The functions `plusR_succ_left` and `plusR_zero_left` from the preceding chapter can be seen from two perspectives.
-On the one hand, they are recursive functions that build up evidence for a proposition, just as other recursive functions might construct a list, a string, or any other data structure.
-On the other, they also correspond to proofs by _mathematical induction_.
+## 再帰と帰納法（Recursion and Induction）
 
-Mathematical induction is a proof technique where a statement is proven for _all_ natural numbers in two steps:
- 1. The statement is shown to hold for \\( 0 \\). This is called the _base case_.
- 2. Under the assumption that the statement holds for some arbitrarily chosen number \\( n \\), it is shown to hold for \\( n + 1 \\). This is called the _induction step_. The assumption that the statement holds for \\( n \\) is called the _induction hypothesis_.
+前章の関数 `plusR_succ_left` と `plusR_zero_left` は、2つの視点から見ることができます。
+一方で、それらは命題の証拠を構築する再帰関数であり、他の再帰関数がリスト、文字列、または他のデータ構造を構築するように、証拠を構築します。
+一方、それらは _数学的帰納法_ による証明に対応しています。
 
-Because it's impossible to check the statement for _every_ natural number, induction provides a means of writing a proof that could, in principle, be expanded to any particular natural number.
-For example, if a concrete proof were desired for the number 3, then it could be constructed by using first the base case and then the induction step three times, to show the statement for 0, 1, 2, and finally 3.
-Thus, it proves the statement for all natural numbers.
+数学的帰納法は、ある文が2つのステップで _すべての_ 自然数について証明される証明テクニックです：
+ 1. その文が \\( 0 \\) に対して成立することを示します。これを _基本ケース_ と呼びます。
+ 2. ある任意の数 \\( n \\) についてその文が成立するという仮定のもとで、\\( n + 1 \\) についても成立することを示します。これを _帰納ステップ_ と呼びます。文が \\( n \\) について成立するという仮定は _帰納仮説_ と呼ばれます。
 
-## The Induction Tactic
+すべての自然数について文を確認することは不可能なため、帰納法は、原理的には特定の自然数に展開できる証明を書く手段を提供します。
+たとえば、数値3に対する具体的な証明が必要な場合、まず基本ケースを使用して、その後帰納ステップを3回繰り返し、0、1、2、最後に3について文が成立することを示すことができます。
+したがって、それはすべての自然数に対して文を証明します。
 
-Writing proofs by induction as recursive functions that use helpers such as `congrArg` does not always do a good job of expressing the intentions behind the proof.
-While recursive functions indeed have the structure of induction, they should probably be viewed as an _encoding_ of a proof.
-Furthermore, Lean's tactic system provides a number of opportunities to automate the construction of a proof that are not available when writing the recursive function explicitly.
-Lean provides an induction _tactic_ that can carry out an entire proof by induction in a single tactic block.
-Behind the scenes, Lean constructs the recursive function that corresponds the use of induction.
 
-To prove `plusR_zero_left` with the induction tactic, begin by writing its signature (using `theorem`, because this really is a proof).
-Then, use `by induction k` as the body of the definition:
+## 帰納法タクティク（The Induction Tactic）
+
+再帰関数として帰納法による証明を書くことは、証明の意図を表現するのには常に適していません。
+再帰関数は確かに帰納の構造を持っていますが、それらはおそらく証明の _エンコード_ と見なすべきです。
+さらに、Leanのタクティクシステムは、再帰関数を明示的に書く際には利用できない証明の構築を自動化する機会を提供しています。
+Leanは帰納法に基づいた再帰関数を構築するための帰納 _タクティク_ を提供しています。
+
+帰納法タクティクを使用して `plusR_zero_left` を証明するために、まずそのシグネチャを記述します（これは実際には証明なので、`theorem` を使用します）。
+その後、定義の本文として `by induction k` を使用します：
 ```leantac
 {{#example_in Examples/Induction.lean plusR_ind_zero_left_1}}
 ```
-The resulting message states that there are two goals:
+その結果、2つのゴールが存在することが示されます：
 ```output error
 {{#example_out Examples/Induction.lean plusR_ind_zero_left_1}}
 ```
-A tactic block is a program that is run while the Lean type checker processes a file, somewhat like a much more powerful C preprocessor macro.
-The tactics generate the actual program.
+タクティクブロックは、Leanの型検査器がファイルを処理する際に実行されるプログラムであり、かなりパワフルなCプリプロセッサマクロのようなものです。
+タクティクは実際のプログラムを生成します。
 
-In the tactic language, there can be a number of goals.
-Each goal consists of a type together with some assumptions.
-These are analogous to using underscores as placeholders—the type in the goal represents what is to be proved, and the assumptions represent what is in-scope and can be used.
-In the case of the goal `case zero`, there are no assumptions and the type is `Nat.zero = Nat.plusR 0 Nat.zero`—this is the theorem statement with `0` instead of `k`.
-In the goal `case succ`, there are two assumptions, named `n✝` and `n_ih✝`.
-Behind the scenes, the `induction` tactic creates a dependent pattern match that refines the overall type, and `n✝` represents the argument to `Nat.succ` in the pattern.
-The assumption `n_ih✝` represents the result of calling the generated function recursively on `n✝`.
-Its type is the overall type of the theorem, just with `n✝` instead of `k`.
-The type to be fulfilled as part of the goal `case succ` is the overall theorem statement, with `Nat.succ n✝` instead of `k`.
+タクティク言語では、複数のゴールが存在することがあります。
+各ゴールは型といくつかの仮定から構成されます。
+これはアンダースコアをプレースホルダーとして使用することに類似しており、ゴールの型は何を証明するかを表し、仮定はスコープ内にあるもので使用できます。
+`case zero` のゴールの場合、仮定は存在せず、その型は `Nat.zero = Nat.plusR 0 Nat.zero` です。これは `k` の代わりに `0` を使用した定理文です。
+`case succ` のゴールの場合、2つの仮定が存在し、それぞれ `n✝` と `n_ih✝` という名前が付けられています。
+裏では、`induction` タクティクは、全体の型を細かくし、`n✝` がパターン内の `Nat.succ` の引数を表します。
+仮定 `n_ih✝` は生成された関数を `n✝` に対して再帰的に呼び出した結果を表します。
+その型は定理の全体の型であり、ただし `k` の代わりに `n✝` を使用しています。
+ゴール `case succ` の一部として達成されるべき型は、 `k` の代わりに `Nat.succ n✝` を使用した定理文です。
 
-The two goals that result from the use of the `induction` tactic correspond to the base case and the induction step in the description of mathematical induction.
-The base case is `case zero`.
-In `case succ`, `n_ih✝` corresponds to the induction hypothesis, while the whole of `case succ` is the induction step.
+`induction` タクティクを使用した結果、2つのゴールが生成されますが、これは数学的帰納法の説明における基本ケースと帰納ステップに対応しています。
+基本ケースは `case zero` です。
+`case succ` では、`n_ih✝` が帰納仮説に対応し、全体の `case succ` が帰納ステップです。
 
-The next step in writing the proof is to focus on each of the two goals in turn.
-Just as `pure ()` can be used in a `do` block to indicate "do nothing", the tactic language has a statement `skip` that also does nothing.
-This can be used when Lean's syntax requires a tactic, but it's not yet clear which one should be used.
-Adding `with` to the end of the `induction` statement provides a syntax that is similar to pattern matching:
+
+証明の次のステップは、2つのゴールそれぞれに焦点を当てることです。
+`pure ()` が「何もしない」と示すために `do` ブロックで使用できるのと同様に、タクティク言語には何もしない `skip` という文もあります。
+これは、Leanの構文がタクティクを必要とする場合でも、どのタクティクを使用すべきかはまだ明確でない場合に使用できます。
+`induction` 文の末尾に `with` を追加すると、パターンマッチングに似た構文が提供されます：
 ```leantac
 {{#example_in Examples/Induction.lean plusR_ind_zero_left_2a}}
 ```
-Each of the two `skip` statements has a message associated with it.
-The first shows the base case:
+2つの `skip` 文にはそれぞれメッセージが関連付けられています。
+最初のものは基本ケースを示します：
 ```output error
 {{#example_out Examples/Induction.lean plusR_ind_zero_left_2a}}
 ```
-The second shows the induction step:
+2番目のものは帰納ステップを示します：
 ```output error
 {{#example_out Examples/Induction.lean plusR_ind_zero_left_2b}}
 ```
-In the induction step, the inaccessible names with daggers have been replaced with the names provided after `succ`, namely `n` and `ih`.
+帰納ステップでは、ダガーのついたアクセス不可能な名前が `succ` の後に提供された `n` と `ih` に置き換えられています。
 
-The cases after `induction ... with` are not patterns: they consist of the name of a goal followed by zero or more names.
-The names are used for assumptions introduced in the goal; it is an error to provide more names than the goal introduces:
+`induction ... with` の後のケースはパターンではありません。これらはゴールの名前と、ゼロ個以上の名前で構成されます。
+これらの名前はゴール内で導入された仮定に使用され、ゴールが導入する名前よりも多くの名前を提供することはエラーです：
 ```leantac
 {{#example_in Examples/Induction.lean plusR_ind_zero_left_3}}
 ```
@@ -87,166 +89,169 @@ The names are used for assumptions introduced in the goal; it is an error to pro
 {{#example_out Examples/Induction.lean plusR_ind_zero_left_3}}
 ```
 
-Focusing on the base case, the `rfl` tactic works just as well inside of the `induction` tactic as it does in a recursive function:
+基本ケースに焦点を当てると、`rfl` タクティクは再帰関数内でも同様に機能します：
 ```leantac
 {{#example_in Examples/Induction.lean plusR_ind_zero_left_4}}
 ```
-In the recursive function version of the proof, a type annotation made the expected type something that was easier to understand.
-In the tactic language, there are a number of specific ways to transform a goal to make it easier to solve.
-The `unfold` tactic replaces a defined name with its definition:
+証明の再帰関数バージョンでは、型の注釈によって期待される型がより理解しやすいものになりました。
+タクティク言語では、ゴールを解決しやすくするためのさまざまな方法があります。
+`unfold` タクティクは定義済みの名前をその定義で置き換えます：
 ```leantac
 {{#example_in Examples/Induction.lean plusR_ind_zero_left_5}}
 ```
-Now, the right-hand side of the equality in the goal has become `Nat.plusR 0 n + 1` instead of `Nat.plusR 0 (Nat.succ n)`:
+すると、ゴール内の等式の右辺が `Nat.plusR 0 n + 1` になり、`Nat.plusR 0 (Nat.succ n)` の代わりになりました：
 ```output error
 {{#example_out Examples/Induction.lean plusR_ind_zero_left_5}}
 ```
 
-Instead of appealing to functions like `congrArg` and operators like `▸`, there are tactics that allow equality proofs to be used to transform proof goals.
-One of the most important is `rw`, which takes a list of equality proofs and replaces the left side with the right side in the goal.
-This almost does the right thing in `plusR_zero_left`:
+`congrArg` などの関数や `▸` のような演算子に訴える代わりに、等式の証明を変換するために使用できるタクティクがあります。
+最も重要なのは `rw` で、等式の証明を取るリストを指定し、ゴール内で左辺を右辺で置き換えます。
+これは `plusR_zero_left` ではほぼ正しいことを行います：
 ```leantac
 {{#example_in Examples/Induction.lean plusR_ind_zero_left_6}}
 ```
-However, the direction of the rewrite was incorrect.
-Replacing `n` with `Nat.plusR 0 n` made the goal more complicated rather than less complicated:
+ただし、書き換えの方向が間違っています。
+`n` を `Nat.plusR 0 n` に置き換えることで、ゴールがより複雑になりました：
 ```output error
 {{#example_out Examples/Induction.lean plusR_ind_zero_left_6}}
 ```
-This can be remedied by placing a left arrow before `ih` in the call to `rewrite`, which instructs it to replace the right-hand side of the equality with the left-hand side:
+これは、`rewrite` の呼び出しに `ih` の前に左矢印を置くことで修正できます。これにより、等式の右辺を左辺で置き換えるように指示されます：
 ```leantac
 {{#example_decl Examples/Induction.lean plusR_zero_left_done}}
 ```
-This rewrite makes both sides of the equation identical, and Lean takes care of the `rfl` on its own.
-The proof is complete.
+この書き換えにより、方程式の両側が同一になり、Leanは `rfl` を自動で処理します。
+これで証明が完了しました。
 
-## Tactic Golf
 
-So far, the tactic language has not shown its true value.
-The above proof is no shorter than the recursive function; it's merely written in a domain-specific language instead of the full Lean language.
-But proofs with tactics can be shorter, easier, and more maintainable.
-Just as a lower score is better in the game of golf, a shorter proof is better in the game of tactic golf.
+## タクティクゴルフ（Tactic Golf）
 
-The induction step of `plusR_zero_left` can be proved using the simplification tactic `simp`.
-Using `simp` on its own does not help:
+これまでのところ、タクティク言語はその真の価値を示していませんでした。
+上記の証明は再帰関数よりも短くないだけで、フルのLean言語の代わりに特定のドメイン向けの言語で書かれています。
+しかし、タクティクを使用した証明は、より短く、簡単で保守的になることがあります。
+ゴルフのゲームでは、スコアが低いほど良いように、タクティクゴルフのゲームでは証明が短いほど良いのです。
+
+`plusR_zero_left` の帰納ステップは、簡略化タクティク `simp` を使用して証明できます。
+`simp` を単体で使用しても助けにはなりません：
 ```leantac
 {{#example_in Examples/Induction.lean plusR_zero_left_golf_1}}
 ```
 ```output error
 {{#example_out Examples/Induction.lean plusR_zero_left_golf_1}}
 ```
-However, `simp` can be configured to make use of a set of definitions.
-Just like `rw`, these arguments are provided in a list.
-Asking `simp` to take the definition of `Nat.plusR` into account leads to a simpler goal:
+ただし、`simp` を使用するように設定することができ、一連の定義を利用するようにできます。
+`rw` と同様、これらの引数はリストで提供されます。
+`simp` に `Nat.plusR` の定義を考慮に入れるように指示すると、より単純なゴールになります：
 ```leantac
 {{#example_in Examples/Induction.lean plusR_zero_left_golf_2}}
 ```
 ```output error
 {{#example_out Examples/Induction.lean plusR_zero_left_golf_2}}
 ```
-In particular, the goal is now identical to the induction hypothesis.
-In addition to automatically proving simple equality statements, the simplifier automatically replaces goals like `Nat.succ A = Nat.succ B` with `A = B`.
-Because the induction hypothesis `ih` has exactly the right type, the `exact` tactic can indicate that it should be used:
+特に、ゴールは今、帰納仮説と同一です。
+簡略化タクティクは、単純な等式の証明だけでなく、ゴールを `Nat.succ A = Nat.succ B` から `A = B` に自動的に置き換えることも行います。
+帰納仮説 `ih` がまさに適切な型を持っているため、`exact` タクティクを使用することを示すことができます：
 ```leantac
 {{#example_decl Examples/Induction.lean plusR_zero_left_golf_3}}
 ```
 
-However, the use of `exact` is somewhat fragile.
-Renaming the induction hypothesis, which may happen while "golfing" the proof, would cause this proof to stop working.
-The `assumption` tactic solves the current goal if _any_ of the assumptions match it:
+ただし、`exact` の使用は多少デリケートです。
+帰納仮説の名前を変更すると、証明が機能しなくなる可能性があります。
+`assumption` タクティクは、仮定のいずれかがそれに一致する場合に、現在のゴールを解決します：
 ```leantac
 {{#example_decl Examples/Induction.lean plusR_zero_left_golf_4}}
 ```
 
-This proof is no shorter than the prior proof that used unfolding and explicit rewriting.
-However, a series of transformations can make it much shorter, taking advantage of the fact that `simp` can solve many kinds of goals.
-The first step is to drop the `with` at the end of `induction`.
-For structured, readable proofs, the `with` syntax is convenient.
-It complains if any cases are missing, and it shows the structure of the induction clearly.
-But shortening proofs can often require a more liberal approach.
+この証明は、前の証明と比べてそれほど短くありません。
+ただし、多くの種類のゴールを解決できる点を活用して、一連の変換を行うことで、はるかに短くなる可能性があります。
+最初のステップは、`induction` の最後の `with` を省略することです。
+構造的で読みやすい証明の場合、`with` 構文は便利です。
+ケースが欠けているとエラーを出力し、帰納の構造を明確に表示します。
+ただし、証明を短縮するには、より自由なアプローチが必要なことがあります。
 
-Using `induction` without `with` simply results in a proof state with two goals.
-The `case` tactic can be used to select one of them, just as in the branches of the `induction ... with` tactic.
-In other words, the following proof is equivalent to the prior proof:
+`with` を使用せずに `induction` を使うと、2つのゴールを持つ証明状態が得られます。
+`case` タクティクを使用して、`induction ... with` タクティクのブランチと同じように、それらのうちの1つを選択できます。
+言い換えれば、次の証明は前の証明と等価です：
 ```leantac
 {{#example_decl Examples/Induction.lean plusR_zero_left_golf_5}}
 ```
 
-In a context with a single goal (namely, `k = Nat.plusR 0 k`), the `induction k` tactic yields two goals.
-In general, a tactic will either fail with an error or take a goal and transform it into zero or more new goals.
-Each new goal represents what remains to be proved.
-If the result is zero goals, then the tactic was a success, and that part of the proof is done.
+単一のゴールを持つコンテキスト（具体的には、`k = Nat.plusR 0 k` というゴール）で、`induction k` タクティクは2つのゴールを生成します。
+一般的に、タクティクはエラーを出力するか、ゴールを取り、それをゼロ個以上の新しいゴールに変換します。
+各新しいゴールは、証明すべき残りの部分を表します。
+結果がゴールがゼロ個の場合、タクティクは成功し、その証明のその部分は完了です。
 
-The `<;>` operator takes two tactics as arguments, resulting in a new tactic.
-`T1 <;> T2` applies `T1` to the current goal, and then applies `T2` in _all_ goals created by `T1`.
-In other words, `<;>` enables a general tactic that can solve many kinds of goals to be used on multiple new goals all at once.
-One such general tactic is `simp`.
+`<;>` 演算子は、2つのタクティクを引数に取り、新しいタクティクを生成します。
+`T1 <;> T2` は `T1` を現在のゴールに適用し、`T1` によって作成された _すべて_ のゴールに対して `T2` を適用します。
+言い換えれば、`<;>` は多くの種類のゴールを解決できる汎用タクティクを、一度に複数の新しいゴールに使用できるようにします。
+そのような一般的なタクティクの1つが `simp` です。
 
-Because `simp` can both complete the proof of the base case and make progress on the proof of the induction step, using it with `induction` and `<;>` shortens the proof:
+`simp` はベースケースの証明を完了し、帰納ステップの証明を進めることができるため、`induction` と `<;>` と組み合わせて使用することで証明が短縮されます：
 ```leantac
 {{#example_in Examples/Induction.lean plusR_zero_left_golf_6a}}
 ```
-This results in only a single goal, the transformed induction step:
+その結果、変換された帰納ステップの1つだけのゴールが得られます：
 ```output error
 {{#example_out Examples/Induction.lean plusR_zero_left_golf_6a}}
 ```
-Running `assumption` in this goal completes the proof:
+このゴールに `assumption` を実行することで証明が完了します：
 ```leantac
 {{#example_decl Examples/Induction.lean plusR_zero_left_golf_6}}
 ```
-Here, `exact` would not have been possible, because `ih` was never explicitly named.
+ここでは、`ih` が明示的に名前付けられていなかったため、`exact` は使用できませんでした。
 
-For beginners, this proof is not easier to read.
-However, a common pattern for expert users is to take care of a number of simple cases with powerful tactics like `simp`, allowing them to focus the text of the proof on the interesting cases.
-Additionally, these proofs tend to be more robust in the face of small changes to the functions and datatypes involved in the proof.
-The game of tactic golf is a useful part of developing good taste and style when writing proofs.
+初心者にとって、この証明は読みやすくなるわけではありません。
+ただし、専門家のユーザーにとって一般的なパターンは、`simp` のような強力なタクティクを使用して多くの単純なケースを処理し、証明の本文を興味深いケースに焦点を当てることです。
+さらに、これらの証明は、証明に関与する関数とデータ型の小さな変更に対しても、通常よりも堅牢である傾向があります。
+タクティクゴルフのゲームは、証明を書く際の優れたスタイルとセンスを開発するための有用な要素です。
 
-## Induction on Other Datatypes
 
-Mathematical induction proves a statement for natural numbers by providing a base case for `Nat.zero` and an induction step for `Nat.succ`.
-The principle of induction is also valid for other datatypes.
-Constructors without recursive arguments form the base cases, while constructors with recursive arguments form the induction steps.
-The ability to carry out proofs by induction is the very reason why they are called _inductive_ datatypes.
+## 他の型における帰納（Induction on Other Datatypes）
 
-One example of this is induction on binary trees.
-Induction on binary trees is a proof technique where a statement is proven for _all_ binary trees in two steps:
- 1. The statement is shown to hold for `BinTree.leaf`. This is called the base case.
- 2. Under the assumption that the statement holds for some arbitrarily chosen trees `l` and `r`, it is shown to hold for `BinTree.branch l x r`, where `x` is an arbitrarily-chosen new data point. This is called the _induction step_. The assumptions that the statement holds for `l` and `r` are called the _induction hypotheses_.
+数学的帰納法は、自然数に関する命題を`Nat.zero`の基本ケースと`Nat.succ`の帰納ステップを提供することによって証明します。
+帰納法の原則は、他のデータ型に対しても有効です。
+再帰引数を持たないコンストラクタは基本ケースを形成し、再帰引数を持つコンストラクタは帰納ステップを形成します。
+帰納法によって証明を行う能力は、それが _帰納的_ データ型と呼ばれる理由そのものです。
 
-`BinTree.count` counts the number of branches in a tree:
+その一例が、二分木に対する帰納法です。
+二分木に対する帰納法は、二つのステップで_すべて_の二分木についての命題を証明する証明技法です：
+ 1. 命題が `BinTree.leaf` に適用されることが示されます。これは基本ケースと呼ばれます。
+ 2. 仮定として、命題がいくつかの任意の木 `l` と `r` に適用されることが示され、新しいデータ点 `x` が任意に選択された `BinTree.branch l x r` についても成立することが示されます。これを帰納ステップと呼びます。`l` と `r` について命題が成立するという仮定は、帰納仮説と呼ばれます。
+
+`BinTree.count` は木の枝の数を数えます：
 ```lean
 {{#example_decl Examples/Induction.lean BinTree_count}}
 ```
-[Mirroring a tree](monads/conveniences.md#leading-dot-notation) does not change the number of branches in it.
-This can be proven using induction on trees.
-The first step is to state the theorem and invoke `induction`:
+[木のミラーリング](monads/conveniences.md#leading-dot-notation) は、それに含まれる枝の数を変更しません。
+これは木に対する帰納法を使用して証明できます。
+最初のステップは、定理を述べ、`induction` を呼び出すことです：
 ```leantac
 {{#example_in Examples/Induction.lean mirror_count_0a}}
 ```
-The base case states that counting the mirror of a leaf is the same as counting the leaf:
+基本ケースでは、葉のミラーリングの枝の数を葉の枝の数と同じであると述べています：
 ```output error
 {{#example_out Examples/Induction.lean mirror_count_0a}}
 ```
-The induction step allows the assumption that mirroring the left and right subtrees won't affect their branch counts, and requests a proof that mirroring a branch with these subtrees also preserves the overall branch count:
+帰納ステップでは、左右のサブツリーをミラーリングしてもその枝の数には影響を及ぼさないという仮定を行い、これらのサブツリーを持つ枝をミラーリングしても全体の枝の数が保存される証明を求めています：
 ```output error
 {{#example_out Examples/Induction.lean mirror_count_0b}}
 ```
 
+次の英語の文章を日本語に翻訳します：
 
-The base case is true because mirroring `leaf` results in `leaf`, so the left and right sides are definitionally equal.
-This can be expressed by using `simp` with instructions to unfold `BinTree.mirror`:
+基本ケースは`leaf`を`leaf`に対応づけることで真となり、したがって左側と右側は定義的に等しいです。
+これは、`BinTree.mirror`を展開するように`simp`を使用して表現できます：
 ```leantac
 {{#example_in Examples/Induction.lean mirror_count_1}}
 ```
-In the induction step, nothing in the goal immediately matches the induction hypotheses.
-Simplifying using the definitions of `BinTree.count` and `BinTree.mirror` reveals the relationship:
+帰納ステップでは、ゴール内で即座に帰納仮説と一致する部分はありません。
+`BinTree.count`および`BinTree.mirror`の定義を使用して簡略化すると、次の関係が明らかになります：
 ```leantac
 {{#example_in Examples/Induction.lean mirror_count_2}}
 ```
 ```output error
 {{#example_out Examples/Induction.lean mirror_count_2}}
 ```
-Both induction hypotheses can be used to rewrite the left-hand side of the goal into something almost like the right-hand side:
+両方の帰納仮説を使用して、ゴールの左側を右側にほぼ等しいものに書き換えることができます：
 ```leantac
 {{#example_in Examples/Induction.lean mirror_count_3}}
 ```
@@ -254,31 +259,30 @@ Both induction hypotheses can be used to rewrite the left-hand side of the goal 
 {{#example_out Examples/Induction.lean mirror_count_3}}
 ```
 
-The `simp_arith` tactic, a version of `simp` that can use additional arithmetic identities, is enough to prove this goal, yielding:
+`simp_arith`タクティク、追加の算術的同値性を使用できる`simp`のバージョン、はこのゴールを証明するのに十分です。次のようになります：
 ```leantac
 {{#example_decl Examples/Induction.lean mirror_count_4}}
 ```
 
-In addition to definitions to be unfolded, the simplifier can also be passed names of equality proofs to use as rewrites while it simplifies proof goals.
-`BinTree.mirror_count` can also be written:
+展開すべき定義の他に、簡略化器には証明のゴールを簡略化する際に使用する等式証明の名前も渡すことができます。
+`BinTree.mirror_count`は次のようにも書けます：
 ```leantac
 {{#example_decl Examples/Induction.lean mirror_count_5}}
 ```
-As proofs grow more complicated, listing assumptions by hand can become tedious.
-Furthermore, manually writing assumption names can make it more difficult to re-use proof steps for multiple subgoals.
-The argument `*` to `simp` or `simp_arith` instructs them to use _all_ assumptions while simplifying or solving the goal.
-In other words, the proof could also be written:
+証明がより複雑になると、前提条件を手動で列挙することは面倒になります。
+さらに、前提条件の名前を手動で書くことは、証明ステップを複数のサブゴールに再利用するのが難しくなることがあります。
+`*`引数を`simp`または`simp_arith`に渡すことで、ゴールを簡略化または解決する際に_すべて_の前提条件を使用するように指示できます。
+言い換えれば、証明は次のようにも書けます：
 ```leantac
 {{#example_decl Examples/Induction.lean mirror_count_6}}
 ```
-Because both branches are using the simplifier, the proof can be reduced to:
+両方のブランチが簡略化器を使用しているため、証明は次のように簡約できます：
 ```leantac
 {{#example_decl Examples/Induction.lean mirror_count_7}}
 ```
 
+## 演習（Exercises）
 
-## Exercises
-
- * Prove `plusR_succ_left` using the `induction ... with` tactic.
- * Rewrite the proof of `plus_succ_left` to use `<;>` in a single line.
- * Prove that appending lists is associative using induction on lists: `theorem List.append_assoc (xs ys zs : List α) : xs ++ (ys ++ zs) = (xs ++ ys) ++ zs`
+ * `induction ... with`タクティクを使用して`plusR_succ_left`を証明してください。
+ * `plus_succ_left`の証明を1行で`<;>`を使用して書き換えてください。
+ * リストの連結が結合法則であることをリストの帰納法を使用して証明してください：`theorem List.append_assoc (xs ys zs : List α) : xs ++ (ys ++ zs) = (xs ++ ys) ++ zs`

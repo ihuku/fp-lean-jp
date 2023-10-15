@@ -1,29 +1,28 @@
-# Proving Equivalence
+# 等価性の証明（Proving Equivalence）
 
-Programs that have been rewritten to use tail recursion and an accumulator can look quite different from the original program.
-The original recursive function is often much easier to understand, but it runs the risk of exhausting the stack at run time.
-After testing both versions of the program on examples to rule out simple bugs, proofs can be used to show once and for all that the programs are equivalent.
+末尾再帰とアキュムレータを使用して書き直されたプログラムは、元のプログラムとはかなり異なる見た目になることがあります。
+元の再帰関数は通常理解しやすいですが、実行時にスタックを枯渇させる危険があります。
+両方のプログラムのバージョンを単純なバグがないことを確認するために例を使用してテストした後、証明を使用してプログラムが等価であることを一度確認できます。
 
-## Proving `sum` Equal
+## `sum` の等価性の証明
 
-To prove that both versions of `sum` are equal, begin by writing the theorem statement with a stub proof:
+`sum` の両バージョンが等しいことを証明するために、スタブ証明を含む定理文を記述して始めます：
 ```leantac
 {{#example_in Examples/ProgramsProofs/TCO.lean sumEq0}}
 ```
-As expected, Lean describes an unsolved goal:
+予想通り、Leanは未解決のゴールを示します：
 ```output error
 {{#example_out Examples/ProgramsProofs/TCO.lean sumEq0}}
 ```
 
-The `rfl` tactic cannot be applied here, because `NonTail.sum` and `Tail.sum` are not definitionally equal.
-Functions can be equal in more ways than just definitional equality, however.
-It is also possible to prove that two functions are equal by proving that they produce equal outputs for the same input.
-In other words, \\( f = g \\) can be proved by proving that \\( f(x) = g(x) \\) for all possible inputs \\( x \\).
-This principle is called _function extensionality_.
-Function extensionality is exactly the reason why `NonTail.sum` equals `Tail.sum`: they both sum lists of numbers.
+`rfl` タクティクはここでは適用できません。なぜなら、`NonTail.sum` と `Tail.sum` は定義的に等しくないからです。
+ただし、関数は定義的な等価性だけでなく、他の方法でも等しいことが証明できます。
+つまり、2つの関数が同じ入力に対して同じ出力を生成することを証明することで、2つの関数が等しいことが証明できます。
+言い換えれば、\\( f = g \\) は、すべての可能な入力 \\( x \\) に対して \\( f(x) = g(x) \\) であることを証明することによって証明できます。この原理は _関数の拡張性_ と呼ばれます。
+関数の拡張性は、`NonTail.sum` が `Tail.sum` と等しい理由そのままです。両方が数値のリストを合計するからです。
 
-In Lean's tactic language, function extensionality is invoked using `funext`, followed by a name to be used for the arbitrary argument.
-The arbitrary argument is added as an assumption to the context, and the goal changes to require a proof that the functions applied to this argument are equal:
+Leanのタクティク言語では、関数の拡張性は `funext` を使用して呼び出し、任意の引数に使用する名前に続けて指定されます。
+この任意の引数はコンテキストに仮定として追加され、ゴールはこの引数を使用して関数が等しいことを証明する証明を要求するものに変更されます：
 ```leantac
 {{#example_in Examples/ProgramsProofs/TCO.lean sumEq1}}
 ```
@@ -31,10 +30,11 @@ The arbitrary argument is added as an assumption to the context, and the goal ch
 {{#example_out Examples/ProgramsProofs/TCO.lean sumEq1}}
 ```
 
-This goal can be proved by induction on the argument `xs`.
-Both `sum` functions return `0` when applied to the empty list, which serves as a base case.
-Adding a number to the beginning of the input list causes both functions to add that number to the result, which serves as an induction step.
-Invoking the `induction` tactic results in two goals:
+このゴールは `xs` 引数に対する帰納法によって証明できます。
+両方の `sum` 関数は空のリストに適用されると `0` を返し、これが基本ケースとして機能します。
+入力リストの先頭に数値を追加すると、両方の関数はその数値を結果に加えるため、これが帰納ステップとして機能します。
+`induction` タクティクを呼び出すと、2つのゴールが生成されます。
+
 ```leantac
 {{#example_in Examples/ProgramsProofs/TCO.lean sumEq2a}}
 ```
@@ -45,238 +45,252 @@ Invoking the `induction` tactic results in two goals:
 {{#example_out Examples/ProgramsProofs/TCO.lean sumEq2b}}
 ```
 
-The base case for `nil` can be solved using `rfl`, because both functions return `0` when passed the empty list:
+`nil` の基本ケースは、空リストが渡されたときに両方の関数が `0` を返すため、`rfl` を使用して解決できます：
 ```leantac
 {{#example_in Examples/ProgramsProofs/TCO.lean sumEq3}}
 ```
 
-The first step in solving the induction step is to simplify the goal, asking `simp` to unfold `NonTail.sum` and `Tail.sum`:
+帰納ステップを解決する最初のステップは、ゴールを簡単にすることで、`NonTail.sum` と `Tail.sum` を展開するように `simp` に要請することです：
 ```leantac
 {{#example_in Examples/ProgramsProofs/TCO.lean sumEq4}}
 ```
 ```output error
 {{#example_out Examples/ProgramsProofs/TCO.lean sumEq4}}
 ```
-Unfolding `Tail.sum` revealed that it immediately delegates to `Tail.sumHelper`, which should also be simplified:
+`Tail.sum` を展開することで、それがすぐに `Tail.sumHelper` に委譲することが明らかになり、これも簡略化する必要があります：
 ```leantac
 {{#example_in Examples/ProgramsProofs/TCO.lean sumEq5}}
 ```
-In the resulting goal, `sumHelper` has taken a step of computation and added `y` to the accumulator:
+生成されたゴールでは、`sumHelper` が計算のステップを踏んで、アキュムレータに `y` を追加しました：
 ```output error
 {{#example_out Examples/ProgramsProofs/TCO.lean sumEq5}}
 ```
-Rewriting with the induction hypothesis removes all mentions of `NonTail.sum` from the goal:
+
+帰納仮説を使用して、ゴールから `NonTail.sum` のすべての言及を削除できます：
 ```leantac
 {{#example_in Examples/ProgramsProofs/TCO.lean sumEq6}}
 ```
 ```output error
 {{#example_out Examples/ProgramsProofs/TCO.lean sumEq6}}
 ```
-This new goal states that adding some number to the sum of a list is the same as using that number as the initial accumulator in `sumHelper`.
-For the sake of clarity, this new goal can be proved as a separate theorem:
+
+この新しいゴールでは、リストの合計に何らかの数値を追加することが、その数値を `sumHelper` の初期アキュムレータとして使用することと同じであることが述べられています。
+明確さのために、この新しいゴールを別の定理として証明できます：
 ```leantac
 {{#example_in Examples/ProgramsProofs/TCO.lean sumEqHelperBad0}}
 ```
 ```output error
 {{#example_out Examples/ProgramsProofs/TCO.lean sumEqHelperBad0}}
 ```
-Once again, this is a proof by induction where the base case uses `rfl`:
+
+これも再び、基本ケースでは `rfl` を使用した帰納法の証明です：
 ```leantac
 {{#example_in Examples/ProgramsProofs/TCO.lean sumEqHelperBad1}}
 ```
 ```output error
 {{#example_out Examples/ProgramsProofs/TCO.lean sumEqHelperBad1}}
 ```
-Because this is an inductive step, the goal should be simplified until it matches the induction hypothesis `ih`.
-Simplifying, using the definitions of `Tail.sum` and `Tail.sumHelper`, results in the following:
+
+これは帰納ステップなので、ゴールは帰納仮説 `ih` に一致するように簡略化されるべきです。
+`Tail.sum` と `Tail.sumHelper` の定義を使用して簡略化すると、次のようになります：
 ```leantac
 {{#example_in Examples/ProgramsProofs/TCO.lean sumEqHelperBad2}}
 ```
 ```output error
 {{#example_out Examples/ProgramsProofs/TCO.lean sumEqHelperBad2}}
 ```
-Ideally, the induction hypothesis could be used to replace `Tail.sumHelper (y + n) ys`, but they don't match.
-The induction hypothesis can be used for `Tail.sumHelper n ys`, not `Tail.sumHelper (y + n) ys`.
-In other words, this proof is stuck.
 
-## A Second Attempt
+理想的には、帰納仮説を使用して `Tail.sumHelper (y + n) ys` を置き換えることができますが、一致しません。
+帰納仮説は `Tail.sumHelper n ys` に対してではなく、`Tail.sumHelper (y + n) ys` に対して使用する必要があります。
+言い換えれば、この証明は行き詰まっているということです。
 
-Rather than attempting to muddle through the proof, it's time to take a step back and think.
-Why is it that the tail-recursive version of the function is equal to the non-tail-recursive version?
-Fundamentally speaking, at each entry in the list, the accumulator grows by the same amount as would be added to the result of the recursion.
-This insight can be used to write an elegant proof.
-Crucially, the proof by induction must be set up such that the induction hypothesis can be applied to _any_ accumulator value.
+## 2度目の挑戦（A Second Attempt）
 
-Discarding the prior attempt, the insight can be encoded as the following statement:
+証明をこなそうとするのではなく、一歩後ろに退いて考える時が来ました。
+なぜ、関数の末尾再帰バージョンが非末尾再帰バージョンと等しいのか、それは何故でしょうか？
+根本的に言えば、リストの各エントリにおいて、アキュムレータは再帰の結果に追加されるものと同じだけ成長します。
+この洞察を使用して、エレガントな証明を書くことができます。
+重要なのは、帰納法による証明は、帰納仮説が_任意の_アキュムレータ値に適用できるように設定されなければならないことです。
+
+以前の試みを捨てて、この洞察は以下のように記述できます：
 ```leantac
 {{#example_in Examples/ProgramsProofs/TCO.lean nonTailEqHelper0}}
 ```
-In this statement, it's very important that `n` is part of the type that's after the colon.
-The resulting goal begins with `∀ (n : Nat)`, which is short for "For all `n`":
+この文では、`n`がコロンの後にある型の一部であることが非常に重要です。
+生成されたゴールは「∀（n：Nat）」で始まり、これは「すべての`n`に対して」という意味です。
 ```output error
 {{#example_out Examples/ProgramsProofs/TCO.lean nonTailEqHelper0}}
 ```
-Using the induction tactic results in goals that include this "for all" statement:
+帰納タクティクを使用すると、ゴールにはこの「すべての」文が含まれるようになります：
 ```leantac
 {{#example_in Examples/ProgramsProofs/TCO.lean nonTailEqHelper1a}}
 ```
-In the `nil` case, the goal is:
+「nil」の場合、ゴールは次のようになります：
 ```output error
 {{#example_out Examples/ProgramsProofs/TCO.lean nonTailEqHelper1a}}
 ```
-For the induction step for `cons`, both the induction hypothesis and the specific goal contain the "for all `n`":
+「cons」の帰細ステップの場合、帰納仮説と特定のゴールの両方が「すべての`n`」を含むことになります：
 ```output error
 {{#example_out Examples/ProgramsProofs/TCO.lean nonTailEqHelper1b}}
 ```
-In other words, the goal has become more challenging to prove, but the induction hypothesis is correspondingly more useful.
+言い換えれば、ゴールは証明が難しくなりましたが、帰納仮説はそれに応じてより有用になりました。
 
-A mathematical proof for a statement that beings with "for all \\( x \\)" should assume some arbitrary \\( x \\), and prove the statement.
-"Arbitrary" means that no additional properties of \\( x \\) are assumed, so the resulting statement will work for _any_ \\( x \\).
-In Lean, a "for all" statement is a dependent function: no matter which specific value it is applied to, it will return evidence of the proposition.
-Similarly, the process of picking an arbitrary \\( x \\) is the same as using ``fun x => ...``.
-In the tactic language, this process of selecting an arbitrary \\( x \\) is performed using the `intro` tactic, which produces the function behind the scenes when the tactic script has completed.
-The `intro` tactic should be provided with the name to be used for this arbitrary value.
+「すべてのxから始まる」という文の数学的証明は、何らかの任意のxを仮定し、その文を証明するものです。
+「任意の」とは、xの追加のプロパティを仮定しないことを意味し、結果の文は_任意の_ xに対して機能します。
+Leanでは、「すべての」文は依存関数です：それが適用される具体的な値が何であっても、それは命題の証拠を返します。
+同様に、任意のxを選択するプロセスは、`fun x => ...`を使用することと同じです。
+タクティク言語では、この任意のxを選択するプロセスは、タクティクスクリプトが完了したときに背後で関数を生成する`intro`タクティクによって実行されます。
+`intro`タクティクにはこの任意の値に使用される名前が提供される必要があります。
 
-Using the `intro` tactic in the `nil` case removes the `∀ (n : Nat),` from the goal, and adds an assumption `n : Nat`:
+`nil`の場合、`intro`タクティクを使用すると、ゴールから`∀ (n : Nat),`が削除され、`n : Nat`という仮定が追加されます：
 ```leantac
 {{#example_in Examples/ProgramsProofs/TCO.lean nonTailEqHelper2}}
 ```
 ```output error
 {{#example_out Examples/ProgramsProofs/TCO.lean nonTailEqHelper2}}
 ```
-Both sides of this propositional equality are definitionally equal to `n`, so `rfl` suffices:
+この命題の等式の両側は、定義的に`n`に等しいため、`rfl`で十分です：
 ```leantac
 {{#example_in Examples/ProgramsProofs/TCO.lean nonTailEqHelper3}}
 ```
-The `cons` goal also contains a "for all":
+`cons`のゴールにも「すべての」が含まれています：
 ```output error
 {{#example_out Examples/ProgramsProofs/TCO.lean nonTailEqHelper3}}
 ```
-This suggests the use of `intro`.
+これは`intro`の使用を示唆しています。
 ```leantac
 {{#example_in Examples/ProgramsProofs/TCO.lean nonTailEqHelper4}}
 ```
 ```output error
 {{#example_out Examples/ProgramsProofs/TCO.lean nonTailEqHelper4}}
 ```
-The proof goal now contains both `NonTail.sum` and `Tail.sumHelper` applied to `y :: ys`.
-The simplifier can make the next step more clear:
+証明のゴールには今、`y :: ys`に適用された`NonTail.sum`と`Tail.sumHelper`の両方が含まれています。
+簡略化は次のステップをより明確にできます：
 ```leantac
 {{#example_in Examples/ProgramsProofs/TCO.lean nonTailEqHelper5}}
 ```
 ```output error
 {{#example_out Examples/ProgramsProofs/TCO.lean nonTailEqHelper5}}
 ```
-This goal is very close to matching the induction hypothesis.
-There are two ways in which it does not match:
- * The left-hand side of the equation is `n + (y + NonTail.sum ys)`, but the induction hypothesis needs the left-hand side to be a number added to `NonTail.sum ys`.
-   In other words, this goal should be rewritten to `(n + y) + NonTail.sum ys`, which is valid because addition of natural numbers is associative.
- * When the left side has been rewritten to `(y + n) + NonTail.sum ys`, the accumulator argument on the right side should be `n + y` rather than `y + n` in order to match.
-   This rewrite is valid because addition is also commutative.
+このゴールは帰納仮説に非常に近いものです。
+一致しない部分は2つあります：
+* 方程式の左辺は `n + (y + NonTail.sum ys)` ですが、帰納仮説では左辺が `NonTail.sum ys` に追加される数値である必要があります。
+  言い換えれば、このゴールは `(n + y) + NonTail.sum ys` に書き換える必要があります。これは自然数の加法が結合的であるため有効です。
+* 左辺が `(y + n) + NonTail.sum ys` に書き換えられた場合、右辺のアキュムレータ引数は一致するために `y + n` ではなく `n + y` である必要があります。
+  この書き換えも有効で、加法は可換であるためです。
 
-The associativity and commutativity of addition have already been proved in Lean's standard library.
-The proof of associativity is named `{{#example_in Examples/ProgramsProofs/TCO.lean NatAddAssoc}}`, and its type is `{{#example_out Examples/ProgramsProofs/TCO.lean NatAddAssoc}}`, while the proof of commutativity is called `{{#example_in Examples/ProgramsProofs/TCO.lean NatAddComm}}` and has type `{{#example_out Examples/ProgramsProofs/TCO.lean NatAddComm}}`.
-Normally, the `rw` tactic is provided with an expression whose type is an equality.
-However, if the argument is instead a dependent function whose return type is an equality, it attempts to find arguments to the function that would allow the equality to match something in the goal.
-There is only one opportunity to apply associativity, though the direction of the rewrite must be reversed because the right side of the equality in `{{#example_in Examples/ProgramsProofs/TCO.lean NatAddAssoc}}` is the one that matches the proof goal:
+加法の結合性と可換性は、すでにLeanの標準ライブラリで証明されています。
+結合性の証明は `{{#example_in Examples/ProgramsProofs/TCO.lean NatAddAssoc}}` という名前で、その型は `{{#example_out Examples/ProgramsProofs/TCO.lean NatAddAssoc}}` です。一方、可換性の証明は `{{#example_in Examples/ProgramsProofs/TCO.lean NatAddComm}}` と呼ばれ、その型は `{{#example_out Examples/ProgramsProofs/TCO.lean NatAddComm}}` です。
+通常、`rw`タクティクには型が等式である式が提供されます。
+ただし、引数が代数関数で、その戻り値の型が等式である場合、その等式がゴール内の何かに一致するような関数の引数を見つけようとします。
+結合性を適用できる機会は1つだけですが、`{{#example_in Examples/ProgramsProofs/TCO.lean NatAddAssoc}}` の等式の右側が証明のゴールに一致するため、書き換えの方向を逆にする必要があります：
 ```leantac
 {{#example_in Examples/ProgramsProofs/TCO.lean nonTailEqHelper6}}
 ```
 ```output error
 {{#example_out Examples/ProgramsProofs/TCO.lean nonTailEqHelper6}}
 ```
-Rewriting directly with `{{#example_in Examples/ProgramsProofs/TCO.lean NatAddComm}}`, however, leads to the wrong result.
-The `rw` tactic guesses the wrong location for the rewrite, leading to an unintended goal:
+ただし、`{{#example_in Examples/ProgramsProofs/TCO.lean NatAddComm}}` を直接書き換えると、誤った結果につながります。
+`rw`タクティクは書き換えの位置を誤って推測し、意図しないゴールに導きます：
 ```leantac
 {{#example_in Examples/ProgramsProofs/TCO.lean nonTailEqHelper7}}
 ```
 ```output error
 {{#example_out Examples/ProgramsProofs/TCO.lean nonTailEqHelper7}}
 ```
-This can be fixed by explicitly providing `y` and `n` as arguments to `Nat.add_comm`:
+これは、`Nat.add_comm` に `y` と `n` を明示的に引数として提供することで修正できます：
 ```leantac
 {{#example_in Examples/ProgramsProofs/TCO.lean nonTailEqHelper8}}
 ```
 ```output error
 {{#example_out Examples/ProgramsProofs/TCO.lean nonTailEqHelper8}}
 ```
-The goal now matches the induction hypothesis.
-In particular, the induction hypothesis's type is a dependent function type.
-Applying `ih` to `n + y` results in exactly the desired type.
-The `exact` tactic completes a proof goal if its argument has exactly the desired type:
+ゴールは現在、帰納仮説に一致します。
+特に、帰納仮説の型は依存関数型です。
+`ih` を `n + y` に適用すると、まさに必要な型が得られます。
+`exact` タクティクは、その引数がまさに所望の型である場合、証明ゴールを完了させます：
 ```leantac
 {{#example_decl Examples/ProgramsProofs/TCO.lean nonTailEqHelperDone}}
 ```
 
-The actual proof requires only a little additional work to get the goal to match the helper's type.
-The first step is still to invoke function extensionality:
+実際の証明には、ゴールを補助定理（ヘルパー）の型に一致させるためにわずかな追加作業しか必要ありません。最初のステップは、まだ関数の拡張性を呼び出すことです：
+
 ```leantac
 {{#example_in Examples/ProgramsProofs/TCO.lean nonTailEqReal0}}
 ```
+
 ```output error
 {{#example_out Examples/ProgramsProofs/TCO.lean nonTailEqReal0}}
 ```
-The next step is unfold `Tail.sum`, exposing `Tail.sumHelper`:
+
+次のステップは、`Tail.sum`を展開し、`Tail.sumHelper`を表示することです：
+
 ```leantac
 {{#example_in Examples/ProgramsProofs/TCO.lean nonTailEqReal1}}
 ```
+
 ```output error
 {{#example_out Examples/ProgramsProofs/TCO.lean nonTailEqReal1}}
 ```
-Having done this, the types almost match.
-However, the helper has an additional addend on the left side.
-In other words, the proof goal is `NonTail.sum xs = Tail.sumHelper 0 xs`, but applying `non_tail_sum_eq_helper_accum` to `xs` and `0` yields the type `0 + NonTail.sum xs = Tail.sumHelper 0 xs`.
-Another standard library proof, `{{#example_in Examples/ProgramsProofs/TCO.lean NatZeroAdd}}`, has type `{{#example_out Examples/ProgramsProofs/TCO.lean NatZeroAdd}}`.
-Applying this function to `NonTail.sum xs` results in an expression with type `{{#example_out Examples/ProgramsProofs/TCO.lean NatZeroAddApplied}}`, so rewriting from right to left results in the desired goal:
+
+これを行った後、型はほぼ一致します。ただし、補助定理の左側に追加の被加数があります。
+言い換えれば、証明のゴールは `NonTail.sum xs = Tail.sumHelper 0 xs` ですが、`non_tail_sum_eq_helper_accum`を `xs` と `0` に適用すると、型は `0 + NonTail.sum xs = Tail.sumHelper 0 xs` になります。
+もう1つの標準ライブラリの証明、`{{#example_in Examples/ProgramsProofs/TCO.lean NatZeroAdd}}` は型 `{{#example_out Examples/ProgramsProofs/TCO.lean NatZeroAdd}}` を持っています。
+これを `NonTail.sum xs` に適用すると、所望のゴールになるように右から左に書き換えることができます：
+
 ```leantac
 {{#example_in Examples/ProgramsProofs/TCO.lean nonTailEqReal2}}
 ```
+
 ```output error
 {{#example_out Examples/ProgramsProofs/TCO.lean nonTailEqReal2}}
 ```
-Finally, the helper can be used to complete the proof:
+
+最後に、補助定理を使用して証明を完成させることができます：
+
 ```leantac
 {{#example_decl Examples/ProgramsProofs/TCO.lean nonTailEqRealDone}}
 ```
 
-This proof demonstrates a general pattern that can be used when proving that an accumulator-passing tail-recursive function is equal to the non-tail-recursive version.
-The first step is to discover the relationship between the starting accumulator argument and the final result.
-For instance, beginning `Tail.sumHelper` with an accumulator of `n` results in the final sum being added to `n`, and beginning `Tail.reverseHelper` with an accumulator of `ys` results in the final reversed list being prepended to `ys`.
-The second step is to write down this relationship as a theorem statement and prove it by induction.
-While the accumulator is always initialized with some neutral value in practice, such as `0` or `[]`, this more general statement that allows the starting accumulator to be any value is what's needed to get a strong enough induction hypothesis.
-Finally, using this helper theorem with the actual initial accumulator value results in the desired proof.
-For example, in `non_tail_sum_eq_tail_sum`, the accumulator is specified to be `0`.
-This may require rewriting the goal to make the neutral initial accumulator values occur in the right place.
+この証明は、アキュムレータを渡す末尾再帰関数が非末尾再帰バージョンと等しいことを証明する際に使用できる一般的なパターンを示しています。
+最初のステップは、初期アキュムレータ引数と最終結果の関係を見つけることです。
+例えば、初期アキュムレータを `n` で始めると、最終の合計は `n` に追加され、初期アキュムレータを `ys` で始めると、最終の逆順リストが `ys` に前置されます。
+2番目のステップは、この関係を定理文として書き留め、帰納法によって証明することです。
+実際にはアキュムレータは常に「0」や「[]」などの中立的な値で初期化されますが、初期アキュムレータを任意の値に設定できるようにするこのより一般的な文は、強力な帰納仮説を得るために必要です。
+最後に、この補助定理を実際の初期アキュムレータ値とともに使用して、所望の証明が得られます。
+例えば、`non_tail_sum_eq_tail_sum`では、アキュムレータが「0」で指定されています。
+このため、中立的な初期アキュムレータ値が正しい位置に現れるようにゴールを書き換える必要があるかもしれません。
 
 
+## 練習（Exercise）
 
-## Exercise
+### ウォーミングアップ（Warming Up）
 
-### Warming Up
+`induction`タクティクを使用して、`Nat.zero_add`、`Nat.add_assoc`、および `Nat.add_comm` の証明を自分で行ってください。
 
-Write your own proofs for `Nat.zero_add`, `Nat.add_assoc`, and `Nat.add_comm` using the `induction` tactic.
- 
-### More Accumulator Proofs
+### アキュムレータ証明のさらなる例（More Accumulator Proofs）
 
-#### Reversing Lists
+#### リストの反転（Reversing Lists）
 
-Adapt the proof for `sum` into a proof for `NonTail.reverse` and `Tail.reverse`.
-The first step is to think about the relationship between the accumulator value being passed to `Tail.reverseHelper` and the non-tail-recursive reverse.
-Just as adding a number to the accumulator in `Tail.sumHelper` is the same as adding it to the overall sum, using `List.cons` to add a new entry to the accumulator in `Tail.reverseHelper` is equivalent to some change to the overall result.
-Try three or four different accumulator values with pencil and paper until the relationship becomes clear.
-Use this relationship to prove a suitable helper theorem.
-Then, write down the overall theorem.
-Because `NonTail.reverse` and `Tail.reverse` are polymorphic, stating their equality requires the use of `@` to stop Lean from trying to figure out which type to use for `α`.
-Once `α` is treated as an ordinary argument, `funext` should be invoked with both `α` and `xs`:
+`sum`の証明を `NonTail.reverse` と `Tail.reverse` の証明に適応させてください。
+最初のステップは、`Tail.reverseHelper` に渡されるアキュムレータ値と非末尾再帰の反転との関係を考えることです。
+`Tail.sumHelper` にアキュムレータに数値を追加するのが合計全体に数値を追加するのと同じように、`Tail.reverseHelper` のアキュムレータに新しいエントリを追加することは、全体の結果に何らかの変更をもたらすことに等しいです。
+関係が明確になるまで、鉛筆と紙で3つまたは4つの異なるアキュムレータの値を試してみてください。
+この関係を使用して適切な補助定理を証明してください。
+その後、全体の定理を書き留めます。
+`NonTail.reverse` と `Tail.reverse` は多相的なため、その等式を述べるには、Leanが`α`の型をどれに使用するかを判断しようとしないように、`@`を使用する必要があります。
+`α`が通常の引数として扱われると、`funext`を `α` と `xs` の両方に適用すべきです：
+
 ```leantac
 {{#example_in Examples/ProgramsProofs/TCO.lean reverseEqStart}}
 ```
-This results in a suitable goal:
+
+これにより、適切なゴールが生成されます：
+
 ```output error
 {{#example_out Examples/ProgramsProofs/TCO.lean reverseEqStart}}
 ```
 
+#### 階乗（Factorial）
 
-#### Factorial
-
-Prove that `NonTail.factorial` from the exercises in the previous section is equal to your tail-recursive solution by finding the relationship between the accumulator and the result and proving a suitable helper theorem.
+前のセクションの演習で示された `NonTail.factorial` が、末尾再帰による方法と等しいことを証明してください。これは、アキュムレータと結果との関係を見つけ、適切な補助定理を証明することによって行います。

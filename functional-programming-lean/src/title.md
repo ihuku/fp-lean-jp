@@ -12,19 +12,27 @@ This is a free book on using Lean 4 as a programming language. All code samples 
 ## 日本語版について
 非公式日本語訳です。以下の章は一通り翻訳済みです。
 
-- Getting to Know Lean
-  - Structures
-  - Datatypes and Patterns
+- 1. Getting to Know Lean
+  - 1.4. Structures
+  - 1.5. Datatypes and Patterns
 
-- Hello, World!
-  - Running a Program
-  - Step By Step
-  - Starting a Project
-  - Worked Example: cat
-  - Additional Conveniences
-  - Summary
+- 2. Hello, World!
+  - 2.1. Running a Program
+  - 2.2. Step By Step
+  - 2.3. Starting a Project
+  - 2.4. Worked Example: cat
+  - 2.5. Additional Conveniences
+  - 2.6. Summary
 
-- Interlude: Propositions, Proofs, and Indexing）
+- 3. Interlude: Propositions, Proofs, and Indexing）
+
+- 9. Interlude: Tactics, Induction, and Proofs
+- 10. Programming, Proving, and Performance
+  - 10.1. Tail Recursion
+  - 10.2. Proving Equivalence
+  - 10.3. Arrays and Termination
+
+ソースコードは[こちら](https://github.com/ihuku/fp-lean-jp)です。
 
 
 ## Release history

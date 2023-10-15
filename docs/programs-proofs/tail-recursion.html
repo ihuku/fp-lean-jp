@@ -175,24 +175,24 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="tail-recursion"><a class="header" href="#tail-recursion">Tail Recursion</a></h1>
-<p>While Lean's <code>do</code>-notation makes it possible to use traditional loop syntax such as <code>for</code> and <code>while</code>, these constructs are translated behind the scenes to invocations of recursive functions.
-In most programming languages, recursive functions have a key disadvantage with respect to loops: loops consume no space on the stack, while recursive functions consume stack space proportional to the number of recursive calls.
-Stack space is typically limited, and it is often necessary to take algorithms that are naturally expressed as recursive functions and rewrite them as loops paired with an explicit mutable heap-allocated stack.</p>
-<p>In functional programming, the opposite is typically true.
-Programs that are naturally expressed as mutable loops may consume stack space, while rewriting them to recursive functions can cause them to run quickly.
-This is due to a key aspect of functional programming languages: <em>tail-call elimination</em>.
-A tail call is a call from one function to another that can be compiled to an ordinary jump, replacing the current stack frame rather than pushing a new one, and tail-call elimination is the process of implementing this transformation.</p>
-<p>Tail-call elimination is not just merely an optional optimization.
-Its presence is a fundamental part of being able to write efficient functional code.
-For it to be useful, it must be reliable.
-Programmers must be able to reliably identify tail calls, and they must be able to trust that the compiler will eliminate them.</p>
-<p>The function <code>NonTail.sum</code> adds the contents of a list of <code>Nat</code>s:</p>
+                        <h1 id="末尾再帰tail-recursion"><a class="header" href="#末尾再帰tail-recursion">末尾再帰（Tail Recursion）</a></h1>
+<p>Leanの<code>do</code>記法を使用すれば、<code>for</code>や<code>while</code>などの従来のループ構文を使用することができますが、これらの構造は裏側で再帰関数の呼び出しに変換されます。
+ほとんどのプログラミング言語では、再帰関数はループに比べて重要なデメリットを持っています：ループはスタック上でスペースを消費しませんが、再帰関数は再帰呼び出しの数に比例してスタックスペースを消費します。
+スタックスペースは通常制限されており、再帰関数として自然に表現されるアルゴリズムをループと明示的な可変ヒープに割り当てられたスタックと組み合わせて書き直す必要があります。</p>
+<p>関数型プログラミングでは、通常は逆のことが真です。
+自然に可変ループとして表現されるプログラムはスタックスペースを消費する場合があり、それらを再帰関数に書き直すと速く実行されることがあります。
+これは関数型プログラミング言語の重要な側面の1つ、_末尾呼び出しの除去_によるものです。
+末尾呼び出しは、1つの関数から別の関数への呼び出しであり、通常のジャンプにコンパイルでき、現在のスタックフレームを置き換える代わりに新しいスタックフレームをプッシュしないプロセスです。末尾呼び出しの除去は、この変換を実装するプロセスです。</p>
+<p>末尾呼び出しの除去は単なるオプションの最適化ではありません。
+その存在は効率的な関数型コードを書くための基本的な部分です。
+それが役立つためには信頼性が必要です。
+プログラマは末尾呼び出しを確実に識別できなければならず、コンパイラがそれらを除去することを信頼できなければなりません。</p>
+<p>関数<code>NonTail.sum</code>は<code>Nat</code>のリストの内容を足し合わせます：</p>
 <pre><code class="language-lean">def NonTail.sum : List Nat → Nat
   | [] =&gt; 0
   | x :: xs =&gt; x + sum xs
 </code></pre>
-<p>Applying this function to the list <code>[1, 2, 3]</code> results in the following sequence of evaluation steps:</p>
+<p>この関数をリスト <code>[1, 2, 3]</code> に適用すると、以下の評価ステップのシーケンスが生成されます：</p>
 <pre><code class="language-lean">NonTail.sum [1, 2, 3]
 ===&gt;
 1 + (NonTail.sum [2, 3])
@@ -209,20 +209,20 @@ Programmers must be able to reliably identify tail calls, and they must be able 
 ===&gt;
 6
 </code></pre>
-<p>In the evaluation steps, parentheses indicate recursive calls to <code>NonTail.sum</code>.
-In other words, to add the three numbers, the program must first check that the list is non-empty.
-To add the head of the list (<code>1</code>) to the sum of the tail of the list, it is first necessary to compute the sum of the tail of the list:</p>
+<p>評価ステップでは、括弧は<code>NonTail.sum</code>への再帰呼び出しを示しています。
+言い換えれば、これらの3つの数を足し合わせるには、まずリストが空でないことを確認する必要があります。
+リストの先頭（<code>1</code>）をリストの残りの部分の合計に加えるために、まずリストの残りの部分の合計を計算する必要があります：</p>
 <pre><code class="language-lean">1 + (NonTail.sum [2, 3])
 </code></pre>
-<p>But to compute the sum of the tail of the list, the program must check whether it is empty.
-It is not - the tail is itself a list with <code>2</code> at its head.
-The resulting step is waiting for the return of <code>NonTail.sum [3]</code>:</p>
+<p>しかし、リストの残りの部分の合計を計算するには、プログラムはその部分が空かどうかを確認する必要があります。
+部分が空でないことを確認します - 残りの部分は<code>2</code>が先頭にあるリストです。
+結果として、<code>NonTail.sum [3]</code> の返り値を待つステップが発生します：</p>
 <pre><code class="language-lean">1 + (2 + (NonTail.sum [3]))
 </code></pre>
-<p>The whole point of the run-time call stack is to keep track of the values <code>1</code>, <code>2</code>, and <code>3</code> along with the instruction to add them to the result of the recursive call.
-As recursive calls are completed, control returns to the stack frame that made the call, so each step of addition is performed.
-Storing the heads of the list and the instructions to add them is not free; it takes space proportional to the length of the list.</p>
-<p>The function <code>Tail.sum</code> also adds the contents of a list of <code>Nat</code>s:</p>
+<p>ランタイムコールスタックの目的は、値<code>1</code>、<code>2</code>、および<code>3</code>とそれらを結果に追加する命令を追跡することです。
+再帰呼び出しが完了すると、呼び出しを行ったスタックフレームに制御が戻り、各加算のステップが実行されます。
+リストの先頭を格納し、それらを追加する命令を格納することは無制限ではありません。それはリストの長さに比例したメモリ空間を必要とします。</p>
+<p>関数 <code>Tail.sum</code> も <code>Nat</code> のリストの内容を足し合わせます：</p>
 <pre><code class="language-lean">def Tail.sumHelper (soFar : Nat) : List Nat → Nat
   | [] =&gt; soFar
   | x :: xs =&gt; sumHelper (x + soFar) xs
@@ -230,7 +230,7 @@ Storing the heads of the list and the instructions to add them is not free; it t
 def Tail.sum (xs : List Nat) : Nat :=
   Tail.sumHelper 0 xs
 </code></pre>
-<p>Applying it to the list <code>[1, 2, 3]</code> results in the following sequence of evaluation steps:</p>
+<p>これをリスト <code>[1, 2, 3]</code> に適用すると、以下の評価ステップのシーケンスが生成されます：</p>
 <pre><code class="language-lean">Tail.sum [1, 2, 3]
 ===&gt;
 Tail.sumHelper 0 [1, 2, 3]
@@ -249,42 +249,42 @@ Tail.sumHelper 6 []
 ===&gt;
 6
 </code></pre>
-<p>The internal helper function calls itself recursively, but it does so in a way where nothing needs to be remembered in order to compute the final result.
-When <code>Tail.sumHelper</code> reaches its base case, control can be returned directly to <code>Tail.sum</code>, because the intermediate invocations of <code>Tail.sumHelper</code> simply return the results of their recursive calls unmodified.
-In other words, a single stack frame can be re-used for each recursive invocation of <code>Tail.sumHelper</code>.
-Tail-call elimination is exactly this re-use of the stack frame, and <code>Tail.sumHelper</code> is referred to as a <em>tail-recursive function</em>.</p>
-<p>The first argument to <code>Tail.sumHelper</code> contains all of the information that would otherwise need to be tracked in the call stack—namely, the sum of the numbers encountered so far.
-In each recursive call, this argument is updated with new information, rather than adding new information to the call stack.
-Arguments like <code>soFar</code> that replace the information from the call stack are called <em>accumulators</em>.</p>
-<p>At the time of writing and on the author's computer, <code>NonTail.sum</code> crashes with a stack overflow when passed a list with 216,856 or more entries.
-<code>Tail.sum</code>, on the other hand, can sum a list of 100,000,000 elements without a stack overflow.
-Because no new stack frames need to be pushed while running <code>Tail.sum</code>, it is completely equivalent to a <code>while</code> loop with a mutable variable that holds the current list.
-At each recursive call, the function argument on the stack is simply replaced with the next node of the list.</p>
-<h2 id="tail-and-non-tail-positions"><a class="header" href="#tail-and-non-tail-positions">Tail and Non-Tail Positions</a></h2>
-<p>The reason why <code>Tail.sumHelper</code> is tail recursive is that the recursive call is in <em>tail position</em>.
-Informally speaking, a function call is in tail position when the caller does not need to modify the returned value in any way, but will just return it directly.
-More formally, tail position can be defined explicitly for expressions.</p>
-<p>If a <code>match</code>-expression is in tail position, then each of its branches is also in tail position.
-Once a <code>match</code> has selected a branch, control proceeds immediately to it.
-Similarly, both branches of an <code>if</code>-expression are in tail position if the <code>if</code>-expression itself is in tail position.
-Finally, if a <code>let</code>-expression is in tail position, then its body is as well.</p>
-<p>All other positions are not in tail position.
-The arguments to a function or a constructor are not in tail position because evaluation must track the function or constructor that will be applied to the argument's value.
-The body of an inner function is not in tail position because control may not even pass to it: function bodies are not evaluated until the function is called.
-Similarly, the body of a function type is not in tail position.
-To evaluate <code>E</code> in <code>(x : α) → E</code>, it is necessary to track that the resulting type must have <code>(x : α) → ...</code> wrapped around it.</p>
-<p>In <code>NonTail.sum</code>, the recursive call is not in tail position because it is an argument to <code>+</code>.
-In <code>Tail.sumHelper</code>, the recursive call is in tail position because it is immediately underneath a pattern match, which itself is the body of the function.</p>
-<p>At the time of writing, Lean only eliminates direct tail calls in recursive functions.
-This means that tail calls to <code>f</code> in <code>f</code>'s definition will be eliminated, but not tail calls to some other function <code>g</code>.
-While it is certainly possible to eliminate a tail call to some other function, saving a stack frame, this is not yet implemented in Lean.</p>
-<h2 id="reversing-lists"><a class="header" href="#reversing-lists">Reversing Lists</a></h2>
-<p>The function <code>NonTail.reverse</code> reverses lists by appending the head of each sub-list to the end of the result:</p>
+<p>内部のヘルパー関数は再帰的に自身を呼び出しますが、最終結果を計算するために何も覚えておかなくても済む方法で行います。
+<code>Tail.sumHelper</code> がベースケースに達すると、中間呼び出しは単に再帰呼び出しの結果を変更せずに返すため、制御は直接 <code>Tail.sum</code> に戻せます。
+言い換えれば、<code>Tail.sumHelper</code> の各再帰呼び出しに対して単一のスタックフレームを再利用できます。
+末尾呼び出しの除去はスタックフレームの再利用そのものであり、<code>Tail.sumHelper</code> は_末尾再帰関数_と呼ばれます。</p>
+<p><code>Tail.sumHelper</code> の最初の引数には、通常はコールスタックで追跡する必要がある情報がすべて含まれています。つまり、これまでに出会った数値の合計です。
+各再帰呼び出しでは、この引数に新しい情報が更新され、コールスタックに新しい情報を追加するのではなく、置き換えられます。
+コールスタックからの情報を置き換えるような引数（<code>soFar</code>のような）は_アキュムレータ_と呼ばれます。</p>
+<p>執筆時点と筆者のコンピューターでは、<code>NonTail.sum</code> は要素数が 216,856 以上のリストを渡すとスタックオーバーフローが発生します。
+一方、<code>Tail.sum</code> はスタックオーバーフローなしで 100,000,000 の要素からなるリストを合計することができます。
+<code>Tail.sum</code> を実行中に新しいスタックフレームをプッシュする必要がないため、それは現在のリストを保持する可変変数を持つ<code>while</code>ループと完全に等価です。
+各再帰呼び出しで、スタック上の関数引数は単にリストの次のノードに置き換えられます。</p>
+<h2 id="末尾と非末尾の位置tail-and-non-tail-positions"><a class="header" href="#末尾と非末尾の位置tail-and-non-tail-positions">末尾と非末尾の位置（Tail and Non-Tail Positions）</a></h2>
+<p><code>Tail.sumHelper</code> が末尾再帰である理由は、再帰呼び出しが_末尾位置_にあるためです。
+簡単に言うと、関数呼び出しは、呼び出し元が返された値をどのように変更する必要はなく、そのまま返すだけの場合、末尾位置にあります。
+もっと形式的には、末尾位置は式に明示的に定義できます。</p>
+<p><code>match</code>式が末尾位置にある場合、その各ブランチも末尾位置にあります。
+<code>match</code>がブランチを選択した後、制御はすぐにそのブランチに進みます。
+同様に、<code>if</code>式の両方のブランチは、<code>if</code>式自体が末尾位置にある場合、末尾位置にあります。
+最後に、<code>let</code>式が末尾位置にある場合、その本体も末尾位置にあります。</p>
+<p>それ以外の位置は末尾位置にはありません。
+関数またはコンストラクタの引数は末尾位置にありません。なぜなら評価は引数の値が適用される関数またはコンストラクタを追跡しなければならないからです。
+内部関数の本体も末尾位置にありません。なぜなら制御がそれに移るかもしれないからです：関数本体は関数が呼び出されるまで評価されません。
+同様に、関数型の本体も末尾位置にはありません。
+<code>(x : α) → E</code> で <code>E</code> を評価するには、結果の型には <code>(x : α) → ...</code> が包含されている必要があります。</p>
+<p><code>NonTail.sum</code> では、再帰呼び出しは末尾位置になっていません。なぜなら、それが<code>+</code>の引数であるからです。
+<code>Tail.sumHelper</code> では、再帰呼び出しは末尾位置にあるのは、それ自体が関数の本体であるパターンマッチの直下にあるからです。</p>
+<p>執筆時点では、Leanは再帰関数内の直接の末尾呼び出しのみを除去します。
+これは、<code>f</code> の定義内の <code>f</code> への末尾呼び出しは除去されますが、他の関数 <code>g</code> への末尾呼び出しは除去されません。
+他の関数への末尾呼び出しを除去してスタックフレームを節約することは確かに可能ですが、これはまだLeanで実装されていません。</p>
+<h2 id="リストの反転reversing-lists"><a class="header" href="#リストの反転reversing-lists">リストの反転（Reversing Lists）</a></h2>
+<p>関数 <code>NonTail.reverse</code> は各サブリストの先頭を結果の末尾に追加することでリストを反転させます：</p>
 <pre><code class="language-lean">def NonTail.reverse : List α → List α
   | [] =&gt; []
   | x :: xs =&gt; reverse xs ++ [x]
 </code></pre>
-<p>Using it to reverse <code>[1, 2, 3]</code> yields the following sequence of steps:</p>
+<p>これを使って <code>[1, 2, 3]</code> を逆転させると、次の手順のシーケンスが得られます：</p>
 <pre><code class="language-lean">NonTail.reverse [1, 2, 3]
 ===&gt;
 (NonTail.reverse [2, 3]) ++ [1]
@@ -301,17 +301,9 @@ While it is certainly possible to eliminate a tail call to some other function, 
 ===&gt;
 [3, 2, 1]
 </code></pre>
-<p>The tail-recursive version uses <code>x :: ·</code> instead of <code>· ++ [x]</code> on the accumulator at each step:</p>
-<pre><code class="language-lean">def Tail.reverseHelper (soFar : List α) : List α → List α
-  | [] =&gt; soFar
-  | x :: xs =&gt; reverseHelper (x :: soFar) xs
-
-def Tail.reverse (xs : List α) : List α :=
-  Tail.reverseHelper [] xs
-</code></pre>
-<p>This is because the context saved in each stack frame while computing with <code>NonTail.reverse</code> is applied beginning at the base case.
-Each &quot;remembered&quot; piece of context is executed in last-in, first-out order.
-On the other hand, the accumulator-passing version modifies the accumulator beginning from the first entry in the list, rather than the original base case, as can be seen in the series of reduction steps:</p>
+<p>末尾再帰版では、各ステップでアキュムレータに <code>x :: ·</code> を使用します。これは、<code>NonTail.reverse</code> と計算する際に各スタックフレームに保存されるコンテキストがベースケースから適用されるためです。
+各「覚えられた」コンテキストの一部は後入れ先出しの順序で実行されます。
+一方、アキュムレータを渡すバージョンでは、リストの最初のエントリからではなく、元のベースケースからではなく、アキュムレータを修正します。これは次の簡約ステップのシリーズで見られます：</p>
 <pre><code class="language-lean">Tail.reverse [1, 2, 3]
 ===&gt;
 Tail.reverseHelper [] [1, 2, 3]
@@ -324,27 +316,27 @@ Tail.reverseHelper [3, 2, 1] []
 ===&gt;
 [3, 2, 1]
 </code></pre>
-<p>In other words, the non-tail-recursive version starts at the base case, modifying the result of recursion from right to left through the list.
-The entries in the list affect the accumulator in a first-in, first-out order.
-The tail-recursive version with the accumulator starts at the head of the list, modifying an initial accumulator value from left to right through the list.</p>
-<p>Because addition is commutative, nothing needed to be done to account for this in <code>Tail.sum</code>.
-Appending lists is not commutative, so care must be taken to find an operation that has the same effect when run in the opposite direction.
-Appending <code>[x]</code> after the result of the recursion in <code>NonTail.reverse</code> is analogous to adding <code>x</code> to the beginning of the list when the result is built in the opposite order.</p>
-<h2 id="multiple-recursive-calls"><a class="header" href="#multiple-recursive-calls">Multiple Recursive Calls</a></h2>
-<p>In the definition of <code>BinTree.mirror</code>, there are two recursive calls:</p>
+<p>言い換えれば、非末尾再帰版はベースケースから始まり、リストを右から左に反転させるために再帰の結果を修正します。
+リスト内のエントリは、アキュムレータに対して最初に来たものから最初に影響を与えます。
+アキュムレータを持つ末尾再帰版は、リストの先頭から始まり、リストを左から右に反転させるための初期アキュムレータの値を変更します。</p>
+<p>加法は可換であるため、<code>Tail.sum</code> にこれに対処するための何も行う必要はありませんでした。
+一方、リストの追加は可換ではないため、逆の方向で実行した場合に同じ効果を持つ操作を見つけるために注意が必要です。
+<code>NonTail.reverse</code> で再帰の結果の後に <code>[x]</code> を追加することは、結果が逆順で構築される場合にリストの先頭に <code>x</code> を追加するのと同様です。</p>
+<h2 id="複数の再帰呼び出しmultiple-recursive-calls"><a class="header" href="#複数の再帰呼び出しmultiple-recursive-calls">複数の再帰呼び出し（Multiple Recursive Calls）</a></h2>
+<p><code>BinTree.mirror</code> の定義では、2つの再帰呼び出しがあります：</p>
 <pre><code class="language-lean">def BinTree.mirror : BinTree α → BinTree α
   | .leaf =&gt; .leaf
   | .branch l x r =&gt; .branch (mirror r) x (mirror l)
 </code></pre>
-<p>Just as imperative languages would typically use a while loop for functions like <code>reverse</code> and <code>sum</code>, they would typically use recursive functions for this kind of traversal.
-This function cannot be straightforwardly rewritten to be tail recursive using accumulator-passing style.</p>
-<p>Typically, if more than one recursive call is required for each recursive step, then it will be difficult to use accumulator-passing style.
-This difficulty is similar to the difficulty of rewriting a recursive function to use a loop and an explicit data structure, with the added complication of convincing Lean that the function terminates.
-However, as in <code>BinTree.mirror</code>, multiple recursive calls often indicate a data structure that has a constructor with multiple recursive occurrences of itself.
-In these cases, the depth of the structure is often logarithmic with respect to its overall size, which makes the tradeoff between stack and heap less stark.
-There are systematic techniques for making these functions tail-recursive, such as using <em>continuation-passing style</em>, but they are outside the scope of this chapter.</p>
-<h2 id="exercises"><a class="header" href="#exercises">Exercises</a></h2>
-<p>Translate each of the following non-tail-recursive functions into accumulator-passing tail-recursive functions:</p>
+<p>命令型言語が通常、<code>reverse</code> や <code>sum</code> のような関数に対して while ループを使用するのと同様に、この種のトラバーサルに対して再帰関数を通常使用します。
+この関数は、アキュムレータを渡すスタイルを使用して簡単に末尾再帰に書き直すことはできません。</p>
+<p>通常、再帰的なステップごとに複数の再帰呼び出しが必要な場合、アキュムレータを渡すスタイルを使用することは難しいでしょう。
+この難しさは、再帰関数をループと明示的なデータ構造を使用するように書き直す難しさに似ており、関数が終了することをLeanに納得させる複雑さが追加されています。
+しかし、<code>BinTree.mirror</code> のように、複数の再帰呼び出しはしばしば、それ自体の複数の再帰的な出現を持つコンストラクタを持つデータ構造を示します。
+これらの場合、構造の深さは通常全体のサイズに対して対数的であり、スタックとヒープのトレードオフがはるかに緩和されます。
+これらの関数を末尾再帰にするための体系的なテクニックがあります。例えば、<em>継続渡しスタイル</em> を使用することができますが、それはこの章のスコープ外です。</p>
+<h2 id="演習exercises"><a class="header" href="#演習exercises">演習（Exercises）</a></h2>
+<p>次の非末尾再帰関数をアキュムレータを渡す末尾再帰関数に翻訳してください：</p>
 <pre><code class="language-lean">def NonTail.length : List α → Nat
   | [] =&gt; 0
   | _ :: xs =&gt; NonTail.length xs + 1 
@@ -353,8 +345,8 @@ There are systematic techniques for making these functions tail-recursive, such 
   | 0 =&gt; 1
   | n + 1 =&gt; factorial n * (n + 1)
 </code></pre>
-<p>The translation of <code>NonTail.filter</code> should result in a program that takes constant stack space through tail recursion, and time linear in the length of the input list.
-A constant factor overhead is acceptable relative to the original:</p>
+<p><code>NonTail.filter</code> の翻訳は、入力リストの長さに対して定数のスタックスペースを取り、入力に対する時間が線形にかかります。
+オリジナルに対して定数のオーバーヘッドは許容されます：</p>
 <pre><code class="language-lean">def NonTail.filter (p : α → Bool) : List α → List α
   | [] =&gt; []
   | x :: xs =&gt;

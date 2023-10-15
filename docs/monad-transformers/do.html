@@ -558,6 +558,7 @@ heq✝ : MonadLift.monadLift IO.getStderr s✝¹ = EStateM.Result.ok a✝ s✝
               match IO.FS.Stream.putStrLn a✝¹ (toString &quot;Hello, &quot; ++ toString (String.trim a) ++ toString &quot;!&quot;) s with
               | EStateM.Result.ok a s =&gt; EStateM.Result.ok 0 s
               | EStateM.Result.error e s =&gt; EStateM.Result.error e s)
+
             (fun h s =&gt;
               match IO.FS.Stream.putStrLn a✝ (toString &quot;No name provided&quot;) s with
               | EStateM.Result.ok a s =&gt; EStateM.Result.ok 1 s

@@ -1,246 +1,257 @@
-# Arrays and Termination
+# 配列と終了条件（Arrays and Termination）
 
-To write efficient code, it is important to select appropriate data structures.
-Linked lists have their place: in some applications, the ability to share the tails of lists is very important.
-However, most use cases for a variable-length sequential collection of data are better served by arrays, which have both less memory overhead and better locality.
+効率的なコードを書くためには、適切なデータ構造を選択することが重要です。連結リストもその場面があります。リストの末尾を共有する能力が非常に重要なアプリケーションもあります。しかし、データの可変長の連続コレクションのほとんどのユースケースでは、メモリのオーバーヘッドが少なく、配置も良い配列が適しています。
 
-Arrays, however, have two drawbacks relative to lists:
- 1. Arrays are accessed through indexing, rather than by pattern matching, which imposes [proof obligations](../props-proofs-indexing.md) in order to maintain safety.
- 2. A loop that processes an entire array from left to right is a tail-recursive function, but it does not have an argument that decreases on each call.
- 
-Making effective use of arrays requires knowing how to prove to Lean that an array index is in bounds, and how to prove that an array index that approaches the size of the array also causes the program to terminate.
-Both of these are expressed using an inequality proposition, rather than propositional equality.
+ただし、リストに対して配列は2つの欠点があります：
+1. 配列はパターンマッチングではなくインデックスを介してアクセスされ、これは安全性を維持するための[証明義務](../props-proofs-indexing.md)を課します。
+2. 配列を左から右に処理するループは末尾再帰関数ですが、各呼び出しで減少する引数がありません。
 
-## Inequality
+配列を効果的に使用するには、Leanに配列のインデックスが範囲内であることを証明し、配列のサイズに近づくインデックスがプログラムを終了させることも証明する方法を知る必要があります。これらは等式命題ではなく、不等式命題を使用して表現されます。
 
-Because different types have different notions of ordering, inequality is governed by two type classes, called `LE` and `LT`.
-The table in the section on [standard type classes](../type-classes/standard-classes.md#equality-and-ordering) describes how these classes relate to the syntax:
+## 不等式（Inequality）
 
-| Expression | Desugaring | Class Name |
+異なる型には異なる順序の概念があるため、不等式は `LE` と `LT` という2つの型クラスによって規制されます。[標準型クラス](../type-classes/standard-classes.md#equality-and-ordering)のセクションにある表は、これらのクラスが構文とどのように関連しているかを説明しています：
+
+| 式 | デサグガリング | クラス名 |
 |------------|------------|------------|
 | `{{#example_in Examples/Classes.lean ltDesugar}}` | `{{#example_out Examples/Classes.lean ltDesugar}}` | `LT` |
 | `{{#example_in Examples/Classes.lean leDesugar}}` | `{{#example_out Examples/Classes.lean leDesugar}}` | `LE` |
 | `{{#example_in Examples/Classes.lean gtDesugar}}` | `{{#example_out Examples/Classes.lean gtDesugar}}` | `LT` |
 | `{{#example_in Examples/Classes.lean geDesugar}}` | `{{#example_out Examples/Classes.lean geDesugar}}` | `LE` |
 
-In other words, a type may customize the meaning of the `<` and `≤` operators, while `>` and `≥` derive their meanings from `<` and `≤`.
-The classes `LT` and `LE` have methods that return propositions rather than `Bool`s:
+言い換えると、型は `<` と `≤` 演算子の意味をカスタマイズすることができ、`>` と `≥` は `<` と `≤` からその意味を派生させます。`LT` と `LE` のクラスには、ブールではなく命題を返すメソッドがあります：
 ```lean
 {{#example_decl Examples/ProgramsProofs/Arrays.lean less}}
 ```
 
-The instance of `LE` for `Nat` delegates to `Nat.le`:
+`Nat` のための `LE` のインスタンスは `Nat.le` に委譲します：
 ```lean
 {{#example_decl Examples/ProgramsProofs/Arrays.lean LENat}}
 ```
-Defining `Nat.le` requires a feature of Lean that has not yet been presented: it is an inductively-defined relation.
+`Nat.le` を定義するには、まだ紹介されていないLeanの機能、帰納的に定義された関係が必要です。
 
-### Inductively-Defined Propositions, Predicates, and Relations
 
-`Nat.le` is an _inductively-defined relation_.
-Just as `inductive` can be used to create new datatypes, it can also be used to create new propositions.
-When a proposition takes an argument, it is referred to as a _predicate_ that may be true for some, but not all, potential arguments.
-Propositions that take multiple arguments are called _relations_.
+### 帰納的に定義された命題、述語、および関係（Inductively-Defined Propositions, Predicates, and Relations）
 
-Each constructor of an inductively defined proposition is a way to prove it.
-In other words, the declaration of the proposition describes the different forms of evidence that it is true.
-A proposition with no arguments that has a single constructor can be quite easy to prove:
+`Nat.le` は _帰納的に定義された関係_ です。`inductive` は新しいデータ型を作成するために使用できるだけでなく、新しい命題を作成するためにも使用できます。命題が引数を取る場合、それは一部の潜在的な引数に対して真である場合があり、すべての引数に対して真であるわけではありません。複数の引数を取る命題は _関係_ と呼ばれます。
+
+帰納的に定義された命題の各コンストラクタは、それを証明する方法です。言い換えると、命題の宣言は、それが真である異なる証拠の形式を説明しています。引数を持たない命題で、単一のコンストラクタを持つものは非常に簡単に証明できることがあります：
 ```lean
 {{#example_decl Examples/ProgramsProofs/Arrays.lean EasyToProve}}
 ```
-The proof consists of using its constructor:
+証明はそのコンストラクタを使用することから成り立ちます：
 ```lean
 {{#example_decl Examples/ProgramsProofs/Arrays.lean fairlyEasy}}
 ```
-In fact, the proposition `True`, which should always be easy to prove, is defined just like `EasyToProve`:
+実際、常に簡単に証明できるはずの命題 `True` は、`EasyToProve` と同じように定義されています：
 ```lean
 {{#example_decl Examples/ProgramsProofs/Arrays.lean True}}
 ```
 
-Inductively-defined propositions that don't take arguments are not nearly as interesting as inductively-defined datatypes.
-This is because data is interesting in its own right—the natural number `3` is different from the number `35`, and someone who has ordered 3 pizzas will be upset if 35 arrive at their door 30 minutes later.
-The constructors of a proposition describe ways in which the proposition can be true, but once a proposition has been proved, there is no need to know _which_ underlying constructors were used.
-This is why most interesting inductively-defined types in the `Prop` universe take arguments.
+引数を取らない帰納的に定義された命題は、帰納的に定義されたデータ型ほど興味深くありません。これはデータ自体が興味深いからです。自然数 `3` は数 `35` とは異なり、3つのピザを注文した人は、30分後にドアに35のピザが届いた場合に不満に感じるでしょう。命題のコンストラクタは、命題が真である方法を説明しますが、命題が証明されると、どの _基本的な_ コンストラクタが使用されたかを知る必要はありません。これは、`Prop` の宇宙において、ほとんどの興味深い帰納的に定義された型が引数を取る理由です。
 
-The inductively-defined predicate `IsThree` states that its argument is three:
+帰納的に定義された述語 `IsThree` は、その引数が3であることを述べています：
 ```lean
 {{#example_decl Examples/ProgramsProofs/Arrays.lean IsThree}}
 ```
-The mechanism used here is just like [indexed families such as `HasCol`](../dependent-types/typed-queries.md#column-pointers), except the resulting type is a proposition that can be proved rather than data that can be used.
+ここで使用されているメカニズムは、[`HasCol`](../dependent-types/typed-queries.md#column-pointers)などのインデックス付きファミリーと同じですが、結果の型はデータではなく証明可能な命題です。
 
-Using this predicate, it is possible to prove that three is indeed three:
+この述語を使用して、3が本当に3であることを証明することができます：
 ```lean
 {{#example_decl Examples/ProgramsProofs/Arrays.lean threeIsThree}}
 ```
-Similarly, `IsFive` is a predicate that states that its argument is `5`:
+同様に、`IsFive` はその引数が `5` であることを述べる述語です：
 ```lean
 {{#example_decl Examples/ProgramsProofs/Arrays.lean IsFive}}
 ```
 
-If a number is three, then the result of adding two to it should be five.
-This can be expressed as a theorem statement:
+もし数が3であるなら、それに2を加えた結果は5でなければなりません。これは定理の文として表現できます：
+
 ```leantac
 {{#example_in Examples/ProgramsProofs/Arrays.lean threePlusTwoFive0}}
 ```
-The resulting goal has a function type:
+
+結果のゴールは関数型を持っています：
+
 ```output error
 {{#example_out Examples/ProgramsProofs/Arrays.lean threePlusTwoFive0}}
 ```
-Thus, the `intro` tactic can be used to convert the argument into an assumption:
+
+したがって、`intro` タクティクを使用して引数を前提に変換できます：
+
 ```leantac
 {{#example_in Examples/ProgramsProofs/Arrays.lean threePlusTwoFive1}}
 ```
+
 ```output error
 {{#example_out Examples/ProgramsProofs/Arrays.lean threePlusTwoFive1}}
 ```
-Given the assumption that `n` is three, it should be possible to use the constructor of `IsFive` to complete the proof:
+
+`n` が3であるという前提が与えられた場合、`IsFive` のコンストラクタを使用して証明を完了できるはずです：
+
 ```leantac
 {{#example_in Examples/ProgramsProofs/Arrays.lean threePlusTwoFive1a}}
 ```
-However, this results in an error:
+
+しかし、これによりエラーが発生します：
+
 ```output error
 {{#example_out Examples/ProgramsProofs/Arrays.lean threePlusTwoFive1a}}
 ```
-This error occurs because `n + 2` is not definitionally equal to `5`.
-In an ordinary function definition, dependent pattern matching on the assumption `three` could be used to refine `n` to `3`.
-The tactic equivalent of dependent pattern matching is `cases`, which has a syntax similar to that of `induction`:
+
+このエラーは、`n + 2` が `5` と定義的に等しくないためです。通常の関数定義では、前提の `three` 上の依存パターンマッチングを使用して `n` を `3` に細分化できます。依存パターンマッチングのタクティクの相当物は `cases` で、その構文は `induction` と似ています：
+
 ```leantac
 {{#example_in Examples/ProgramsProofs/Arrays.lean threePlusTwoFive2}}
 ```
-In the remaining case, `n` has been refined to `3`:
+
+残りのケースでは、`n` は `3` に細分化されました：
+
 ```output error
 {{#example_out Examples/ProgramsProofs/Arrays.lean threePlusTwoFive2}}
 ```
-Because `3 + 2` is definitionally equal to `5`, the constructor is now applicable:
+
+`3 + 2` が定義的に `5` に等しいため、コンストラクタは今適用可能です：
+
 ```leantac
 {{#example_decl Examples/ProgramsProofs/Arrays.lean threePlusTwoFive3}}
 ```
 
-The standard false proposition `False` has no constructors, making it impossible to provide direct evidence for.
-The only way to provide evidence for `False` is if an assumption is itself impossible, similarly to how `nomatch` can be used to mark code that the type system can see is unreachable.
-As described in [the initial Interlude on proofs](../props-proofs-indexing.md#connectives), the negation `Not A` is short for `A → False`.
-`Not A` can also be written `¬A`.
+標準の偽の命題 `False` にはコンストラクタが存在せず、それに対する直接の証拠を提供することは不可能です。 `False` に証拠を提供する唯一の方法は、前提自体が不可能である場合で、これは型システムが到達不可能と見なすことができるコードをマークするために `nomatch` を使用する方法と似ています。 [証明の最初の余興](../props-proofs-indexing.md#connectives) で説明されているように、否定 `Not A` は `A → False` の省略形です。 `Not A` はまた `¬A` と書くこともできます。
 
-It is not the case that four is three:
+4が3であるわけではありません：
+
 ```leantac
 {{#example_in Examples/ProgramsProofs/Arrays.lean fourNotThree0}}
 ```
-The initial proof goal contains `Not`:
+
+最初の証明目標には `Not` が含まれています：
+
 ```output error
 {{#example_out Examples/ProgramsProofs/Arrays.lean fourNotThree0}}
 ```
-The fact that it's actually a function type can be exposed using `simp`:
+
+実際には関数型であることを示すために `simp` を使用できます：
+
 ```leantac
 {{#example_in Examples/ProgramsProofs/Arrays.lean fourNotThree1}}
 ```
+
 ```output error
 {{#example_out Examples/ProgramsProofs/Arrays.lean fourNotThree1}}
 ```
-Because the goal is a function type, `intro` can be used to convert the argument into an assumption.
-There is no need to keep `simp`, as `intro` can unfold the definition of `Not` itself:
+
+ゴールが関数型であるため、引数を前提に変換するために `intro` を使用できます。 `Not` の定義自体を展開するために `simp` を保持する必要はありません：
+
 ```leantac
 {{#example_in Examples/ProgramsProofs/Arrays.lean fourNotThree2}}
 ```
+
 ```output error
 {{#example_out Examples/ProgramsProofs/Arrays.lean fourNotThree2}}
 ```
-In this proof, the `cases` tactic solves the goal immediately:
+
+この証明では、`cases` タクティクがゴールを即座に解決します：
+
 ```leantac
 {{#example_decl Examples/ProgramsProofs/Arrays.lean fourNotThreeDone}}
 ```
-Just as a pattern match on a `Vect String 2` doesn't need to include a case for `Vect.nil`, a proof by cases over `IsThree 4` doesn't need to include a case for `isThree`.
 
-### Inequality of Natural Numbers
+`Vect String 2` のパターンマッチには `Vect.nil` のケースを含める必要はないように、`IsThree 4` の場合も `isThree` のケースを含める必要はありません。
 
-The definition of `Nat.le` has a parameter and an index:
+### 自然数の不等式（Inequality of Natural Numbers）
+
+`Nat.le` の定義にはパラメーターとインデックスがあります：
+
 ```lean
 {{#example_decl Examples/ProgramsProofs/Arrays.lean NatLe}}
 ```
-The parameter `n` is the number that should be smaller, while the index is the number that should be greater than or equal to `n`.
-The `refl` constructor is used when both numbers are equal, while the `step` constructor is used when the index is greater than `n`.
 
-From the perspective of evidence, a proof that \\( n \leq k \\) consists of finding some number \\( d \\) such that \\( n + d = m \\).
-In Lean, the proof then consists of a `Nat.le.refl` constructor wrapped by \\( d \\) instances of `Nat.le.step`.
-Each `step` constructor adds one to its index argument, so \\( d \\) `step` constructors adds \\( d \\) to the larger number.
-For example, evidence that four is less than or equal to seven consists of three `step`s around a `refl`:
+パラメーター `n` は小さくすべき数で、インデックスは `n` 以上であるべき数です。 `refl` コンストラクタは両方の数が等しい場合に使用され、`step` コンストラクタはインデックスが `n` より大きい場合に使用されます。
+
+証拠の観点から言えば、\\( n \leq k \\) を証明するには、\\( n + d = m \\) となる \\( d \\) という数を見つけることが必要です。Leanでは、証明は `Nat.le.refl` コンストラクタが \\( d \\) 個の `Nat.le.step` で囲まれたもので構成されます。各 `step` コンストラクタはそのインデックス引数に1を追加し、大きな数に \\( d \\) を追加します。たとえば、4が7以下である証拠は、`refl` の周りに3つの `step` があるものです：
+
 ```lean
 {{#example_decl Examples/ProgramsProofs/Arrays.lean four_le_seven}}
 ```
 
-The strict less-than relation is defined by adding one to the number on the left:
+厳密な不等関係は、左側の数に1を加えることで定義されます：
+
 ```lean
 {{#example_decl Examples/ProgramsProofs/Arrays.lean NatLt}}
 ```
-Evidence that four is strictly less than seven consists of two `step`'s around a `refl`:
+
+4が厳密に7より小さいという証拠は、`refl` の周りに2つの `step` があるものです：
+
 ```lean
 {{#example_decl Examples/ProgramsProofs/Arrays.lean four_lt_seven}}
 ```
-This is because `4 < 7` is equivalent to `5 ≤ 7`.
 
-## Proving Termination
+これは `4 < 7` は `5 ≤ 7` と等価であるためです。
 
-The function `Array.map` transforms an array with a function, returning a new array that contains the result of applying the function to each element of the input array.
-Writing it as a tail-recursive function follows the usual pattern of delegating to a function that passes the output array in an accumulator.
-The accumulator is initialized with an empty array.
-The accumulator-passing helper function also takes an argument that tracks the current index into the array, which starts at `0`:
+## 停止を証明する（Proving Termination）
+
+関数 `Array.map` は関数で配列を変換し、入力配列の各要素に関数を適用した結果を含む新しい配列を返します。これを末尾再帰関数として記述する場合、通常のパターンに従い、アキュムレータ内で出力配列を渡す関数に委任します。アキュムレータは空の配列で初期化されます。アキュムレータを渡すヘルパー関数はまた、配列内の現在のインデックスを追跡する引数も取り、これは `0` から始まります：
+
 ```lean
 {{#example_decl Examples/ProgramsProofs/Arrays.lean ArrayMap}}
 ```
 
-The helper should, at each iteration, check whether the index is still in bounds.
-If so, it should loop again with the transformed element added to the end of the accumulator and the index incremented by `1`.
-If not, then it should terminate and return the accumulator.
-An initial implementation of this code fails because Lean is unable to prove that the array index is valid:
+ヘルパー関数は、各反復でインデックスが範囲内にあるかどうかを確認する必要があります。もし範囲内にある場合、変換された要素をアキュムレータの末尾に追加し、インデックスを `1` 増やして再度ループする必要があります。範囲内にない場合、終了し、アキュムレータを返す必要があります。このコードの初期の実装は、Leanが配列のインデックスが有効であることを証明できないため失敗します：
+
 ```lean
 {{#example_in Examples/ProgramsProofs/Arrays.lean mapHelperIndexIssue}}
 ```
+
 ```output error
 {{#example_out Examples/ProgramsProofs/Arrays.lean mapHelperIndexIssue}}
 ```
-However, the conditional expression already checks the precise condition that the array index's validity demands (namely, `i < arr.size`).
-Adding a name to the `if` resolves the issue, because it adds an assumption that the array indexing tactic can use:
+
+ただし、条件式は既に配列のインデックスの有効性が要求する正確な条件をチェックしています（つまり、`i < arr.size`）。`if` に名前を追加することで問題を解決できます。これは、配列インデックスの前提条件を使用できるようにする前提条件を追加するからです：
+
 ```lean
 {{#example_in Examples/ProgramsProofs/Arrays.lean arrayMapHelperTermIssue}}
 ```
-Lean does not, however, accept the modified program, because the recursive call is not made on an argument to one of the input constructors.
-In fact, both the accumulator and the index grow, rather than shrinking:
+
+しかし、修正されたプログラムはLeanに受け入れられません。なぜなら再帰呼び出しが入力コンストラクタの引数の一つで行われていないからです。実際、アキュムレータとインデックスの両方が増加し、減少しないからです：
+
 ```output error
 {{#example_out Examples/ProgramsProofs/Arrays.lean arrayMapHelperTermIssue}}
 ```
-Nevertheless, this function terminates, so simply marking it `partial` would be unfortunate.
 
-Why does `arrayMapHelper` terminate?
-Each iteration checks whether the index `i` is still in bounds for the array `arr`.
-If so, `i` is incremented and the loop repeats.
-If not, the program terminates.
-Because `arr.size` is a finite number, `i` can be incremented only a finite number of times.
-Even though no argument to the function decreases on each call, `arr.size - i` decreases toward zero.
+それにもかかわらず、この関数は終了するので、単にそれを `partial` とマークするのは不適切です。
 
-Lean can be instructed to use another expression for termination by providing a `termination_by` clause at the end of a definition.
-The `termination_by` clause has two components: names for the function's arguments and an expression using those names that should decrease on each call.
-For `arrayMapHelper`, the final definition looks like this:
+なぜ `arrayMapHelper` は終了するのでしょうか？
+
+各ループでは、インデックス `i` が配列 `arr` の範囲内にあるかどうかを確認します。もし範囲内にあれば、`i` が増加し、ループが繰り返されます。範囲外の場合、プログラムは終了します。なぜなら `arr.size` は有限の数値であり、`i` は有限の回数しか増加しないからです。関数の各呼び出しで関数の引数が減少しないとしても、`arr.size - i` はゼロに向かって減少します。
+
+Leanは、定義の末尾に `termination_by` 句を提供することで終了に別の式を使用するよう指示できます。`termination_by` 句には2つのコンポーネントがあります：関数の引数の名前と、それらの名前を使用した式で、各呼び出しで減少する必要があります。`arrayMapHelper` の最終的な定義は次のようになります：
+
 ```lean
 {{#example_decl Examples/ProgramsProofs/Arrays.lean ArrayMapHelperOk}}
 ```
 
-A similar termination proof can be used to write `Array.find`, a function that finds the first element in an array that satisfies a Boolean function and returns both the element and its index:
+同様の停止性証明を使用して、`Array.find` を記述できます。これは、ブール関数を満たす最初の要素を配列内で見つけ、その要素とそのインデックスの両方を返す関数です：
+
 ```lean
 {{#example_decl Examples/ProgramsProofs/Arrays.lean ArrayFind}}
 ```
-Once again, the helper function terminates because `arr.size - i` decreases as `i` increases:
+
+再び、ヘルパー関数は `arr.size - i` が `i` の増加と共に減少するため、終了します：
+
 ```lean
 {{#example_decl Examples/ProgramsProofs/Arrays.lean ArrayFindHelper}}
 ```
 
-Not all termination arguments are as quite as simple as this one.
-However, the basic structure of identifying some expression based on the function's arguments that will decrease in each call occurs in all termination proofs.
-Sometimes, creativity can be required in order to figure out just why a function terminates, and sometimes Lean requires additional proofs in order to accept the termination argument.
+すべての終了引数がこのものほど単純でないこともあります。ただし、関数の引数に基づいて各呼び出しで減少する式を識別する基本的な構造は、すべての停止性証明で発生します。時には、関数がなぜ終了するのかを理解するために創造性が必要であり、Leanは終了引数を受け入れるために追加の証明が必要なこともあります。
 
 
+## 演習（Exercises）
 
-## Exercises
+* 配列に対する末尾再帰のアキュムレータパッシング関数と `termination_by` 句を使用して、配列に対する `ForM (Array α)` インスタンスを実装してください。
 
- * Implement a `ForM (Array α)` instance on arrays using a tail-recursive accumulator-passing function and a `termination_by` clause.
- * Implement a function to reverse arrays using a tail-recursive accumulator-passing function that _doesn't_ need a `termination_by` clause.
- * Reimplement `Array.map`, `Array.find`, and the `ForM` instance using `for ... in ...` loops in the identity monad and compare the resulting code.
- * Reimplement array reversal using a `for ... in ...` loop in the identity monad. Compare it to the tail-recursive function.
+* 末尾再帰のアキュムレータパッシング関数を使用して、配列を反転する（逆順にする）関数を実装してください。この場合、`termination_by` 句は必要ありません。
+
+* `Array.map`、`Array.find`、および `ForM` インスタンスを、恒等モナド内の `for ... in ...` ループを使用して再実装し、結果のコードを比較してください。
+
+* 恒等モナド内の `for ... in ...` ループを使用して、配列の逆転を再実装してください。これを末尾再帰関数と比較してください。

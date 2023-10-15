@@ -184,27 +184,49 @@
 <p>非公式日本語訳です。以下の章は一通り翻訳済みです。</p>
 <ul>
 <li>
-<p>Getting to Know Lean</p>
+<ol>
+<li>Getting to Know Lean</li>
+</ol>
 <ul>
-<li>Structures</li>
-<li>Datatypes and Patterns</li>
+<li>1.4. Structures</li>
+<li>1.5. Datatypes and Patterns</li>
 </ul>
 </li>
 <li>
-<p>Hello, World!</p>
+<ol start="2">
+<li>Hello, World!</li>
+</ol>
 <ul>
-<li>Running a Program</li>
-<li>Step By Step</li>
-<li>Starting a Project</li>
-<li>Worked Example: cat</li>
-<li>Additional Conveniences</li>
-<li>Summary</li>
+<li>2.1. Running a Program</li>
+<li>2.2. Step By Step</li>
+<li>2.3. Starting a Project</li>
+<li>2.4. Worked Example: cat</li>
+<li>2.5. Additional Conveniences</li>
+<li>2.6. Summary</li>
 </ul>
 </li>
 <li>
-<p>Interlude: Propositions, Proofs, and Indexing）</p>
+<ol start="3">
+<li>Interlude: Propositions, Proofs, and Indexing）</li>
+</ol>
+</li>
+<li>
+<ol start="9">
+<li>Interlude: Tactics, Induction, and Proofs</li>
+</ol>
+</li>
+<li>
+<ol start="10">
+<li>Programming, Proving, and Performance</li>
+</ol>
+<ul>
+<li>10.1. Tail Recursion</li>
+<li>10.2. Proving Equivalence</li>
+<li>10.3. Arrays and Termination</li>
+</ul>
 </li>
 </ul>
+<p>ソースコードは<a href="https://github.com/ihuku/fp-lean-jp">こちら</a>です。</p>
 <h2 id="release-history"><a class="header" href="#release-history">Release history</a></h2>
 <h3 id="october-2023"><a class="header" href="#october-2023">October, 2023</a></h3>
 <p>In this first maintenance release, a number of smaller issues were fixed and the text was brought up to date with the latest release of Lean.</p>
@@ -2812,7 +2834,7 @@ def snail := woodlandCritters[2]
 </code></pre>
 <p>このエラーメッセージは、Leanが自動的に <code>3 &lt; List.length woodlandCritters</code> を数学的に証明しようと試みたことを示しており、これは参照が安全であることを意味しますが、それができなかったことを示しています。
 範囲外のエラーは一般的なバグの一種であり、Leanはプログラム言語と定理証明器としての二重の性質を活かして、できる限りこれを排除しようとします。</p>
-<p>これがどのように機能するかを理解するには、「命題」、「証明」、および「戦術」という、3つの重要な概念を理解する必要があります。</p>
+<p>これがどのように機能するかを理解するには、「命題」、「証明」、および「戦術（タクティク）」という、3つの重要な概念を理解する必要があります。</p>
 <h2 id="命題と証明propositions-and-proofs"><a class="header" href="#命題と証明propositions-and-proofs">命題と証明（Propositions and Proofs）</a></h2>
 <p>命題（proposition）は真または偽であると言える文です。
 以下はすべて命題です：</p>
@@ -8815,6 +8837,7 @@ heq✝ : MonadLift.monadLift IO.getStderr s✝¹ = EStateM.Result.ok a✝ s✝
               match IO.FS.Stream.putStrLn a✝¹ (toString &quot;Hello, &quot; ++ toString (String.trim a) ++ toString &quot;!&quot;) s with
               | EStateM.Result.ok a s =&gt; EStateM.Result.ok 0 s
               | EStateM.Result.error e s =&gt; EStateM.Result.error e s)
+
             (fun h s =&gt;
               match IO.FS.Stream.putStrLn a✝ (toString &quot;No name provided&quot;) s with
               | EStateM.Result.ok a s =&gt; EStateM.Result.ok 1 s
@@ -11170,40 +11193,39 @@ Propositional equality can be used to unstick otherwise-stuck programs in types.
 <p>However, the frequent use of propositional equality to unstick type-level computation is typically a code smell.
 It typically means that coincidences were not well-engineered, and it's usually a better idea to either redesign the types and indices or to use a different technique to enforce the needed invariants.
 When propositional equality is instead used to prove that a program meets a specification, or as part of a subtype, there is less reason to be suspicious.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="interlude-tactics-induction-and-proofs"><a class="header" href="#interlude-tactics-induction-and-proofs">Interlude: Tactics, Induction, and Proofs</a></h1>
-<h2 id="a-note-on-proofs-and-user-interfaces"><a class="header" href="#a-note-on-proofs-and-user-interfaces">A Note on Proofs and User Interfaces</a></h2>
-<p>This book presents the process of writing proofs as if they are written in one go and submitted to Lean, which then replies with error messages that describe what remains to be done.
-The actual process of interacting with Lean is much more pleasant.
-Lean provides information about the proof as the cursor is moved through it and there are a number of interactive features that make proving easier.
-Please consult the documentation of your Lean development environment for more information.</p>
-<p>The approach in this book that focuses on incrementally building a proof and showing the messages that result demonstrates the kinds of interactive feedback that Lean provides while writing a proof, even though it is much slower than the process used by experts.
-At the same time, seeing incomplete proofs evolve towards completeness is a useful perspective on proving.
-As your skill in writing proofs increases, Lean's feedback will come to feel less like errors and more like support for your own thought processes.
-Learning the interactive approach is very important.</p>
-<h2 id="recursion-and-induction"><a class="header" href="#recursion-and-induction">Recursion and Induction</a></h2>
-<p>The functions <code>plusR_succ_left</code> and <code>plusR_zero_left</code> from the preceding chapter can be seen from two perspectives.
-On the one hand, they are recursive functions that build up evidence for a proposition, just as other recursive functions might construct a list, a string, or any other data structure.
-On the other, they also correspond to proofs by <em>mathematical induction</em>.</p>
-<p>Mathematical induction is a proof technique where a statement is proven for <em>all</em> natural numbers in two steps:</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="間奏タクティクス帰納法そして証明interlude-tactics-induction-and-proofs"><a class="header" href="#間奏タクティクス帰納法そして証明interlude-tactics-induction-and-proofs">間奏：タクティクス、帰納法、そして証明（Interlude: Tactics, Induction, and Proofs）</a></h1>
+<h2 id="証明とユーザーインターフェースに関する注意a-note-on-proofs-and-user-interfaces"><a class="header" href="#証明とユーザーインターフェースに関する注意a-note-on-proofs-and-user-interfaces">証明とユーザーインターフェースに関する注意（A Note on Proofs and User Interfaces）</a></h2>
+<p>この本では、証明が一気に書かれ、Leanに提出され、その後、未だに行われていないことを説明するエラーメッセージが返されるプロセスを提示しています。
+Leanとの対話の実際のプロセスはもっと快適です。
+Leanは、カーソルを移動させながら証明に関する情報を提供し、証明を容易にするいくつかの対話型の機能があります。
+詳細については、Lean開発環境のドキュメンテーションをご参照ください。</p>
+<p>この本のアプローチは、証明を段階的に構築し、その結果として表示されるメッセージを示すもので、専門家が使用するプロセスよりもはるかに遅いですが、証明を書く際にLeanが提供する対話型フィードバックの種類を示しています。
+同時に、不完全な証明が完全性に向かって進化する様子は、証明に対する有用な視点です。
+証明を書くスキルが向上するにつれて、Leanのフィードバックはエラーというよりも、自分自身の思考プロセスをサポートしているように感じるようになるでしょう。
+対話的なアプローチを学ぶことは非常に重要です。</p>
+<h2 id="再帰と帰納法recursion-and-induction"><a class="header" href="#再帰と帰納法recursion-and-induction">再帰と帰納法（Recursion and Induction）</a></h2>
+<p>前章の関数 <code>plusR_succ_left</code> と <code>plusR_zero_left</code> は、2つの視点から見ることができます。
+一方で、それらは命題の証拠を構築する再帰関数であり、他の再帰関数がリスト、文字列、または他のデータ構造を構築するように、証拠を構築します。
+一方、それらは <em>数学的帰納法</em> による証明に対応しています。</p>
+<p>数学的帰納法は、ある文が2つのステップで <em>すべての</em> 自然数について証明される証明テクニックです：</p>
 <ol>
-<li>The statement is shown to hold for \( 0 \). This is called the <em>base case</em>.</li>
-<li>Under the assumption that the statement holds for some arbitrarily chosen number \( n \), it is shown to hold for \( n + 1 \). This is called the <em>induction step</em>. The assumption that the statement holds for \( n \) is called the <em>induction hypothesis</em>.</li>
+<li>その文が \( 0 \) に対して成立することを示します。これを <em>基本ケース</em> と呼びます。</li>
+<li>ある任意の数 \( n \) についてその文が成立するという仮定のもとで、\( n + 1 \) についても成立することを示します。これを <em>帰納ステップ</em> と呼びます。文が \( n \) について成立するという仮定は <em>帰納仮説</em> と呼ばれます。</li>
 </ol>
-<p>Because it's impossible to check the statement for <em>every</em> natural number, induction provides a means of writing a proof that could, in principle, be expanded to any particular natural number.
-For example, if a concrete proof were desired for the number 3, then it could be constructed by using first the base case and then the induction step three times, to show the statement for 0, 1, 2, and finally 3.
-Thus, it proves the statement for all natural numbers.</p>
-<h2 id="the-induction-tactic"><a class="header" href="#the-induction-tactic">The Induction Tactic</a></h2>
-<p>Writing proofs by induction as recursive functions that use helpers such as <code>congrArg</code> does not always do a good job of expressing the intentions behind the proof.
-While recursive functions indeed have the structure of induction, they should probably be viewed as an <em>encoding</em> of a proof.
-Furthermore, Lean's tactic system provides a number of opportunities to automate the construction of a proof that are not available when writing the recursive function explicitly.
-Lean provides an induction <em>tactic</em> that can carry out an entire proof by induction in a single tactic block.
-Behind the scenes, Lean constructs the recursive function that corresponds the use of induction.</p>
-<p>To prove <code>plusR_zero_left</code> with the induction tactic, begin by writing its signature (using <code>theorem</code>, because this really is a proof).
-Then, use <code>by induction k</code> as the body of the definition:</p>
+<p>すべての自然数について文を確認することは不可能なため、帰納法は、原理的には特定の自然数に展開できる証明を書く手段を提供します。
+たとえば、数値3に対する具体的な証明が必要な場合、まず基本ケースを使用して、その後帰納ステップを3回繰り返し、0、1、2、最後に3について文が成立することを示すことができます。
+したがって、それはすべての自然数に対して文を証明します。</p>
+<h2 id="帰納法タクティクthe-induction-tactic"><a class="header" href="#帰納法タクティクthe-induction-tactic">帰納法タクティク（The Induction Tactic）</a></h2>
+<p>再帰関数として帰納法による証明を書くことは、証明の意図を表現するのには常に適していません。
+再帰関数は確かに帰納の構造を持っていますが、それらはおそらく証明の <em>エンコード</em> と見なすべきです。
+さらに、Leanのタクティクシステムは、再帰関数を明示的に書く際には利用できない証明の構築を自動化する機会を提供しています。
+Leanは帰納法に基づいた再帰関数を構築するための帰納 <em>タクティク</em> を提供しています。</p>
+<p>帰納法タクティクを使用して <code>plusR_zero_left</code> を証明するために、まずそのシグネチャを記述します（これは実際には証明なので、<code>theorem</code> を使用します）。
+その後、定義の本文として <code>by induction k</code> を使用します：</p>
 <pre><code class="language-leantac">theorem plusR_zero_left (k : Nat) : k = Nat.plusR 0 k := by
   induction k
 </code></pre>
-<p>The resulting message states that there are two goals:</p>
+<p>その結果、2つのゴールが存在することが示されます：</p>
 <pre><code class="language-output error">unsolved goals
 case zero
 ⊢ Nat.zero = Nat.plusR 0 Nat.zero
@@ -11213,45 +11235,45 @@ n✝ : Nat
 n_ih✝ : n✝ = Nat.plusR 0 n✝
 ⊢ Nat.succ n✝ = Nat.plusR 0 (Nat.succ n✝)
 </code></pre>
-<p>A tactic block is a program that is run while the Lean type checker processes a file, somewhat like a much more powerful C preprocessor macro.
-The tactics generate the actual program.</p>
-<p>In the tactic language, there can be a number of goals.
-Each goal consists of a type together with some assumptions.
-These are analogous to using underscores as placeholders—the type in the goal represents what is to be proved, and the assumptions represent what is in-scope and can be used.
-In the case of the goal <code>case zero</code>, there are no assumptions and the type is <code>Nat.zero = Nat.plusR 0 Nat.zero</code>—this is the theorem statement with <code>0</code> instead of <code>k</code>.
-In the goal <code>case succ</code>, there are two assumptions, named <code>n✝</code> and <code>n_ih✝</code>.
-Behind the scenes, the <code>induction</code> tactic creates a dependent pattern match that refines the overall type, and <code>n✝</code> represents the argument to <code>Nat.succ</code> in the pattern.
-The assumption <code>n_ih✝</code> represents the result of calling the generated function recursively on <code>n✝</code>.
-Its type is the overall type of the theorem, just with <code>n✝</code> instead of <code>k</code>.
-The type to be fulfilled as part of the goal <code>case succ</code> is the overall theorem statement, with <code>Nat.succ n✝</code> instead of <code>k</code>.</p>
-<p>The two goals that result from the use of the <code>induction</code> tactic correspond to the base case and the induction step in the description of mathematical induction.
-The base case is <code>case zero</code>.
-In <code>case succ</code>, <code>n_ih✝</code> corresponds to the induction hypothesis, while the whole of <code>case succ</code> is the induction step.</p>
-<p>The next step in writing the proof is to focus on each of the two goals in turn.
-Just as <code>pure ()</code> can be used in a <code>do</code> block to indicate &quot;do nothing&quot;, the tactic language has a statement <code>skip</code> that also does nothing.
-This can be used when Lean's syntax requires a tactic, but it's not yet clear which one should be used.
-Adding <code>with</code> to the end of the <code>induction</code> statement provides a syntax that is similar to pattern matching:</p>
+<p>タクティクブロックは、Leanの型検査器がファイルを処理する際に実行されるプログラムであり、かなりパワフルなCプリプロセッサマクロのようなものです。
+タクティクは実際のプログラムを生成します。</p>
+<p>タクティク言語では、複数のゴールが存在することがあります。
+各ゴールは型といくつかの仮定から構成されます。
+これはアンダースコアをプレースホルダーとして使用することに類似しており、ゴールの型は何を証明するかを表し、仮定はスコープ内にあるもので使用できます。
+<code>case zero</code> のゴールの場合、仮定は存在せず、その型は <code>Nat.zero = Nat.plusR 0 Nat.zero</code> です。これは <code>k</code> の代わりに <code>0</code> を使用した定理文です。
+<code>case succ</code> のゴールの場合、2つの仮定が存在し、それぞれ <code>n✝</code> と <code>n_ih✝</code> という名前が付けられています。
+裏では、<code>induction</code> タクティクは、全体の型を細かくし、<code>n✝</code> がパターン内の <code>Nat.succ</code> の引数を表します。
+仮定 <code>n_ih✝</code> は生成された関数を <code>n✝</code> に対して再帰的に呼び出した結果を表します。
+その型は定理の全体の型であり、ただし <code>k</code> の代わりに <code>n✝</code> を使用しています。
+ゴール <code>case succ</code> の一部として達成されるべき型は、 <code>k</code> の代わりに <code>Nat.succ n✝</code> を使用した定理文です。</p>
+<p><code>induction</code> タクティクを使用した結果、2つのゴールが生成されますが、これは数学的帰納法の説明における基本ケースと帰納ステップに対応しています。
+基本ケースは <code>case zero</code> です。
+<code>case succ</code> では、<code>n_ih✝</code> が帰納仮説に対応し、全体の <code>case succ</code> が帰納ステップです。</p>
+<p>証明の次のステップは、2つのゴールそれぞれに焦点を当てることです。
+<code>pure ()</code> が「何もしない」と示すために <code>do</code> ブロックで使用できるのと同様に、タクティク言語には何もしない <code>skip</code> という文もあります。
+これは、Leanの構文がタクティクを必要とする場合でも、どのタクティクを使用すべきかはまだ明確でない場合に使用できます。
+<code>induction</code> 文の末尾に <code>with</code> を追加すると、パターンマッチングに似た構文が提供されます：</p>
 <pre><code class="language-leantac">theorem plusR_zero_left (k : Nat) : k = Nat.plusR 0 k := by
   induction k with
   | zero =&gt; skip
   | succ n ih =&gt; skip
 </code></pre>
-<p>Each of the two <code>skip</code> statements has a message associated with it.
-The first shows the base case:</p>
+<p>2つの <code>skip</code> 文にはそれぞれメッセージが関連付けられています。
+最初のものは基本ケースを示します：</p>
 <pre><code class="language-output error">unsolved goals
 case zero
 ⊢ Nat.zero = Nat.plusR 0 Nat.zero
 </code></pre>
-<p>The second shows the induction step:</p>
+<p>2番目のものは帰納ステップを示します：</p>
 <pre><code class="language-output error">unsolved goals
 case succ
 n : Nat
 ih : n = Nat.plusR 0 n
 ⊢ Nat.succ n = Nat.plusR 0 (Nat.succ n)
 </code></pre>
-<p>In the induction step, the inaccessible names with daggers have been replaced with the names provided after <code>succ</code>, namely <code>n</code> and <code>ih</code>.</p>
-<p>The cases after <code>induction ... with</code> are not patterns: they consist of the name of a goal followed by zero or more names.
-The names are used for assumptions introduced in the goal; it is an error to provide more names than the goal introduces:</p>
+<p>帰納ステップでは、ダガーのついたアクセス不可能な名前が <code>succ</code> の後に提供された <code>n</code> と <code>ih</code> に置き換えられています。</p>
+<p><code>induction ... with</code> の後のケースはパターンではありません。これらはゴールの名前と、ゼロ個以上の名前で構成されます。
+これらの名前はゴール内で導入された仮定に使用され、ゴールが導入する名前よりも多くの名前を提供することはエラーです：</p>
 <pre><code class="language-leantac">theorem plusR_zero_left (k : Nat) : k = Nat.plusR 0 k := by
   induction k with
   | zero =&gt; skip
@@ -11259,31 +11281,31 @@ The names are used for assumptions introduced in the goal; it is an error to pro
 </code></pre>
 <pre><code class="language-output error">too many variable names provided at alternative 'succ', #5 provided, but #2 expected
 </code></pre>
-<p>Focusing on the base case, the <code>rfl</code> tactic works just as well inside of the <code>induction</code> tactic as it does in a recursive function:</p>
+<p>基本ケースに焦点を当てると、<code>rfl</code> タクティクは再帰関数内でも同様に機能します：</p>
 <pre><code class="language-leantac">theorem plusR_zero_left (k : Nat) : k = Nat.plusR 0 k := by
   induction k with
   | zero =&gt; rfl
   | succ n ih =&gt; skip
 </code></pre>
-<p>In the recursive function version of the proof, a type annotation made the expected type something that was easier to understand.
-In the tactic language, there are a number of specific ways to transform a goal to make it easier to solve.
-The <code>unfold</code> tactic replaces a defined name with its definition:</p>
+<p>証明の再帰関数バージョンでは、型の注釈によって期待される型がより理解しやすいものになりました。
+タクティク言語では、ゴールを解決しやすくするためのさまざまな方法があります。
+<code>unfold</code> タクティクは定義済みの名前をその定義で置き換えます：</p>
 <pre><code class="language-leantac">theorem plusR_zero_left (k : Nat) : k = Nat.plusR 0 k := by
   induction k with
   | zero =&gt; rfl
   | succ n ih =&gt;
     unfold Nat.plusR
 </code></pre>
-<p>Now, the right-hand side of the equality in the goal has become <code>Nat.plusR 0 n + 1</code> instead of <code>Nat.plusR 0 (Nat.succ n)</code>:</p>
+<p>すると、ゴール内の等式の右辺が <code>Nat.plusR 0 n + 1</code> になり、<code>Nat.plusR 0 (Nat.succ n)</code> の代わりになりました：</p>
 <pre><code class="language-output error">unsolved goals
 case succ
 n : Nat
 ih : n = Nat.plusR 0 n
 ⊢ Nat.succ n = Nat.plusR 0 n + 1
 </code></pre>
-<p>Instead of appealing to functions like <code>congrArg</code> and operators like <code>▸</code>, there are tactics that allow equality proofs to be used to transform proof goals.
-One of the most important is <code>rw</code>, which takes a list of equality proofs and replaces the left side with the right side in the goal.
-This almost does the right thing in <code>plusR_zero_left</code>:</p>
+<p><code>congrArg</code> などの関数や <code>▸</code> のような演算子に訴える代わりに、等式の証明を変換するために使用できるタクティクがあります。
+最も重要なのは <code>rw</code> で、等式の証明を取るリストを指定し、ゴール内で左辺を右辺で置き換えます。
+これは <code>plusR_zero_left</code> ではほぼ正しいことを行います：</p>
 <pre><code class="language-leantac">theorem plusR_zero_left (k : Nat) : k = Nat.plusR 0 k := by
   induction k with
   | zero =&gt; rfl
@@ -11291,15 +11313,15 @@ This almost does the right thing in <code>plusR_zero_left</code>:</p>
     unfold Nat.plusR
     rw [ih]
 </code></pre>
-<p>However, the direction of the rewrite was incorrect.
-Replacing <code>n</code> with <code>Nat.plusR 0 n</code> made the goal more complicated rather than less complicated:</p>
+<p>ただし、書き換えの方向が間違っています。
+<code>n</code> を <code>Nat.plusR 0 n</code> に置き換えることで、ゴールがより複雑になりました：</p>
 <pre><code class="language-output error">unsolved goals
 case succ
 n : Nat
 ih : n = Nat.plusR 0 n
 ⊢ Nat.succ (Nat.plusR 0 n) = Nat.plusR 0 (Nat.plusR 0 n) + 1
 </code></pre>
-<p>This can be remedied by placing a left arrow before <code>ih</code> in the call to <code>rewrite</code>, which instructs it to replace the right-hand side of the equality with the left-hand side:</p>
+<p>これは、<code>rewrite</code> の呼び出しに <code>ih</code> の前に左矢印を置くことで修正できます。これにより、等式の右辺を左辺で置き換えるように指示されます：</p>
 <pre><code class="language-leantac">theorem plusR_zero_left (k : Nat) : k = Nat.plusR 0 k := by
   induction k with
   | zero =&gt; rfl
@@ -11307,15 +11329,15 @@ ih : n = Nat.plusR 0 n
     unfold Nat.plusR
     rw [←ih]
 </code></pre>
-<p>This rewrite makes both sides of the equation identical, and Lean takes care of the <code>rfl</code> on its own.
-The proof is complete.</p>
-<h2 id="tactic-golf"><a class="header" href="#tactic-golf">Tactic Golf</a></h2>
-<p>So far, the tactic language has not shown its true value.
-The above proof is no shorter than the recursive function; it's merely written in a domain-specific language instead of the full Lean language.
-But proofs with tactics can be shorter, easier, and more maintainable.
-Just as a lower score is better in the game of golf, a shorter proof is better in the game of tactic golf.</p>
-<p>The induction step of <code>plusR_zero_left</code> can be proved using the simplification tactic <code>simp</code>.
-Using <code>simp</code> on its own does not help:</p>
+<p>この書き換えにより、方程式の両側が同一になり、Leanは <code>rfl</code> を自動で処理します。
+これで証明が完了しました。</p>
+<h2 id="タクティクゴルフtactic-golf"><a class="header" href="#タクティクゴルフtactic-golf">タクティクゴルフ（Tactic Golf）</a></h2>
+<p>これまでのところ、タクティク言語はその真の価値を示していませんでした。
+上記の証明は再帰関数よりも短くないだけで、フルのLean言語の代わりに特定のドメイン向けの言語で書かれています。
+しかし、タクティクを使用した証明は、より短く、簡単で保守的になることがあります。
+ゴルフのゲームでは、スコアが低いほど良いように、タクティクゴルフのゲームでは証明が短いほど良いのです。</p>
+<p><code>plusR_zero_left</code> の帰納ステップは、簡略化タクティク <code>simp</code> を使用して証明できます。
+<code>simp</code> を単体で使用しても助けにはなりません：</p>
 <pre><code class="language-leantac">theorem plusR_zero_left (k : Nat) : k = Nat.plusR 0 k := by
   induction k with
   | zero =&gt; rfl
@@ -11324,9 +11346,9 @@ Using <code>simp</code> on its own does not help:</p>
 </code></pre>
 <pre><code class="language-output error">simp made no progress
 </code></pre>
-<p>However, <code>simp</code> can be configured to make use of a set of definitions.
-Just like <code>rw</code>, these arguments are provided in a list.
-Asking <code>simp</code> to take the definition of <code>Nat.plusR</code> into account leads to a simpler goal:</p>
+<p>ただし、<code>simp</code> を使用するように設定することができ、一連の定義を利用するようにできます。
+<code>rw</code> と同様、これらの引数はリストで提供されます。
+<code>simp</code> に <code>Nat.plusR</code> の定義を考慮に入れるように指示すると、より単純なゴールになります：</p>
 <pre><code class="language-leantac">theorem plusR_zero_left (k : Nat) : k = Nat.plusR 0 k := by
   induction k with
   | zero =&gt; rfl
@@ -11339,9 +11361,9 @@ n : Nat
 ih : n = Nat.plusR 0 n
 ⊢ n = Nat.plusR 0 n
 </code></pre>
-<p>In particular, the goal is now identical to the induction hypothesis.
-In addition to automatically proving simple equality statements, the simplifier automatically replaces goals like <code>Nat.succ A = Nat.succ B</code> with <code>A = B</code>.
-Because the induction hypothesis <code>ih</code> has exactly the right type, the <code>exact</code> tactic can indicate that it should be used:</p>
+<p>特に、ゴールは今、帰納仮説と同一です。
+簡略化タクティクは、単純な等式の証明だけでなく、ゴールを <code>Nat.succ A = Nat.succ B</code> から <code>A = B</code> に自動的に置き換えることも行います。
+帰納仮説 <code>ih</code> がまさに適切な型を持っているため、<code>exact</code> タクティクを使用することを示すことができます：</p>
 <pre><code class="language-leantac">theorem plusR_zero_left (k : Nat) : k = Nat.plusR 0 k := by
   induction k with
   | zero =&gt; rfl
@@ -11349,9 +11371,9 @@ Because the induction hypothesis <code>ih</code> has exactly the right type, the
     simp [Nat.plusR]
     exact ih
 </code></pre>
-<p>However, the use of <code>exact</code> is somewhat fragile.
-Renaming the induction hypothesis, which may happen while &quot;golfing&quot; the proof, would cause this proof to stop working.
-The <code>assumption</code> tactic solves the current goal if <em>any</em> of the assumptions match it:</p>
+<p>ただし、<code>exact</code> の使用は多少デリケートです。
+帰納仮説の名前を変更すると、証明が機能しなくなる可能性があります。
+<code>assumption</code> タクティクは、仮定のいずれかがそれに一致する場合に、現在のゴールを解決します：</p>
 <pre><code class="language-leantac">theorem plusR_zero_left (k : Nat) : k = Nat.plusR 0 k := by
   induction k with
   | zero =&gt; rfl
@@ -11359,15 +11381,15 @@ The <code>assumption</code> tactic solves the current goal if <em>any</em> of th
     simp [Nat.plusR]
     assumption
 </code></pre>
-<p>This proof is no shorter than the prior proof that used unfolding and explicit rewriting.
-However, a series of transformations can make it much shorter, taking advantage of the fact that <code>simp</code> can solve many kinds of goals.
-The first step is to drop the <code>with</code> at the end of <code>induction</code>.
-For structured, readable proofs, the <code>with</code> syntax is convenient.
-It complains if any cases are missing, and it shows the structure of the induction clearly.
-But shortening proofs can often require a more liberal approach.</p>
-<p>Using <code>induction</code> without <code>with</code> simply results in a proof state with two goals.
-The <code>case</code> tactic can be used to select one of them, just as in the branches of the <code>induction ... with</code> tactic.
-In other words, the following proof is equivalent to the prior proof:</p>
+<p>この証明は、前の証明と比べてそれほど短くありません。
+ただし、多くの種類のゴールを解決できる点を活用して、一連の変換を行うことで、はるかに短くなる可能性があります。
+最初のステップは、<code>induction</code> の最後の <code>with</code> を省略することです。
+構造的で読みやすい証明の場合、<code>with</code> 構文は便利です。
+ケースが欠けているとエラーを出力し、帰納の構造を明確に表示します。
+ただし、証明を短縮するには、より自由なアプローチが必要なことがあります。</p>
+<p><code>with</code> を使用せずに <code>induction</code> を使うと、2つのゴールを持つ証明状態が得られます。
+<code>case</code> タクティクを使用して、<code>induction ... with</code> タクティクのブランチと同じように、それらのうちの1つを選択できます。
+言い換えれば、次の証明は前の証明と等価です：</p>
 <pre><code class="language-leantac">theorem plusR_zero_left (k : Nat) : k = Nat.plusR 0 k := by
   induction k
   case zero =&gt; rfl
@@ -11375,66 +11397,66 @@ In other words, the following proof is equivalent to the prior proof:</p>
     simp [Nat.plusR]
     assumption
 </code></pre>
-<p>In a context with a single goal (namely, <code>k = Nat.plusR 0 k</code>), the <code>induction k</code> tactic yields two goals.
-In general, a tactic will either fail with an error or take a goal and transform it into zero or more new goals.
-Each new goal represents what remains to be proved.
-If the result is zero goals, then the tactic was a success, and that part of the proof is done.</p>
-<p>The <code>&lt;;&gt;</code> operator takes two tactics as arguments, resulting in a new tactic.
-<code>T1 &lt;;&gt; T2</code> applies <code>T1</code> to the current goal, and then applies <code>T2</code> in <em>all</em> goals created by <code>T1</code>.
-In other words, <code>&lt;;&gt;</code> enables a general tactic that can solve many kinds of goals to be used on multiple new goals all at once.
-One such general tactic is <code>simp</code>.</p>
-<p>Because <code>simp</code> can both complete the proof of the base case and make progress on the proof of the induction step, using it with <code>induction</code> and <code>&lt;;&gt;</code> shortens the proof:</p>
+<p>単一のゴールを持つコンテキスト（具体的には、<code>k = Nat.plusR 0 k</code> というゴール）で、<code>induction k</code> タクティクは2つのゴールを生成します。
+一般的に、タクティクはエラーを出力するか、ゴールを取り、それをゼロ個以上の新しいゴールに変換します。
+各新しいゴールは、証明すべき残りの部分を表します。
+結果がゴールがゼロ個の場合、タクティクは成功し、その証明のその部分は完了です。</p>
+<p><code>&lt;;&gt;</code> 演算子は、2つのタクティクを引数に取り、新しいタクティクを生成します。
+<code>T1 &lt;;&gt; T2</code> は <code>T1</code> を現在のゴールに適用し、<code>T1</code> によって作成された <em>すべて</em> のゴールに対して <code>T2</code> を適用します。
+言い換えれば、<code>&lt;;&gt;</code> は多くの種類のゴールを解決できる汎用タクティクを、一度に複数の新しいゴールに使用できるようにします。
+そのような一般的なタクティクの1つが <code>simp</code> です。</p>
+<p><code>simp</code> はベースケースの証明を完了し、帰納ステップの証明を進めることができるため、<code>induction</code> と <code>&lt;;&gt;</code> と組み合わせて使用することで証明が短縮されます：</p>
 <pre><code class="language-leantac">theorem plusR_zero_left (k : Nat) : k = Nat.plusR 0 k := by
   induction k &lt;;&gt; simp [Nat.plusR]
 </code></pre>
-<p>This results in only a single goal, the transformed induction step:</p>
+<p>その結果、変換された帰納ステップの1つだけのゴールが得られます：</p>
 <pre><code class="language-output error">unsolved goals
 case succ
 n✝ : Nat
 n_ih✝ : n✝ = Nat.plusR 0 n✝
 ⊢ n✝ = Nat.plusR 0 n✝
 </code></pre>
-<p>Running <code>assumption</code> in this goal completes the proof:</p>
+<p>このゴールに <code>assumption</code> を実行することで証明が完了します：</p>
 <pre><code class="language-leantac">theorem plusR_zero_left (k : Nat) : k = Nat.plusR 0 k := by
   induction k &lt;;&gt; simp [Nat.plusR] &lt;;&gt; assumption
 </code></pre>
-<p>Here, <code>exact</code> would not have been possible, because <code>ih</code> was never explicitly named.</p>
-<p>For beginners, this proof is not easier to read.
-However, a common pattern for expert users is to take care of a number of simple cases with powerful tactics like <code>simp</code>, allowing them to focus the text of the proof on the interesting cases.
-Additionally, these proofs tend to be more robust in the face of small changes to the functions and datatypes involved in the proof.
-The game of tactic golf is a useful part of developing good taste and style when writing proofs.</p>
-<h2 id="induction-on-other-datatypes"><a class="header" href="#induction-on-other-datatypes">Induction on Other Datatypes</a></h2>
-<p>Mathematical induction proves a statement for natural numbers by providing a base case for <code>Nat.zero</code> and an induction step for <code>Nat.succ</code>.
-The principle of induction is also valid for other datatypes.
-Constructors without recursive arguments form the base cases, while constructors with recursive arguments form the induction steps.
-The ability to carry out proofs by induction is the very reason why they are called <em>inductive</em> datatypes.</p>
-<p>One example of this is induction on binary trees.
-Induction on binary trees is a proof technique where a statement is proven for <em>all</em> binary trees in two steps:</p>
+<p>ここでは、<code>ih</code> が明示的に名前付けられていなかったため、<code>exact</code> は使用できませんでした。</p>
+<p>初心者にとって、この証明は読みやすくなるわけではありません。
+ただし、専門家のユーザーにとって一般的なパターンは、<code>simp</code> のような強力なタクティクを使用して多くの単純なケースを処理し、証明の本文を興味深いケースに焦点を当てることです。
+さらに、これらの証明は、証明に関与する関数とデータ型の小さな変更に対しても、通常よりも堅牢である傾向があります。
+タクティクゴルフのゲームは、証明を書く際の優れたスタイルとセンスを開発するための有用な要素です。</p>
+<h2 id="他の型における帰納induction-on-other-datatypes"><a class="header" href="#他の型における帰納induction-on-other-datatypes">他の型における帰納（Induction on Other Datatypes）</a></h2>
+<p>数学的帰納法は、自然数に関する命題を<code>Nat.zero</code>の基本ケースと<code>Nat.succ</code>の帰納ステップを提供することによって証明します。
+帰納法の原則は、他のデータ型に対しても有効です。
+再帰引数を持たないコンストラクタは基本ケースを形成し、再帰引数を持つコンストラクタは帰納ステップを形成します。
+帰納法によって証明を行う能力は、それが <em>帰納的</em> データ型と呼ばれる理由そのものです。</p>
+<p>その一例が、二分木に対する帰納法です。
+二分木に対する帰納法は、二つのステップで_すべて_の二分木についての命題を証明する証明技法です：</p>
 <ol>
-<li>The statement is shown to hold for <code>BinTree.leaf</code>. This is called the base case.</li>
-<li>Under the assumption that the statement holds for some arbitrarily chosen trees <code>l</code> and <code>r</code>, it is shown to hold for <code>BinTree.branch l x r</code>, where <code>x</code> is an arbitrarily-chosen new data point. This is called the <em>induction step</em>. The assumptions that the statement holds for <code>l</code> and <code>r</code> are called the <em>induction hypotheses</em>.</li>
+<li>命題が <code>BinTree.leaf</code> に適用されることが示されます。これは基本ケースと呼ばれます。</li>
+<li>仮定として、命題がいくつかの任意の木 <code>l</code> と <code>r</code> に適用されることが示され、新しいデータ点 <code>x</code> が任意に選択された <code>BinTree.branch l x r</code> についても成立することが示されます。これを帰納ステップと呼びます。<code>l</code> と <code>r</code> について命題が成立するという仮定は、帰納仮説と呼ばれます。</li>
 </ol>
-<p><code>BinTree.count</code> counts the number of branches in a tree:</p>
+<p><code>BinTree.count</code> は木の枝の数を数えます：</p>
 <pre><code class="language-lean">def BinTree.count : BinTree α → Nat
   | .leaf =&gt; 0
   | .branch l _ r =&gt;
     1 + l.count + r.count
 </code></pre>
-<p><a href="monads/conveniences.html#leading-dot-notation">Mirroring a tree</a> does not change the number of branches in it.
-This can be proven using induction on trees.
-The first step is to state the theorem and invoke <code>induction</code>:</p>
+<p><a href="monads/conveniences.html#leading-dot-notation">木のミラーリング</a> は、それに含まれる枝の数を変更しません。
+これは木に対する帰納法を使用して証明できます。
+最初のステップは、定理を述べ、<code>induction</code> を呼び出すことです：</p>
 <pre><code class="language-leantac">theorem BinTree.mirror_count (t : BinTree α) : t.mirror.count = t.count := by
   induction t with
   | leaf =&gt; skip
   | branch l x r ihl ihr =&gt; skip
 </code></pre>
-<p>The base case states that counting the mirror of a leaf is the same as counting the leaf:</p>
+<p>基本ケースでは、葉のミラーリングの枝の数を葉の枝の数と同じであると述べています：</p>
 <pre><code class="language-output error">unsolved goals
 case leaf
 α : Type
 ⊢ count (mirror leaf) = count leaf
 </code></pre>
-<p>The induction step allows the assumption that mirroring the left and right subtrees won't affect their branch counts, and requests a proof that mirroring a branch with these subtrees also preserves the overall branch count:</p>
+<p>帰納ステップでは、左右のサブツリーをミラーリングしてもその枝の数には影響を及ぼさないという仮定を行い、これらのサブツリーを持つ枝をミラーリングしても全体の枝の数が保存される証明を求めています：</p>
 <pre><code class="language-output error">unsolved goals
 case branch
 α : Type
@@ -11445,15 +11467,16 @@ ihl : count (mirror l) = count l
 ihr : count (mirror r) = count r
 ⊢ count (mirror (branch l x r)) = count (branch l x r)
 </code></pre>
-<p>The base case is true because mirroring <code>leaf</code> results in <code>leaf</code>, so the left and right sides are definitionally equal.
-This can be expressed by using <code>simp</code> with instructions to unfold <code>BinTree.mirror</code>:</p>
+<p>次の英語の文章を日本語に翻訳します：</p>
+<p>基本ケースは<code>leaf</code>を<code>leaf</code>に対応づけることで真となり、したがって左側と右側は定義的に等しいです。
+これは、<code>BinTree.mirror</code>を展開するように<code>simp</code>を使用して表現できます：</p>
 <pre><code class="language-leantac">theorem BinTree.mirror_count (t : BinTree α) : t.mirror.count = t.count := by
   induction t with
   | leaf =&gt; simp [BinTree.mirror]
   | branch l x r ihl ihr =&gt; skip
 </code></pre>
-<p>In the induction step, nothing in the goal immediately matches the induction hypotheses.
-Simplifying using the definitions of <code>BinTree.count</code> and <code>BinTree.mirror</code> reveals the relationship:</p>
+<p>帰納ステップでは、ゴール内で即座に帰納仮説と一致する部分はありません。
+<code>BinTree.count</code>および<code>BinTree.mirror</code>の定義を使用して簡略化すると、次の関係が明らかになります：</p>
 <pre><code class="language-leantac">theorem BinTree.mirror_count (t : BinTree α) : t.mirror.count = t.count := by
   induction t with
   | leaf =&gt; simp [BinTree.mirror]
@@ -11470,7 +11493,7 @@ ihl : count (mirror l) = count l
 ihr : count (mirror r) = count r
 ⊢ 1 + count (mirror r) + count (mirror l) = 1 + count l + count r
 </code></pre>
-<p>Both induction hypotheses can be used to rewrite the left-hand side of the goal into something almost like the right-hand side:</p>
+<p>両方の帰納仮説を使用して、ゴールの左側を右側にほぼ等しいものに書き換えることができます：</p>
 <pre><code class="language-leantac">theorem BinTree.mirror_count (t : BinTree α) : t.mirror.count = t.count := by
   induction t with
   | leaf =&gt; simp [BinTree.mirror]
@@ -11488,7 +11511,7 @@ ihl : count (mirror l) = count l
 ihr : count (mirror r) = count r
 ⊢ 1 + count r + count l = 1 + count l + count r
 </code></pre>
-<p>The <code>simp_arith</code> tactic, a version of <code>simp</code> that can use additional arithmetic identities, is enough to prove this goal, yielding:</p>
+<p><code>simp_arith</code>タクティク、追加の算術的同値性を使用できる<code>simp</code>のバージョン、はこのゴールを証明するのに十分です。次のようになります：</p>
 <pre><code class="language-leantac">theorem BinTree.mirror_count (t : BinTree α) : t.mirror.count = t.count := by
   induction t with
   | leaf =&gt; simp [BinTree.mirror]
@@ -11497,72 +11520,72 @@ ihr : count (mirror r) = count r
     rw [ihl, ihr]
     simp_arith
 </code></pre>
-<p>In addition to definitions to be unfolded, the simplifier can also be passed names of equality proofs to use as rewrites while it simplifies proof goals.
-<code>BinTree.mirror_count</code> can also be written:</p>
+<p>展開すべき定義の他に、簡略化器には証明のゴールを簡略化する際に使用する等式証明の名前も渡すことができます。
+<code>BinTree.mirror_count</code>は次のようにも書けます：</p>
 <pre><code class="language-leantac">theorem BinTree.mirror_count (t : BinTree α) : t.mirror.count = t.count := by
   induction t with
   | leaf =&gt; simp [BinTree.mirror]
   | branch l x r ihl ihr =&gt;
     simp_arith [BinTree.mirror, BinTree.count, ihl, ihr]
 </code></pre>
-<p>As proofs grow more complicated, listing assumptions by hand can become tedious.
-Furthermore, manually writing assumption names can make it more difficult to re-use proof steps for multiple subgoals.
-The argument <code>*</code> to <code>simp</code> or <code>simp_arith</code> instructs them to use <em>all</em> assumptions while simplifying or solving the goal.
-In other words, the proof could also be written:</p>
+<p>証明がより複雑になると、前提条件を手動で列挙することは面倒になります。
+さらに、前提条件の名前を手動で書くことは、証明ステップを複数のサブゴールに再利用するのが難しくなることがあります。
+<code>*</code>引数を<code>simp</code>または<code>simp_arith</code>に渡すことで、ゴールを簡略化または解決する際に_すべて_の前提条件を使用するように指示できます。
+言い換えれば、証明は次のようにも書けます：</p>
 <pre><code class="language-leantac">theorem BinTree.mirror_count (t : BinTree α) : t.mirror.count = t.count := by
   induction t with
   | leaf =&gt; simp [BinTree.mirror]
   | branch l x r ihl ihr =&gt;
     simp_arith [BinTree.mirror, BinTree.count, *]
 </code></pre>
-<p>Because both branches are using the simplifier, the proof can be reduced to:</p>
+<p>両方のブランチが簡略化器を使用しているため、証明は次のように簡約できます：</p>
 <pre><code class="language-leantac">theorem BinTree.mirror_count (t : BinTree α) : t.mirror.count = t.count := by
   induction t &lt;;&gt; simp_arith [BinTree.mirror, BinTree.count, *]
 </code></pre>
-<h2 id="exercises-20"><a class="header" href="#exercises-20">Exercises</a></h2>
+<h2 id="演習exercises-2"><a class="header" href="#演習exercises-2">演習（Exercises）</a></h2>
 <ul>
-<li>Prove <code>plusR_succ_left</code> using the <code>induction ... with</code> tactic.</li>
-<li>Rewrite the proof of <code>plus_succ_left</code> to use <code>&lt;;&gt;</code> in a single line.</li>
-<li>Prove that appending lists is associative using induction on lists: <code>theorem List.append_assoc (xs ys zs : List α) : xs ++ (ys ++ zs) = (xs ++ ys) ++ zs</code></li>
+<li><code>induction ... with</code>タクティクを使用して<code>plusR_succ_left</code>を証明してください。</li>
+<li><code>plus_succ_left</code>の証明を1行で<code>&lt;;&gt;</code>を使用して書き換えてください。</li>
+<li>リストの連結が結合法則であることをリストの帰納法を使用して証明してください：<code>theorem List.append_assoc (xs ys zs : List α) : xs ++ (ys ++ zs) = (xs ++ ys) ++ zs</code></li>
 </ul>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="programming-proving-and-performance"><a class="header" href="#programming-proving-and-performance">Programming, Proving, and Performance</a></h1>
-<p>This chapter is about programming.
-Programs need to compute the correct result, but they also need to do so efficiently.
-To write efficient functional programs, it's important to know both how to use data structures appropriately and how to think about the time and space needed to run a program.</p>
-<p>This chapter is also about proofs.
-One of the most important data structures for efficient programming in Lean is the array, but safe use of arrays requires proving that array indices are in bounds.
-Furthermore, most interesting algorithms on arrays do not follow the pattern of structural recursion—instead, they iterate over the array.
-While these algorithms terminate, Lean will not necessarily be able to automatically check this.
-Proofs can be used to demonstrate why a program terminates.</p>
-<p>Rewriting programs to make them faster often results in code that is more difficult to understand.
-Proofs can also show that two programs always compute the same answers, even if they do so with different algorithms or implementation techniques.
-In this way, the slow, straightforward program can serve as a specification for the fast, complicated version.</p>
-<p>Combining proofs and programming allows programs to be both safe and efficient.
-Proofs allow elision of run-time bounds checks, they render many tests unnecessary, and they provide an extremely high level of confidence in a program without introducing any runtime performance overhead.
-However, proving theorems about programs can be time consuming and expensive, so other tools are often more economical.</p>
-<p>Interactive theorem proving is a deep topic.
-This chapter provides only a taste, oriented towards the proofs that come up in practice while programming in Lean.
-Most interesting theorems are not closely related to programming.
-Please refer to <a href="next-steps.html">Next Steps</a> for a list of resources for learning more.
-Just as when learning programming, however, there's no substitute for hands-on experience when learning to write proofs—it's time to get started!</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="tail-recursion"><a class="header" href="#tail-recursion">Tail Recursion</a></h1>
-<p>While Lean's <code>do</code>-notation makes it possible to use traditional loop syntax such as <code>for</code> and <code>while</code>, these constructs are translated behind the scenes to invocations of recursive functions.
-In most programming languages, recursive functions have a key disadvantage with respect to loops: loops consume no space on the stack, while recursive functions consume stack space proportional to the number of recursive calls.
-Stack space is typically limited, and it is often necessary to take algorithms that are naturally expressed as recursive functions and rewrite them as loops paired with an explicit mutable heap-allocated stack.</p>
-<p>In functional programming, the opposite is typically true.
-Programs that are naturally expressed as mutable loops may consume stack space, while rewriting them to recursive functions can cause them to run quickly.
-This is due to a key aspect of functional programming languages: <em>tail-call elimination</em>.
-A tail call is a call from one function to another that can be compiled to an ordinary jump, replacing the current stack frame rather than pushing a new one, and tail-call elimination is the process of implementing this transformation.</p>
-<p>Tail-call elimination is not just merely an optional optimization.
-Its presence is a fundamental part of being able to write efficient functional code.
-For it to be useful, it must be reliable.
-Programmers must be able to reliably identify tail calls, and they must be able to trust that the compiler will eliminate them.</p>
-<p>The function <code>NonTail.sum</code> adds the contents of a list of <code>Nat</code>s:</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="プログラミング証明パフォーマンスprogramming-proving-and-performance"><a class="header" href="#プログラミング証明パフォーマンスprogramming-proving-and-performance">プログラミング、証明、パフォーマンス（Programming, Proving, and Performance）</a></h1>
+<p>この章はプログラミングについてです。
+プログラムは正しい結果を計算する必要がありますが、同時に効率的に行う必要もあります。
+効率的な関数型プログラムを書くには、適切にデータ構造を使用する方法と、プログラムを実行するために必要な時間とスペースの考え方を知ることが重要です。</p>
+<p>この章はまた、証明についても述べています。
+Leanで効率的なプログラミングに最も重要なデータ構造の1つは配列ですが、配列の安全な使用には配列のインデックスが境界内にあることを証明する必要があります。
+さらに、配列に関する興味深いアルゴリズムのほとんどは構造再帰のパターンに従わないため、配列を繰り返し処理します。
+これらのアルゴリズムは終了しますが、Leanは必ずしも自動的にこれを確認できるわけではありません。
+証明を使用して、プログラムがなぜ終了するかを示すことができます。</p>
+<p>プログラムを速くするためにプログラムを書き換えることは、しばしば理解しにくいコードを生成します。
+証明はまた、異なるアルゴリズムや実装技術を使用しても、2つのプログラムが常に同じ結果を計算することを示すことができます。
+この方法で、遅くて直感的なプログラムは、高速で複雑なバージョンの仕様として機能することができます。</p>
+<p>証明とプログラミングを組み合わせることで、プログラムを安全かつ効率的にすることができます。
+証明によって実行時の境界チェックを省略でき、多くのテストが不要になり、実行時のパフォーマンスのオーバーヘッドを導入せずにプログラムに対する非常に高い信頼度を提供します。
+ただし、プログラムに関する定理を証明することは時間がかかり、費用がかかることがあるため、他のツールが経済的な場合もよくあります。</p>
+<p>対話型定理証明は深いトピックです。
+この章は、Leanでプログラミングを行う際に実際に発生する証明を対象としています。
+最も興味深い定理はプログラムとは関係がないことが多いです。
+詳細については、学習リソースのリストを確認するために<a href="next-steps.html">次のステップ</a>を参照してください。
+ただし、プログラムを学ぶ際と同様に、証明を書く方法を学ぶ際には実践的な経験に代えるものはありません。今始める時です！</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="末尾再帰tail-recursion"><a class="header" href="#末尾再帰tail-recursion">末尾再帰（Tail Recursion）</a></h1>
+<p>Leanの<code>do</code>記法を使用すれば、<code>for</code>や<code>while</code>などの従来のループ構文を使用することができますが、これらの構造は裏側で再帰関数の呼び出しに変換されます。
+ほとんどのプログラミング言語では、再帰関数はループに比べて重要なデメリットを持っています：ループはスタック上でスペースを消費しませんが、再帰関数は再帰呼び出しの数に比例してスタックスペースを消費します。
+スタックスペースは通常制限されており、再帰関数として自然に表現されるアルゴリズムをループと明示的な可変ヒープに割り当てられたスタックと組み合わせて書き直す必要があります。</p>
+<p>関数型プログラミングでは、通常は逆のことが真です。
+自然に可変ループとして表現されるプログラムはスタックスペースを消費する場合があり、それらを再帰関数に書き直すと速く実行されることがあります。
+これは関数型プログラミング言語の重要な側面の1つ、_末尾呼び出しの除去_によるものです。
+末尾呼び出しは、1つの関数から別の関数への呼び出しであり、通常のジャンプにコンパイルでき、現在のスタックフレームを置き換える代わりに新しいスタックフレームをプッシュしないプロセスです。末尾呼び出しの除去は、この変換を実装するプロセスです。</p>
+<p>末尾呼び出しの除去は単なるオプションの最適化ではありません。
+その存在は効率的な関数型コードを書くための基本的な部分です。
+それが役立つためには信頼性が必要です。
+プログラマは末尾呼び出しを確実に識別できなければならず、コンパイラがそれらを除去することを信頼できなければなりません。</p>
+<p>関数<code>NonTail.sum</code>は<code>Nat</code>のリストの内容を足し合わせます：</p>
 <pre><code class="language-lean">def NonTail.sum : List Nat → Nat
   | [] =&gt; 0
   | x :: xs =&gt; x + sum xs
 </code></pre>
-<p>Applying this function to the list <code>[1, 2, 3]</code> results in the following sequence of evaluation steps:</p>
+<p>この関数をリスト <code>[1, 2, 3]</code> に適用すると、以下の評価ステップのシーケンスが生成されます：</p>
 <pre><code class="language-lean">NonTail.sum [1, 2, 3]
 ===&gt;
 1 + (NonTail.sum [2, 3])
@@ -11579,20 +11602,20 @@ Programmers must be able to reliably identify tail calls, and they must be able 
 ===&gt;
 6
 </code></pre>
-<p>In the evaluation steps, parentheses indicate recursive calls to <code>NonTail.sum</code>.
-In other words, to add the three numbers, the program must first check that the list is non-empty.
-To add the head of the list (<code>1</code>) to the sum of the tail of the list, it is first necessary to compute the sum of the tail of the list:</p>
+<p>評価ステップでは、括弧は<code>NonTail.sum</code>への再帰呼び出しを示しています。
+言い換えれば、これらの3つの数を足し合わせるには、まずリストが空でないことを確認する必要があります。
+リストの先頭（<code>1</code>）をリストの残りの部分の合計に加えるために、まずリストの残りの部分の合計を計算する必要があります：</p>
 <pre><code class="language-lean">1 + (NonTail.sum [2, 3])
 </code></pre>
-<p>But to compute the sum of the tail of the list, the program must check whether it is empty.
-It is not - the tail is itself a list with <code>2</code> at its head.
-The resulting step is waiting for the return of <code>NonTail.sum [3]</code>:</p>
+<p>しかし、リストの残りの部分の合計を計算するには、プログラムはその部分が空かどうかを確認する必要があります。
+部分が空でないことを確認します - 残りの部分は<code>2</code>が先頭にあるリストです。
+結果として、<code>NonTail.sum [3]</code> の返り値を待つステップが発生します：</p>
 <pre><code class="language-lean">1 + (2 + (NonTail.sum [3]))
 </code></pre>
-<p>The whole point of the run-time call stack is to keep track of the values <code>1</code>, <code>2</code>, and <code>3</code> along with the instruction to add them to the result of the recursive call.
-As recursive calls are completed, control returns to the stack frame that made the call, so each step of addition is performed.
-Storing the heads of the list and the instructions to add them is not free; it takes space proportional to the length of the list.</p>
-<p>The function <code>Tail.sum</code> also adds the contents of a list of <code>Nat</code>s:</p>
+<p>ランタイムコールスタックの目的は、値<code>1</code>、<code>2</code>、および<code>3</code>とそれらを結果に追加する命令を追跡することです。
+再帰呼び出しが完了すると、呼び出しを行ったスタックフレームに制御が戻り、各加算のステップが実行されます。
+リストの先頭を格納し、それらを追加する命令を格納することは無制限ではありません。それはリストの長さに比例したメモリ空間を必要とします。</p>
+<p>関数 <code>Tail.sum</code> も <code>Nat</code> のリストの内容を足し合わせます：</p>
 <pre><code class="language-lean">def Tail.sumHelper (soFar : Nat) : List Nat → Nat
   | [] =&gt; soFar
   | x :: xs =&gt; sumHelper (x + soFar) xs
@@ -11600,7 +11623,7 @@ Storing the heads of the list and the instructions to add them is not free; it t
 def Tail.sum (xs : List Nat) : Nat :=
   Tail.sumHelper 0 xs
 </code></pre>
-<p>Applying it to the list <code>[1, 2, 3]</code> results in the following sequence of evaluation steps:</p>
+<p>これをリスト <code>[1, 2, 3]</code> に適用すると、以下の評価ステップのシーケンスが生成されます：</p>
 <pre><code class="language-lean">Tail.sum [1, 2, 3]
 ===&gt;
 Tail.sumHelper 0 [1, 2, 3]
@@ -11619,42 +11642,42 @@ Tail.sumHelper 6 []
 ===&gt;
 6
 </code></pre>
-<p>The internal helper function calls itself recursively, but it does so in a way where nothing needs to be remembered in order to compute the final result.
-When <code>Tail.sumHelper</code> reaches its base case, control can be returned directly to <code>Tail.sum</code>, because the intermediate invocations of <code>Tail.sumHelper</code> simply return the results of their recursive calls unmodified.
-In other words, a single stack frame can be re-used for each recursive invocation of <code>Tail.sumHelper</code>.
-Tail-call elimination is exactly this re-use of the stack frame, and <code>Tail.sumHelper</code> is referred to as a <em>tail-recursive function</em>.</p>
-<p>The first argument to <code>Tail.sumHelper</code> contains all of the information that would otherwise need to be tracked in the call stack—namely, the sum of the numbers encountered so far.
-In each recursive call, this argument is updated with new information, rather than adding new information to the call stack.
-Arguments like <code>soFar</code> that replace the information from the call stack are called <em>accumulators</em>.</p>
-<p>At the time of writing and on the author's computer, <code>NonTail.sum</code> crashes with a stack overflow when passed a list with 216,856 or more entries.
-<code>Tail.sum</code>, on the other hand, can sum a list of 100,000,000 elements without a stack overflow.
-Because no new stack frames need to be pushed while running <code>Tail.sum</code>, it is completely equivalent to a <code>while</code> loop with a mutable variable that holds the current list.
-At each recursive call, the function argument on the stack is simply replaced with the next node of the list.</p>
-<h2 id="tail-and-non-tail-positions"><a class="header" href="#tail-and-non-tail-positions">Tail and Non-Tail Positions</a></h2>
-<p>The reason why <code>Tail.sumHelper</code> is tail recursive is that the recursive call is in <em>tail position</em>.
-Informally speaking, a function call is in tail position when the caller does not need to modify the returned value in any way, but will just return it directly.
-More formally, tail position can be defined explicitly for expressions.</p>
-<p>If a <code>match</code>-expression is in tail position, then each of its branches is also in tail position.
-Once a <code>match</code> has selected a branch, control proceeds immediately to it.
-Similarly, both branches of an <code>if</code>-expression are in tail position if the <code>if</code>-expression itself is in tail position.
-Finally, if a <code>let</code>-expression is in tail position, then its body is as well.</p>
-<p>All other positions are not in tail position.
-The arguments to a function or a constructor are not in tail position because evaluation must track the function or constructor that will be applied to the argument's value.
-The body of an inner function is not in tail position because control may not even pass to it: function bodies are not evaluated until the function is called.
-Similarly, the body of a function type is not in tail position.
-To evaluate <code>E</code> in <code>(x : α) → E</code>, it is necessary to track that the resulting type must have <code>(x : α) → ...</code> wrapped around it.</p>
-<p>In <code>NonTail.sum</code>, the recursive call is not in tail position because it is an argument to <code>+</code>.
-In <code>Tail.sumHelper</code>, the recursive call is in tail position because it is immediately underneath a pattern match, which itself is the body of the function.</p>
-<p>At the time of writing, Lean only eliminates direct tail calls in recursive functions.
-This means that tail calls to <code>f</code> in <code>f</code>'s definition will be eliminated, but not tail calls to some other function <code>g</code>.
-While it is certainly possible to eliminate a tail call to some other function, saving a stack frame, this is not yet implemented in Lean.</p>
-<h2 id="reversing-lists"><a class="header" href="#reversing-lists">Reversing Lists</a></h2>
-<p>The function <code>NonTail.reverse</code> reverses lists by appending the head of each sub-list to the end of the result:</p>
+<p>内部のヘルパー関数は再帰的に自身を呼び出しますが、最終結果を計算するために何も覚えておかなくても済む方法で行います。
+<code>Tail.sumHelper</code> がベースケースに達すると、中間呼び出しは単に再帰呼び出しの結果を変更せずに返すため、制御は直接 <code>Tail.sum</code> に戻せます。
+言い換えれば、<code>Tail.sumHelper</code> の各再帰呼び出しに対して単一のスタックフレームを再利用できます。
+末尾呼び出しの除去はスタックフレームの再利用そのものであり、<code>Tail.sumHelper</code> は_末尾再帰関数_と呼ばれます。</p>
+<p><code>Tail.sumHelper</code> の最初の引数には、通常はコールスタックで追跡する必要がある情報がすべて含まれています。つまり、これまでに出会った数値の合計です。
+各再帰呼び出しでは、この引数に新しい情報が更新され、コールスタックに新しい情報を追加するのではなく、置き換えられます。
+コールスタックからの情報を置き換えるような引数（<code>soFar</code>のような）は_アキュムレータ_と呼ばれます。</p>
+<p>執筆時点と筆者のコンピューターでは、<code>NonTail.sum</code> は要素数が 216,856 以上のリストを渡すとスタックオーバーフローが発生します。
+一方、<code>Tail.sum</code> はスタックオーバーフローなしで 100,000,000 の要素からなるリストを合計することができます。
+<code>Tail.sum</code> を実行中に新しいスタックフレームをプッシュする必要がないため、それは現在のリストを保持する可変変数を持つ<code>while</code>ループと完全に等価です。
+各再帰呼び出しで、スタック上の関数引数は単にリストの次のノードに置き換えられます。</p>
+<h2 id="末尾と非末尾の位置tail-and-non-tail-positions"><a class="header" href="#末尾と非末尾の位置tail-and-non-tail-positions">末尾と非末尾の位置（Tail and Non-Tail Positions）</a></h2>
+<p><code>Tail.sumHelper</code> が末尾再帰である理由は、再帰呼び出しが_末尾位置_にあるためです。
+簡単に言うと、関数呼び出しは、呼び出し元が返された値をどのように変更する必要はなく、そのまま返すだけの場合、末尾位置にあります。
+もっと形式的には、末尾位置は式に明示的に定義できます。</p>
+<p><code>match</code>式が末尾位置にある場合、その各ブランチも末尾位置にあります。
+<code>match</code>がブランチを選択した後、制御はすぐにそのブランチに進みます。
+同様に、<code>if</code>式の両方のブランチは、<code>if</code>式自体が末尾位置にある場合、末尾位置にあります。
+最後に、<code>let</code>式が末尾位置にある場合、その本体も末尾位置にあります。</p>
+<p>それ以外の位置は末尾位置にはありません。
+関数またはコンストラクタの引数は末尾位置にありません。なぜなら評価は引数の値が適用される関数またはコンストラクタを追跡しなければならないからです。
+内部関数の本体も末尾位置にありません。なぜなら制御がそれに移るかもしれないからです：関数本体は関数が呼び出されるまで評価されません。
+同様に、関数型の本体も末尾位置にはありません。
+<code>(x : α) → E</code> で <code>E</code> を評価するには、結果の型には <code>(x : α) → ...</code> が包含されている必要があります。</p>
+<p><code>NonTail.sum</code> では、再帰呼び出しは末尾位置になっていません。なぜなら、それが<code>+</code>の引数であるからです。
+<code>Tail.sumHelper</code> では、再帰呼び出しは末尾位置にあるのは、それ自体が関数の本体であるパターンマッチの直下にあるからです。</p>
+<p>執筆時点では、Leanは再帰関数内の直接の末尾呼び出しのみを除去します。
+これは、<code>f</code> の定義内の <code>f</code> への末尾呼び出しは除去されますが、他の関数 <code>g</code> への末尾呼び出しは除去されません。
+他の関数への末尾呼び出しを除去してスタックフレームを節約することは確かに可能ですが、これはまだLeanで実装されていません。</p>
+<h2 id="リストの反転reversing-lists"><a class="header" href="#リストの反転reversing-lists">リストの反転（Reversing Lists）</a></h2>
+<p>関数 <code>NonTail.reverse</code> は各サブリストの先頭を結果の末尾に追加することでリストを反転させます：</p>
 <pre><code class="language-lean">def NonTail.reverse : List α → List α
   | [] =&gt; []
   | x :: xs =&gt; reverse xs ++ [x]
 </code></pre>
-<p>Using it to reverse <code>[1, 2, 3]</code> yields the following sequence of steps:</p>
+<p>これを使って <code>[1, 2, 3]</code> を逆転させると、次の手順のシーケンスが得られます：</p>
 <pre><code class="language-lean">NonTail.reverse [1, 2, 3]
 ===&gt;
 (NonTail.reverse [2, 3]) ++ [1]
@@ -11671,17 +11694,9 @@ While it is certainly possible to eliminate a tail call to some other function, 
 ===&gt;
 [3, 2, 1]
 </code></pre>
-<p>The tail-recursive version uses <code>x :: ·</code> instead of <code>· ++ [x]</code> on the accumulator at each step:</p>
-<pre><code class="language-lean">def Tail.reverseHelper (soFar : List α) : List α → List α
-  | [] =&gt; soFar
-  | x :: xs =&gt; reverseHelper (x :: soFar) xs
-
-def Tail.reverse (xs : List α) : List α :=
-  Tail.reverseHelper [] xs
-</code></pre>
-<p>This is because the context saved in each stack frame while computing with <code>NonTail.reverse</code> is applied beginning at the base case.
-Each &quot;remembered&quot; piece of context is executed in last-in, first-out order.
-On the other hand, the accumulator-passing version modifies the accumulator beginning from the first entry in the list, rather than the original base case, as can be seen in the series of reduction steps:</p>
+<p>末尾再帰版では、各ステップでアキュムレータに <code>x :: ·</code> を使用します。これは、<code>NonTail.reverse</code> と計算する際に各スタックフレームに保存されるコンテキストがベースケースから適用されるためです。
+各「覚えられた」コンテキストの一部は後入れ先出しの順序で実行されます。
+一方、アキュムレータを渡すバージョンでは、リストの最初のエントリからではなく、元のベースケースからではなく、アキュムレータを修正します。これは次の簡約ステップのシリーズで見られます：</p>
 <pre><code class="language-lean">Tail.reverse [1, 2, 3]
 ===&gt;
 Tail.reverseHelper [] [1, 2, 3]
@@ -11694,27 +11709,27 @@ Tail.reverseHelper [3, 2, 1] []
 ===&gt;
 [3, 2, 1]
 </code></pre>
-<p>In other words, the non-tail-recursive version starts at the base case, modifying the result of recursion from right to left through the list.
-The entries in the list affect the accumulator in a first-in, first-out order.
-The tail-recursive version with the accumulator starts at the head of the list, modifying an initial accumulator value from left to right through the list.</p>
-<p>Because addition is commutative, nothing needed to be done to account for this in <code>Tail.sum</code>.
-Appending lists is not commutative, so care must be taken to find an operation that has the same effect when run in the opposite direction.
-Appending <code>[x]</code> after the result of the recursion in <code>NonTail.reverse</code> is analogous to adding <code>x</code> to the beginning of the list when the result is built in the opposite order.</p>
-<h2 id="multiple-recursive-calls"><a class="header" href="#multiple-recursive-calls">Multiple Recursive Calls</a></h2>
-<p>In the definition of <code>BinTree.mirror</code>, there are two recursive calls:</p>
+<p>言い換えれば、非末尾再帰版はベースケースから始まり、リストを右から左に反転させるために再帰の結果を修正します。
+リスト内のエントリは、アキュムレータに対して最初に来たものから最初に影響を与えます。
+アキュムレータを持つ末尾再帰版は、リストの先頭から始まり、リストを左から右に反転させるための初期アキュムレータの値を変更します。</p>
+<p>加法は可換であるため、<code>Tail.sum</code> にこれに対処するための何も行う必要はありませんでした。
+一方、リストの追加は可換ではないため、逆の方向で実行した場合に同じ効果を持つ操作を見つけるために注意が必要です。
+<code>NonTail.reverse</code> で再帰の結果の後に <code>[x]</code> を追加することは、結果が逆順で構築される場合にリストの先頭に <code>x</code> を追加するのと同様です。</p>
+<h2 id="複数の再帰呼び出しmultiple-recursive-calls"><a class="header" href="#複数の再帰呼び出しmultiple-recursive-calls">複数の再帰呼び出し（Multiple Recursive Calls）</a></h2>
+<p><code>BinTree.mirror</code> の定義では、2つの再帰呼び出しがあります：</p>
 <pre><code class="language-lean">def BinTree.mirror : BinTree α → BinTree α
   | .leaf =&gt; .leaf
   | .branch l x r =&gt; .branch (mirror r) x (mirror l)
 </code></pre>
-<p>Just as imperative languages would typically use a while loop for functions like <code>reverse</code> and <code>sum</code>, they would typically use recursive functions for this kind of traversal.
-This function cannot be straightforwardly rewritten to be tail recursive using accumulator-passing style.</p>
-<p>Typically, if more than one recursive call is required for each recursive step, then it will be difficult to use accumulator-passing style.
-This difficulty is similar to the difficulty of rewriting a recursive function to use a loop and an explicit data structure, with the added complication of convincing Lean that the function terminates.
-However, as in <code>BinTree.mirror</code>, multiple recursive calls often indicate a data structure that has a constructor with multiple recursive occurrences of itself.
-In these cases, the depth of the structure is often logarithmic with respect to its overall size, which makes the tradeoff between stack and heap less stark.
-There are systematic techniques for making these functions tail-recursive, such as using <em>continuation-passing style</em>, but they are outside the scope of this chapter.</p>
-<h2 id="exercises-21"><a class="header" href="#exercises-21">Exercises</a></h2>
-<p>Translate each of the following non-tail-recursive functions into accumulator-passing tail-recursive functions:</p>
+<p>命令型言語が通常、<code>reverse</code> や <code>sum</code> のような関数に対して while ループを使用するのと同様に、この種のトラバーサルに対して再帰関数を通常使用します。
+この関数は、アキュムレータを渡すスタイルを使用して簡単に末尾再帰に書き直すことはできません。</p>
+<p>通常、再帰的なステップごとに複数の再帰呼び出しが必要な場合、アキュムレータを渡すスタイルを使用することは難しいでしょう。
+この難しさは、再帰関数をループと明示的なデータ構造を使用するように書き直す難しさに似ており、関数が終了することをLeanに納得させる複雑さが追加されています。
+しかし、<code>BinTree.mirror</code> のように、複数の再帰呼び出しはしばしば、それ自体の複数の再帰的な出現を持つコンストラクタを持つデータ構造を示します。
+これらの場合、構造の深さは通常全体のサイズに対して対数的であり、スタックとヒープのトレードオフがはるかに緩和されます。
+これらの関数を末尾再帰にするための体系的なテクニックがあります。例えば、<em>継続渡しスタイル</em> を使用することができますが、それはこの章のスコープ外です。</p>
+<h2 id="演習exercises-3"><a class="header" href="#演習exercises-3">演習（Exercises）</a></h2>
+<p>次の非末尾再帰関数をアキュムレータを渡す末尾再帰関数に翻訳してください：</p>
 <pre><code class="language-lean">def NonTail.length : List α → Nat
   | [] =&gt; 0
   | _ :: xs =&gt; NonTail.length xs + 1 
@@ -11723,8 +11738,8 @@ There are systematic techniques for making these functions tail-recursive, such 
   | 0 =&gt; 1
   | n + 1 =&gt; factorial n * (n + 1)
 </code></pre>
-<p>The translation of <code>NonTail.filter</code> should result in a program that takes constant stack space through tail recursion, and time linear in the length of the input list.
-A constant factor overhead is acceptable relative to the original:</p>
+<p><code>NonTail.filter</code> の翻訳は、入力リストの長さに対して定数のスタックスペースを取り、入力に対する時間が線形にかかります。
+オリジナルに対して定数のオーバーヘッドは許容されます：</p>
 <pre><code class="language-lean">def NonTail.filter (p : α → Bool) : List α → List α
   | [] =&gt; []
   | x :: xs =&gt;
@@ -11733,27 +11748,26 @@ A constant factor overhead is acceptable relative to the original:</p>
     else
       filter p xs
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="proving-equivalence"><a class="header" href="#proving-equivalence">Proving Equivalence</a></h1>
-<p>Programs that have been rewritten to use tail recursion and an accumulator can look quite different from the original program.
-The original recursive function is often much easier to understand, but it runs the risk of exhausting the stack at run time.
-After testing both versions of the program on examples to rule out simple bugs, proofs can be used to show once and for all that the programs are equivalent.</p>
-<h2 id="proving-sum-equal"><a class="header" href="#proving-sum-equal">Proving <code>sum</code> Equal</a></h2>
-<p>To prove that both versions of <code>sum</code> are equal, begin by writing the theorem statement with a stub proof:</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="等価性の証明proving-equivalence"><a class="header" href="#等価性の証明proving-equivalence">等価性の証明（Proving Equivalence）</a></h1>
+<p>末尾再帰とアキュムレータを使用して書き直されたプログラムは、元のプログラムとはかなり異なる見た目になることがあります。
+元の再帰関数は通常理解しやすいですが、実行時にスタックを枯渇させる危険があります。
+両方のプログラムのバージョンを単純なバグがないことを確認するために例を使用してテストした後、証明を使用してプログラムが等価であることを一度確認できます。</p>
+<h2 id="sum-の等価性の証明"><a class="header" href="#sum-の等価性の証明"><code>sum</code> の等価性の証明</a></h2>
+<p><code>sum</code> の両バージョンが等しいことを証明するために、スタブ証明を含む定理文を記述して始めます：</p>
 <pre><code class="language-leantac">theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
   skip
 </code></pre>
-<p>As expected, Lean describes an unsolved goal:</p>
+<p>予想通り、Leanは未解決のゴールを示します：</p>
 <pre><code class="language-output error">unsolved goals
 ⊢ NonTail.sum = Tail.sum
 </code></pre>
-<p>The <code>rfl</code> tactic cannot be applied here, because <code>NonTail.sum</code> and <code>Tail.sum</code> are not definitionally equal.
-Functions can be equal in more ways than just definitional equality, however.
-It is also possible to prove that two functions are equal by proving that they produce equal outputs for the same input.
-In other words, \( f = g \) can be proved by proving that \( f(x) = g(x) \) for all possible inputs \( x \).
-This principle is called <em>function extensionality</em>.
-Function extensionality is exactly the reason why <code>NonTail.sum</code> equals <code>Tail.sum</code>: they both sum lists of numbers.</p>
-<p>In Lean's tactic language, function extensionality is invoked using <code>funext</code>, followed by a name to be used for the arbitrary argument.
-The arbitrary argument is added as an assumption to the context, and the goal changes to require a proof that the functions applied to this argument are equal:</p>
+<p><code>rfl</code> タクティクはここでは適用できません。なぜなら、<code>NonTail.sum</code> と <code>Tail.sum</code> は定義的に等しくないからです。
+ただし、関数は定義的な等価性だけでなく、他の方法でも等しいことが証明できます。
+つまり、2つの関数が同じ入力に対して同じ出力を生成することを証明することで、2つの関数が等しいことが証明できます。
+言い換えれば、\( f = g \) は、すべての可能な入力 \( x \) に対して \( f(x) = g(x) \) であることを証明することによって証明できます。この原理は <em>関数の拡張性</em> と呼ばれます。
+関数の拡張性は、<code>NonTail.sum</code> が <code>Tail.sum</code> と等しい理由そのままです。両方が数値のリストを合計するからです。</p>
+<p>Leanのタクティク言語では、関数の拡張性は <code>funext</code> を使用して呼び出し、任意の引数に使用する名前に続けて指定されます。
+この任意の引数はコンテキストに仮定として追加され、ゴールはこの引数を使用して関数が等しいことを証明する証明を要求するものに変更されます：</p>
 <pre><code class="language-leantac">theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
   funext xs
 </code></pre>
@@ -11762,10 +11776,10 @@ case h
 xs : List Nat
 ⊢ NonTail.sum xs = Tail.sum xs
 </code></pre>
-<p>This goal can be proved by induction on the argument <code>xs</code>.
-Both <code>sum</code> functions return <code>0</code> when applied to the empty list, which serves as a base case.
-Adding a number to the beginning of the input list causes both functions to add that number to the result, which serves as an induction step.
-Invoking the <code>induction</code> tactic results in two goals:</p>
+<p>このゴールは <code>xs</code> 引数に対する帰納法によって証明できます。
+両方の <code>sum</code> 関数は空のリストに適用されると <code>0</code> を返し、これが基本ケースとして機能します。
+入力リストの先頭に数値を追加すると、両方の関数はその数値を結果に加えるため、これが帰納ステップとして機能します。
+<code>induction</code> タクティクを呼び出すと、2つのゴールが生成されます。</p>
 <pre><code class="language-leantac">theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
   funext xs
   induction xs with
@@ -11783,14 +11797,14 @@ ys : List Nat
 ih : NonTail.sum ys = Tail.sum ys
 ⊢ NonTail.sum (y :: ys) = Tail.sum (y :: ys)
 </code></pre>
-<p>The base case for <code>nil</code> can be solved using <code>rfl</code>, because both functions return <code>0</code> when passed the empty list:</p>
+<p><code>nil</code> の基本ケースは、空リストが渡されたときに両方の関数が <code>0</code> を返すため、<code>rfl</code> を使用して解決できます：</p>
 <pre><code class="language-leantac">theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
   funext xs
   induction xs with
   | nil =&gt; rfl
   | cons y ys ih =&gt; skip
 </code></pre>
-<p>The first step in solving the induction step is to simplify the goal, asking <code>simp</code> to unfold <code>NonTail.sum</code> and <code>Tail.sum</code>:</p>
+<p>帰納ステップを解決する最初のステップは、ゴールを簡単にすることで、<code>NonTail.sum</code> と <code>Tail.sum</code> を展開するように <code>simp</code> に要請することです：</p>
 <pre><code class="language-leantac">theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
   funext xs
   induction xs with
@@ -11805,7 +11819,7 @@ ys : List Nat
 ih : NonTail.sum ys = Tail.sum ys
 ⊢ y + NonTail.sum ys = Tail.sumHelper 0 (y :: ys)
 </code></pre>
-<p>Unfolding <code>Tail.sum</code> revealed that it immediately delegates to <code>Tail.sumHelper</code>, which should also be simplified:</p>
+<p><code>Tail.sum</code> を展開することで、それがすぐに <code>Tail.sumHelper</code> に委譲することが明らかになり、これも簡略化する必要があります：</p>
 <pre><code class="language-leantac">theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
   funext xs
   induction xs with
@@ -11813,7 +11827,7 @@ ih : NonTail.sum ys = Tail.sum ys
   | cons y ys ih =&gt;
     simp [NonTail.sum, Tail.sum, Tail.sumHelper]
 </code></pre>
-<p>In the resulting goal, <code>sumHelper</code> has taken a step of computation and added <code>y</code> to the accumulator:</p>
+<p>生成されたゴールでは、<code>sumHelper</code> が計算のステップを踏んで、アキュムレータに <code>y</code> を追加しました：</p>
 <pre><code class="language-output error">unsolved goals
 case h.cons
 y : Nat
@@ -11821,7 +11835,7 @@ ys : List Nat
 ih : NonTail.sum ys = Tail.sum ys
 ⊢ y + NonTail.sum ys = Tail.sumHelper y ys
 </code></pre>
-<p>Rewriting with the induction hypothesis removes all mentions of <code>NonTail.sum</code> from the goal:</p>
+<p>帰納仮説を使用して、ゴールから <code>NonTail.sum</code> のすべての言及を削除できます：</p>
 <pre><code class="language-leantac">theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
   funext xs
   induction xs with
@@ -11837,8 +11851,8 @@ ys : List Nat
 ih : NonTail.sum ys = Tail.sum ys
 ⊢ y + Tail.sum ys = Tail.sumHelper y ys
 </code></pre>
-<p>This new goal states that adding some number to the sum of a list is the same as using that number as the initial accumulator in <code>sumHelper</code>.
-For the sake of clarity, this new goal can be proved as a separate theorem:</p>
+<p>この新しいゴールでは、リストの合計に何らかの数値を追加することが、その数値を <code>sumHelper</code> の初期アキュムレータとして使用することと同じであることが述べられています。
+明確さのために、この新しいゴールを別の定理として証明できます：</p>
 <pre><code class="language-leantac">theorem helper_add_sum_accum (xs : List Nat) (n : Nat) :
     n + Tail.sum xs = Tail.sumHelper n xs := by
   skip
@@ -11848,7 +11862,7 @@ xs : List Nat
 n : Nat
 ⊢ n + Tail.sum xs = Tail.sumHelper n xs
 </code></pre>
-<p>Once again, this is a proof by induction where the base case uses <code>rfl</code>:</p>
+<p>これも再び、基本ケースでは <code>rfl</code> を使用した帰納法の証明です：</p>
 <pre><code class="language-leantac">theorem helper_add_sum_accum (xs : List Nat) (n : Nat) :
     n + Tail.sum xs = Tail.sumHelper n xs := by
   induction xs with
@@ -11862,8 +11876,8 @@ ys : List Nat
 ih : n + Tail.sum ys = Tail.sumHelper n ys
 ⊢ n + Tail.sum (y :: ys) = Tail.sumHelper n (y :: ys)
 </code></pre>
-<p>Because this is an inductive step, the goal should be simplified until it matches the induction hypothesis <code>ih</code>.
-Simplifying, using the definitions of <code>Tail.sum</code> and <code>Tail.sumHelper</code>, results in the following:</p>
+<p>これは帰納ステップなので、ゴールは帰納仮説 <code>ih</code> に一致するように簡略化されるべきです。
+<code>Tail.sum</code> と <code>Tail.sumHelper</code> の定義を使用して簡略化すると、次のようになります：</p>
 <pre><code class="language-leantac">theorem helper_add_sum_accum (xs : List Nat) (n : Nat) :
     n + Tail.sum xs = Tail.sumHelper n xs := by
   induction xs with
@@ -11878,39 +11892,39 @@ ys : List Nat
 ih : n + Tail.sum ys = Tail.sumHelper n ys
 ⊢ n + Tail.sumHelper y ys = Tail.sumHelper (y + n) ys
 </code></pre>
-<p>Ideally, the induction hypothesis could be used to replace <code>Tail.sumHelper (y + n) ys</code>, but they don't match.
-The induction hypothesis can be used for <code>Tail.sumHelper n ys</code>, not <code>Tail.sumHelper (y + n) ys</code>.
-In other words, this proof is stuck.</p>
-<h2 id="a-second-attempt"><a class="header" href="#a-second-attempt">A Second Attempt</a></h2>
-<p>Rather than attempting to muddle through the proof, it's time to take a step back and think.
-Why is it that the tail-recursive version of the function is equal to the non-tail-recursive version?
-Fundamentally speaking, at each entry in the list, the accumulator grows by the same amount as would be added to the result of the recursion.
-This insight can be used to write an elegant proof.
-Crucially, the proof by induction must be set up such that the induction hypothesis can be applied to <em>any</em> accumulator value.</p>
-<p>Discarding the prior attempt, the insight can be encoded as the following statement:</p>
+<p>理想的には、帰納仮説を使用して <code>Tail.sumHelper (y + n) ys</code> を置き換えることができますが、一致しません。
+帰納仮説は <code>Tail.sumHelper n ys</code> に対してではなく、<code>Tail.sumHelper (y + n) ys</code> に対して使用する必要があります。
+言い換えれば、この証明は行き詰まっているということです。</p>
+<h2 id="2度目の挑戦a-second-attempt"><a class="header" href="#2度目の挑戦a-second-attempt">2度目の挑戦（A Second Attempt）</a></h2>
+<p>証明をこなそうとするのではなく、一歩後ろに退いて考える時が来ました。
+なぜ、関数の末尾再帰バージョンが非末尾再帰バージョンと等しいのか、それは何故でしょうか？
+根本的に言えば、リストの各エントリにおいて、アキュムレータは再帰の結果に追加されるものと同じだけ成長します。
+この洞察を使用して、エレガントな証明を書くことができます。
+重要なのは、帰納法による証明は、帰納仮説が_任意の_アキュムレータ値に適用できるように設定されなければならないことです。</p>
+<p>以前の試みを捨てて、この洞察は以下のように記述できます：</p>
 <pre><code class="language-leantac">theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
     (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
   skip
 </code></pre>
-<p>In this statement, it's very important that <code>n</code> is part of the type that's after the colon.
-The resulting goal begins with <code>∀ (n : Nat)</code>, which is short for &quot;For all <code>n</code>&quot;:</p>
+<p>この文では、<code>n</code>がコロンの後にある型の一部であることが非常に重要です。
+生成されたゴールは「∀（n：Nat）」で始まり、これは「すべての<code>n</code>に対して」という意味です。</p>
 <pre><code class="language-output error">unsolved goals
 xs : List Nat
 ⊢ ∀ (n : Nat), n + NonTail.sum xs = Tail.sumHelper n xs
 </code></pre>
-<p>Using the induction tactic results in goals that include this &quot;for all&quot; statement:</p>
+<p>帰納タクティクを使用すると、ゴールにはこの「すべての」文が含まれるようになります：</p>
 <pre><code class="language-leantac">theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
     (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
   induction xs with
   | nil =&gt; skip
   | cons y ys ih =&gt; skip
 </code></pre>
-<p>In the <code>nil</code> case, the goal is:</p>
+<p>「nil」の場合、ゴールは次のようになります：</p>
 <pre><code class="language-output error">unsolved goals
 case nil
 ⊢ ∀ (n : Nat), n + NonTail.sum [] = Tail.sumHelper n []
 </code></pre>
-<p>For the induction step for <code>cons</code>, both the induction hypothesis and the specific goal contain the &quot;for all <code>n</code>&quot;:</p>
+<p>「cons」の帰細ステップの場合、帰納仮説と特定のゴールの両方が「すべての<code>n</code>」を含むことになります：</p>
 <pre><code class="language-output error">unsolved goals
 case cons
 y : Nat
@@ -11918,14 +11932,14 @@ ys : List Nat
 ih : ∀ (n : Nat), n + NonTail.sum ys = Tail.sumHelper n ys
 ⊢ ∀ (n : Nat), n + NonTail.sum (y :: ys) = Tail.sumHelper n (y :: ys)
 </code></pre>
-<p>In other words, the goal has become more challenging to prove, but the induction hypothesis is correspondingly more useful.</p>
-<p>A mathematical proof for a statement that beings with &quot;for all \( x \)&quot; should assume some arbitrary \( x \), and prove the statement.
-&quot;Arbitrary&quot; means that no additional properties of \( x \) are assumed, so the resulting statement will work for <em>any</em> \( x \).
-In Lean, a &quot;for all&quot; statement is a dependent function: no matter which specific value it is applied to, it will return evidence of the proposition.
-Similarly, the process of picking an arbitrary \( x \) is the same as using <code>fun x =&gt; ...</code>.
-In the tactic language, this process of selecting an arbitrary \( x \) is performed using the <code>intro</code> tactic, which produces the function behind the scenes when the tactic script has completed.
-The <code>intro</code> tactic should be provided with the name to be used for this arbitrary value.</p>
-<p>Using the <code>intro</code> tactic in the <code>nil</code> case removes the <code>∀ (n : Nat),</code> from the goal, and adds an assumption <code>n : Nat</code>:</p>
+<p>言い換えれば、ゴールは証明が難しくなりましたが、帰納仮説はそれに応じてより有用になりました。</p>
+<p>「すべてのxから始まる」という文の数学的証明は、何らかの任意のxを仮定し、その文を証明するものです。
+「任意の」とは、xの追加のプロパティを仮定しないことを意味し、結果の文は_任意の_ xに対して機能します。
+Leanでは、「すべての」文は依存関数です：それが適用される具体的な値が何であっても、それは命題の証拠を返します。
+同様に、任意のxを選択するプロセスは、<code>fun x =&gt; ...</code>を使用することと同じです。
+タクティク言語では、この任意のxを選択するプロセスは、タクティクスクリプトが完了したときに背後で関数を生成する<code>intro</code>タクティクによって実行されます。
+<code>intro</code>タクティクにはこの任意の値に使用される名前が提供される必要があります。</p>
+<p><code>nil</code>の場合、<code>intro</code>タクティクを使用すると、ゴールから<code>∀ (n : Nat),</code>が削除され、<code>n : Nat</code>という仮定が追加されます：</p>
 <pre><code class="language-leantac">theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
     (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
   induction xs with
@@ -11937,7 +11951,7 @@ case nil
 n : Nat
 ⊢ n + NonTail.sum [] = Tail.sumHelper n []
 </code></pre>
-<p>Both sides of this propositional equality are definitionally equal to <code>n</code>, so <code>rfl</code> suffices:</p>
+<p>この命題の等式の両側は、定義的に<code>n</code>に等しいため、<code>rfl</code>で十分です：</p>
 <pre><code class="language-leantac">theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
     (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
   induction xs with
@@ -11946,7 +11960,7 @@ n : Nat
     rfl
   | cons y ys ih =&gt; skip
 </code></pre>
-<p>The <code>cons</code> goal also contains a &quot;for all&quot;:</p>
+<p><code>cons</code>のゴールにも「すべての」が含まれています：</p>
 <pre><code class="language-output error">unsolved goals
 case cons
 y : Nat
@@ -11954,7 +11968,7 @@ ys : List Nat
 ih : ∀ (n : Nat), n + NonTail.sum ys = Tail.sumHelper n ys
 ⊢ ∀ (n : Nat), n + NonTail.sum (y :: ys) = Tail.sumHelper n (y :: ys)
 </code></pre>
-<p>This suggests the use of <code>intro</code>.</p>
+<p>これは<code>intro</code>の使用を示唆しています。</p>
 <pre><code class="language-leantac">theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
     (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
   induction xs with
@@ -11972,8 +11986,8 @@ ih : ∀ (n : Nat), n + NonTail.sum ys = Tail.sumHelper n ys
 n : Nat
 ⊢ n + NonTail.sum (y :: ys) = Tail.sumHelper n (y :: ys)
 </code></pre>
-<p>The proof goal now contains both <code>NonTail.sum</code> and <code>Tail.sumHelper</code> applied to <code>y :: ys</code>.
-The simplifier can make the next step more clear:</p>
+<p>証明のゴールには今、<code>y :: ys</code>に適用された<code>NonTail.sum</code>と<code>Tail.sumHelper</code>の両方が含まれています。
+簡略化は次のステップをより明確にできます：</p>
 <pre><code class="language-leantac">theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
     (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
   induction xs with
@@ -11992,19 +12006,19 @@ ih : ∀ (n : Nat), n + NonTail.sum ys = Tail.sumHelper n ys
 n : Nat
 ⊢ n + (y + NonTail.sum ys) = Tail.sumHelper (y + n) ys
 </code></pre>
-<p>This goal is very close to matching the induction hypothesis.
-There are two ways in which it does not match:</p>
+<p>このゴールは帰納仮説に非常に近いものです。
+一致しない部分は2つあります：</p>
 <ul>
-<li>The left-hand side of the equation is <code>n + (y + NonTail.sum ys)</code>, but the induction hypothesis needs the left-hand side to be a number added to <code>NonTail.sum ys</code>.
-In other words, this goal should be rewritten to <code>(n + y) + NonTail.sum ys</code>, which is valid because addition of natural numbers is associative.</li>
-<li>When the left side has been rewritten to <code>(y + n) + NonTail.sum ys</code>, the accumulator argument on the right side should be <code>n + y</code> rather than <code>y + n</code> in order to match.
-This rewrite is valid because addition is also commutative.</li>
+<li>方程式の左辺は <code>n + (y + NonTail.sum ys)</code> ですが、帰納仮説では左辺が <code>NonTail.sum ys</code> に追加される数値である必要があります。
+言い換えれば、このゴールは <code>(n + y) + NonTail.sum ys</code> に書き換える必要があります。これは自然数の加法が結合的であるため有効です。</li>
+<li>左辺が <code>(y + n) + NonTail.sum ys</code> に書き換えられた場合、右辺のアキュムレータ引数は一致するために <code>y + n</code> ではなく <code>n + y</code> である必要があります。
+この書き換えも有効で、加法は可換であるためです。</li>
 </ul>
-<p>The associativity and commutativity of addition have already been proved in Lean's standard library.
-The proof of associativity is named <code>Nat.add_assoc</code>, and its type is <code>(n m k : Nat) → (n + m) + k = n + (m + k)</code>, while the proof of commutativity is called <code>Nat.add_comm</code> and has type <code>(n m : Nat) → n + m = m + n</code>.
-Normally, the <code>rw</code> tactic is provided with an expression whose type is an equality.
-However, if the argument is instead a dependent function whose return type is an equality, it attempts to find arguments to the function that would allow the equality to match something in the goal.
-There is only one opportunity to apply associativity, though the direction of the rewrite must be reversed because the right side of the equality in <code>Nat.add_assoc</code> is the one that matches the proof goal:</p>
+<p>加法の結合性と可換性は、すでにLeanの標準ライブラリで証明されています。
+結合性の証明は <code>Nat.add_assoc</code> という名前で、その型は <code>(n m k : Nat) → (n + m) + k = n + (m + k)</code> です。一方、可換性の証明は <code>Nat.add_comm</code> と呼ばれ、その型は <code>(n m : Nat) → n + m = m + n</code> です。
+通常、<code>rw</code>タクティクには型が等式である式が提供されます。
+ただし、引数が代数関数で、その戻り値の型が等式である場合、その等式がゴール内の何かに一致するような関数の引数を見つけようとします。
+結合性を適用できる機会は1つだけですが、<code>Nat.add_assoc</code> の等式の右側が証明のゴールに一致するため、書き換えの方向を逆にする必要があります：</p>
 <pre><code class="language-leantac">theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
     (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
   induction xs with
@@ -12024,8 +12038,8 @@ ih : ∀ (n : Nat), n + NonTail.sum ys = Tail.sumHelper n ys
 n : Nat
 ⊢ n + y + NonTail.sum ys = Tail.sumHelper (y + n) ys
 </code></pre>
-<p>Rewriting directly with <code>Nat.add_comm</code>, however, leads to the wrong result.
-The <code>rw</code> tactic guesses the wrong location for the rewrite, leading to an unintended goal:</p>
+<p>ただし、<code>Nat.add_comm</code> を直接書き換えると、誤った結果につながります。
+<code>rw</code>タクティクは書き換えの位置を誤って推測し、意図しないゴールに導きます：</p>
 <pre><code class="language-leantac">theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
     (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
   induction xs with
@@ -12046,7 +12060,7 @@ ih : ∀ (n : Nat), n + NonTail.sum ys = Tail.sumHelper n ys
 n : Nat
 ⊢ NonTail.sum ys + (n + y) = Tail.sumHelper (y + n) ys
 </code></pre>
-<p>This can be fixed by explicitly providing <code>y</code> and <code>n</code> as arguments to <code>Nat.add_comm</code>:</p>
+<p>これは、<code>Nat.add_comm</code> に <code>y</code> と <code>n</code> を明示的に引数として提供することで修正できます：</p>
 <pre><code class="language-leantac">theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
     (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
   induction xs with
@@ -12067,10 +12081,10 @@ ih : ∀ (n : Nat), n + NonTail.sum ys = Tail.sumHelper n ys
 n : Nat
 ⊢ n + y + NonTail.sum ys = Tail.sumHelper (n + y) ys
 </code></pre>
-<p>The goal now matches the induction hypothesis.
-In particular, the induction hypothesis's type is a dependent function type.
-Applying <code>ih</code> to <code>n + y</code> results in exactly the desired type.
-The <code>exact</code> tactic completes a proof goal if its argument has exactly the desired type:</p>
+<p>ゴールは現在、帰納仮説に一致します。
+特に、帰納仮説の型は依存関数型です。
+<code>ih</code> を <code>n + y</code> に適用すると、まさに必要な型が得られます。
+<code>exact</code> タクティクは、その引数がまさに所望の型である場合、証明ゴールを完了させます：</p>
 <pre><code class="language-leantac">theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
     (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
   induction xs with
@@ -12082,8 +12096,7 @@ The <code>exact</code> tactic completes a proof goal if its argument has exactly
     rw [Nat.add_comm y n]
     exact ih (n + y)
 </code></pre>
-<p>The actual proof requires only a little additional work to get the goal to match the helper's type.
-The first step is still to invoke function extensionality:</p>
+<p>実際の証明には、ゴールを補助定理（ヘルパー）の型に一致させるためにわずかな追加作業しか必要ありません。最初のステップは、まだ関数の拡張性を呼び出すことです：</p>
 <pre><code class="language-leantac">theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
   funext xs
 </code></pre>
@@ -12092,7 +12105,7 @@ case h
 xs : List Nat
 ⊢ NonTail.sum xs = Tail.sum xs
 </code></pre>
-<p>The next step is unfold <code>Tail.sum</code>, exposing <code>Tail.sumHelper</code>:</p>
+<p>次のステップは、<code>Tail.sum</code>を展開し、<code>Tail.sumHelper</code>を表示することです：</p>
 <pre><code class="language-leantac">theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
   funext xs
   simp [Tail.sum]
@@ -12102,11 +12115,10 @@ case h
 xs : List Nat
 ⊢ NonTail.sum xs = Tail.sumHelper 0 xs
 </code></pre>
-<p>Having done this, the types almost match.
-However, the helper has an additional addend on the left side.
-In other words, the proof goal is <code>NonTail.sum xs = Tail.sumHelper 0 xs</code>, but applying <code>non_tail_sum_eq_helper_accum</code> to <code>xs</code> and <code>0</code> yields the type <code>0 + NonTail.sum xs = Tail.sumHelper 0 xs</code>.
-Another standard library proof, <code>Nat.zero_add</code>, has type <code>(n : Nat) → 0 + n = n</code>.
-Applying this function to <code>NonTail.sum xs</code> results in an expression with type <code>0 + NonTail.sum xs = NonTail.sum xs</code>, so rewriting from right to left results in the desired goal:</p>
+<p>これを行った後、型はほぼ一致します。ただし、補助定理の左側に追加の被加数があります。
+言い換えれば、証明のゴールは <code>NonTail.sum xs = Tail.sumHelper 0 xs</code> ですが、<code>non_tail_sum_eq_helper_accum</code>を <code>xs</code> と <code>0</code> に適用すると、型は <code>0 + NonTail.sum xs = Tail.sumHelper 0 xs</code> になります。
+もう1つの標準ライブラリの証明、<code>Nat.zero_add</code> は型 <code>(n : Nat) → 0 + n = n</code> を持っています。
+これを <code>NonTail.sum xs</code> に適用すると、所望のゴールになるように右から左に書き換えることができます：</p>
 <pre><code class="language-leantac">theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
   funext xs
   simp [Tail.sum]
@@ -12117,127 +12129,113 @@ case h
 xs : List Nat
 ⊢ 0 + NonTail.sum xs = Tail.sumHelper 0 xs
 </code></pre>
-<p>Finally, the helper can be used to complete the proof:</p>
+<p>最後に、補助定理を使用して証明を完成させることができます：</p>
 <pre><code class="language-leantac">theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
   funext xs
   simp [Tail.sum]
   rw [←Nat.zero_add (NonTail.sum xs)]
   exact non_tail_sum_eq_helper_accum xs 0
 </code></pre>
-<p>This proof demonstrates a general pattern that can be used when proving that an accumulator-passing tail-recursive function is equal to the non-tail-recursive version.
-The first step is to discover the relationship between the starting accumulator argument and the final result.
-For instance, beginning <code>Tail.sumHelper</code> with an accumulator of <code>n</code> results in the final sum being added to <code>n</code>, and beginning <code>Tail.reverseHelper</code> with an accumulator of <code>ys</code> results in the final reversed list being prepended to <code>ys</code>.
-The second step is to write down this relationship as a theorem statement and prove it by induction.
-While the accumulator is always initialized with some neutral value in practice, such as <code>0</code> or <code>[]</code>, this more general statement that allows the starting accumulator to be any value is what's needed to get a strong enough induction hypothesis.
-Finally, using this helper theorem with the actual initial accumulator value results in the desired proof.
-For example, in <code>non_tail_sum_eq_tail_sum</code>, the accumulator is specified to be <code>0</code>.
-This may require rewriting the goal to make the neutral initial accumulator values occur in the right place.</p>
-<h2 id="exercise"><a class="header" href="#exercise">Exercise</a></h2>
-<h3 id="warming-up"><a class="header" href="#warming-up">Warming Up</a></h3>
-<p>Write your own proofs for <code>Nat.zero_add</code>, <code>Nat.add_assoc</code>, and <code>Nat.add_comm</code> using the <code>induction</code> tactic.</p>
-<h3 id="more-accumulator-proofs"><a class="header" href="#more-accumulator-proofs">More Accumulator Proofs</a></h3>
-<h4 id="reversing-lists-1"><a class="header" href="#reversing-lists-1">Reversing Lists</a></h4>
-<p>Adapt the proof for <code>sum</code> into a proof for <code>NonTail.reverse</code> and <code>Tail.reverse</code>.
-The first step is to think about the relationship between the accumulator value being passed to <code>Tail.reverseHelper</code> and the non-tail-recursive reverse.
-Just as adding a number to the accumulator in <code>Tail.sumHelper</code> is the same as adding it to the overall sum, using <code>List.cons</code> to add a new entry to the accumulator in <code>Tail.reverseHelper</code> is equivalent to some change to the overall result.
-Try three or four different accumulator values with pencil and paper until the relationship becomes clear.
-Use this relationship to prove a suitable helper theorem.
-Then, write down the overall theorem.
-Because <code>NonTail.reverse</code> and <code>Tail.reverse</code> are polymorphic, stating their equality requires the use of <code>@</code> to stop Lean from trying to figure out which type to use for <code>α</code>.
-Once <code>α</code> is treated as an ordinary argument, <code>funext</code> should be invoked with both <code>α</code> and <code>xs</code>:</p>
+<p>この証明は、アキュムレータを渡す末尾再帰関数が非末尾再帰バージョンと等しいことを証明する際に使用できる一般的なパターンを示しています。
+最初のステップは、初期アキュムレータ引数と最終結果の関係を見つけることです。
+例えば、初期アキュムレータを <code>n</code> で始めると、最終の合計は <code>n</code> に追加され、初期アキュムレータを <code>ys</code> で始めると、最終の逆順リストが <code>ys</code> に前置されます。
+2番目のステップは、この関係を定理文として書き留め、帰納法によって証明することです。
+実際にはアキュムレータは常に「0」や「[]」などの中立的な値で初期化されますが、初期アキュムレータを任意の値に設定できるようにするこのより一般的な文は、強力な帰納仮説を得るために必要です。
+最後に、この補助定理を実際の初期アキュムレータ値とともに使用して、所望の証明が得られます。
+例えば、<code>non_tail_sum_eq_tail_sum</code>では、アキュムレータが「0」で指定されています。
+このため、中立的な初期アキュムレータ値が正しい位置に現れるようにゴールを書き換える必要があるかもしれません。</p>
+<h2 id="練習exercise-1"><a class="header" href="#練習exercise-1">練習（Exercise）</a></h2>
+<h3 id="ウォーミングアップwarming-up"><a class="header" href="#ウォーミングアップwarming-up">ウォーミングアップ（Warming Up）</a></h3>
+<p><code>induction</code>タクティクを使用して、<code>Nat.zero_add</code>、<code>Nat.add_assoc</code>、および <code>Nat.add_comm</code> の証明を自分で行ってください。</p>
+<h3 id="アキュムレータ証明のさらなる例more-accumulator-proofs"><a class="header" href="#アキュムレータ証明のさらなる例more-accumulator-proofs">アキュムレータ証明のさらなる例（More Accumulator Proofs）</a></h3>
+<h4 id="リストの反転reversing-lists-1"><a class="header" href="#リストの反転reversing-lists-1">リストの反転（Reversing Lists）</a></h4>
+<p><code>sum</code>の証明を <code>NonTail.reverse</code> と <code>Tail.reverse</code> の証明に適応させてください。
+最初のステップは、<code>Tail.reverseHelper</code> に渡されるアキュムレータ値と非末尾再帰の反転との関係を考えることです。
+<code>Tail.sumHelper</code> にアキュムレータに数値を追加するのが合計全体に数値を追加するのと同じように、<code>Tail.reverseHelper</code> のアキュムレータに新しいエントリを追加することは、全体の結果に何らかの変更をもたらすことに等しいです。
+関係が明確になるまで、鉛筆と紙で3つまたは4つの異なるアキュムレータの値を試してみてください。
+この関係を使用して適切な補助定理を証明してください。
+その後、全体の定理を書き留めます。
+<code>NonTail.reverse</code> と <code>Tail.reverse</code> は多相的なため、その等式を述べるには、Leanが<code>α</code>の型をどれに使用するかを判断しようとしないように、<code>@</code>を使用する必要があります。
+<code>α</code>が通常の引数として扱われると、<code>funext</code>を <code>α</code> と <code>xs</code> の両方に適用すべきです：</p>
 <pre><code class="language-leantac">theorem non_tail_reverse_eq_tail_reverse : @NonTail.reverse = @Tail.reverse := by
   funext α xs
 </code></pre>
-<p>This results in a suitable goal:</p>
+<p>これにより、適切なゴールが生成されます：</p>
 <pre><code class="language-output error">unsolved goals
 case h.h
 α : Type u_1
 xs : List α
 ⊢ NonTail.reverse xs = Tail.reverse xs
 </code></pre>
-<h4 id="factorial"><a class="header" href="#factorial">Factorial</a></h4>
-<p>Prove that <code>NonTail.factorial</code> from the exercises in the previous section is equal to your tail-recursive solution by finding the relationship between the accumulator and the result and proving a suitable helper theorem.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="arrays-and-termination"><a class="header" href="#arrays-and-termination">Arrays and Termination</a></h1>
-<p>To write efficient code, it is important to select appropriate data structures.
-Linked lists have their place: in some applications, the ability to share the tails of lists is very important.
-However, most use cases for a variable-length sequential collection of data are better served by arrays, which have both less memory overhead and better locality.</p>
-<p>Arrays, however, have two drawbacks relative to lists:</p>
+<h4 id="階乗factorial"><a class="header" href="#階乗factorial">階乗（Factorial）</a></h4>
+<p>前のセクションの演習で示された <code>NonTail.factorial</code> が、末尾再帰による方法と等しいことを証明してください。これは、アキュムレータと結果との関係を見つけ、適切な補助定理を証明することによって行います。</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="配列と終了条件arrays-and-termination"><a class="header" href="#配列と終了条件arrays-and-termination">配列と終了条件（Arrays and Termination）</a></h1>
+<p>効率的なコードを書くためには、適切なデータ構造を選択することが重要です。連結リストもその場面があります。リストの末尾を共有する能力が非常に重要なアプリケーションもあります。しかし、データの可変長の連続コレクションのほとんどのユースケースでは、メモリのオーバーヘッドが少なく、配置も良い配列が適しています。</p>
+<p>ただし、リストに対して配列は2つの欠点があります：</p>
 <ol>
-<li>Arrays are accessed through indexing, rather than by pattern matching, which imposes <a href="programs-proofs/../props-proofs-indexing.html">proof obligations</a> in order to maintain safety.</li>
-<li>A loop that processes an entire array from left to right is a tail-recursive function, but it does not have an argument that decreases on each call.</li>
+<li>配列はパターンマッチングではなくインデックスを介してアクセスされ、これは安全性を維持するための<a href="programs-proofs/../props-proofs-indexing.html">証明義務</a>を課します。</li>
+<li>配列を左から右に処理するループは末尾再帰関数ですが、各呼び出しで減少する引数がありません。</li>
 </ol>
-<p>Making effective use of arrays requires knowing how to prove to Lean that an array index is in bounds, and how to prove that an array index that approaches the size of the array also causes the program to terminate.
-Both of these are expressed using an inequality proposition, rather than propositional equality.</p>
-<h2 id="inequality"><a class="header" href="#inequality">Inequality</a></h2>
-<p>Because different types have different notions of ordering, inequality is governed by two type classes, called <code>LE</code> and <code>LT</code>.
-The table in the section on <a href="programs-proofs/../type-classes/standard-classes.html#equality-and-ordering">standard type classes</a> describes how these classes relate to the syntax:</p>
-<div class="table-wrapper"><table><thead><tr><th>Expression</th><th>Desugaring</th><th>Class Name</th></tr></thead><tbody>
+<p>配列を効果的に使用するには、Leanに配列のインデックスが範囲内であることを証明し、配列のサイズに近づくインデックスがプログラムを終了させることも証明する方法を知る必要があります。これらは等式命題ではなく、不等式命題を使用して表現されます。</p>
+<h2 id="不等式inequality"><a class="header" href="#不等式inequality">不等式（Inequality）</a></h2>
+<p>異なる型には異なる順序の概念があるため、不等式は <code>LE</code> と <code>LT</code> という2つの型クラスによって規制されます。<a href="programs-proofs/../type-classes/standard-classes.html#equality-and-ordering">標準型クラス</a>のセクションにある表は、これらのクラスが構文とどのように関連しているかを説明しています：</p>
+<div class="table-wrapper"><table><thead><tr><th>式</th><th>デサグガリング</th><th>クラス名</th></tr></thead><tbody>
 <tr><td><code>x &lt; y</code></td><td><code>LT.lt x y</code></td><td><code>LT</code></td></tr>
 <tr><td><code>x ≤ y</code></td><td><code>LE.le x y</code></td><td><code>LE</code></td></tr>
 <tr><td><code>x &gt; y</code></td><td><code>LT.lt y x</code></td><td><code>LT</code></td></tr>
 <tr><td><code>x ≥ y</code></td><td><code>LE.le y x</code></td><td><code>LE</code></td></tr>
 </tbody></table>
 </div>
-<p>In other words, a type may customize the meaning of the <code>&lt;</code> and <code>≤</code> operators, while <code>&gt;</code> and <code>≥</code> derive their meanings from <code>&lt;</code> and <code>≤</code>.
-The classes <code>LT</code> and <code>LE</code> have methods that return propositions rather than <code>Bool</code>s:</p>
+<p>言い換えると、型は <code>&lt;</code> と <code>≤</code> 演算子の意味をカスタマイズすることができ、<code>&gt;</code> と <code>≥</code> は <code>&lt;</code> と <code>≤</code> からその意味を派生させます。<code>LT</code> と <code>LE</code> のクラスには、ブールではなく命題を返すメソッドがあります：</p>
 <pre><code class="language-lean">class LE (α : Type u) where
   le : α → α → Prop
 
 class LT (α : Type u) where
   lt : α → α → Prop
 </code></pre>
-<p>The instance of <code>LE</code> for <code>Nat</code> delegates to <code>Nat.le</code>:</p>
+<p><code>Nat</code> のための <code>LE</code> のインスタンスは <code>Nat.le</code> に委譲します：</p>
 <pre><code class="language-lean">instance : LE Nat where
   le := Nat.le
 </code></pre>
-<p>Defining <code>Nat.le</code> requires a feature of Lean that has not yet been presented: it is an inductively-defined relation.</p>
-<h3 id="inductively-defined-propositions-predicates-and-relations"><a class="header" href="#inductively-defined-propositions-predicates-and-relations">Inductively-Defined Propositions, Predicates, and Relations</a></h3>
-<p><code>Nat.le</code> is an <em>inductively-defined relation</em>.
-Just as <code>inductive</code> can be used to create new datatypes, it can also be used to create new propositions.
-When a proposition takes an argument, it is referred to as a <em>predicate</em> that may be true for some, but not all, potential arguments.
-Propositions that take multiple arguments are called <em>relations</em>.</p>
-<p>Each constructor of an inductively defined proposition is a way to prove it.
-In other words, the declaration of the proposition describes the different forms of evidence that it is true.
-A proposition with no arguments that has a single constructor can be quite easy to prove:</p>
+<p><code>Nat.le</code> を定義するには、まだ紹介されていないLeanの機能、帰納的に定義された関係が必要です。</p>
+<h3 id="帰納的に定義された命題述語および関係inductively-defined-propositions-predicates-and-relations"><a class="header" href="#帰納的に定義された命題述語および関係inductively-defined-propositions-predicates-and-relations">帰納的に定義された命題、述語、および関係（Inductively-Defined Propositions, Predicates, and Relations）</a></h3>
+<p><code>Nat.le</code> は <em>帰納的に定義された関係</em> です。<code>inductive</code> は新しいデータ型を作成するために使用できるだけでなく、新しい命題を作成するためにも使用できます。命題が引数を取る場合、それは一部の潜在的な引数に対して真である場合があり、すべての引数に対して真であるわけではありません。複数の引数を取る命題は <em>関係</em> と呼ばれます。</p>
+<p>帰納的に定義された命題の各コンストラクタは、それを証明する方法です。言い換えると、命題の宣言は、それが真である異なる証拠の形式を説明しています。引数を持たない命題で、単一のコンストラクタを持つものは非常に簡単に証明できることがあります：</p>
 <pre><code class="language-lean">inductive EasyToProve : Prop where
   | heresTheProof : EasyToProve
 </code></pre>
-<p>The proof consists of using its constructor:</p>
+<p>証明はそのコンストラクタを使用することから成り立ちます：</p>
 <pre><code class="language-lean">theorem fairlyEasy : EasyToProve := by
   constructor
 </code></pre>
-<p>In fact, the proposition <code>True</code>, which should always be easy to prove, is defined just like <code>EasyToProve</code>:</p>
+<p>実際、常に簡単に証明できるはずの命題 <code>True</code> は、<code>EasyToProve</code> と同じように定義されています：</p>
 <pre><code class="language-lean">inductive True : Prop where
   | intro : True
 </code></pre>
-<p>Inductively-defined propositions that don't take arguments are not nearly as interesting as inductively-defined datatypes.
-This is because data is interesting in its own right—the natural number <code>3</code> is different from the number <code>35</code>, and someone who has ordered 3 pizzas will be upset if 35 arrive at their door 30 minutes later.
-The constructors of a proposition describe ways in which the proposition can be true, but once a proposition has been proved, there is no need to know <em>which</em> underlying constructors were used.
-This is why most interesting inductively-defined types in the <code>Prop</code> universe take arguments.</p>
-<p>The inductively-defined predicate <code>IsThree</code> states that its argument is three:</p>
+<p>引数を取らない帰納的に定義された命題は、帰納的に定義されたデータ型ほど興味深くありません。これはデータ自体が興味深いからです。自然数 <code>3</code> は数 <code>35</code> とは異なり、3つのピザを注文した人は、30分後にドアに35のピザが届いた場合に不満に感じるでしょう。命題のコンストラクタは、命題が真である方法を説明しますが、命題が証明されると、どの <em>基本的な</em> コンストラクタが使用されたかを知る必要はありません。これは、<code>Prop</code> の宇宙において、ほとんどの興味深い帰納的に定義された型が引数を取る理由です。</p>
+<p>帰納的に定義された述語 <code>IsThree</code> は、その引数が3であることを述べています：</p>
 <pre><code class="language-lean">inductive IsThree : Nat → Prop where
   | isThree : IsThree 3
 </code></pre>
-<p>The mechanism used here is just like <a href="programs-proofs/../dependent-types/typed-queries.html#column-pointers">indexed families such as <code>HasCol</code></a>, except the resulting type is a proposition that can be proved rather than data that can be used.</p>
-<p>Using this predicate, it is possible to prove that three is indeed three:</p>
+<p>ここで使用されているメカニズムは、<a href="programs-proofs/../dependent-types/typed-queries.html#column-pointers"><code>HasCol</code></a>などのインデックス付きファミリーと同じですが、結果の型はデータではなく証明可能な命題です。</p>
+<p>この述語を使用して、3が本当に3であることを証明することができます：</p>
 <pre><code class="language-lean">theorem three_is_three : IsThree 3 := by
   constructor
 </code></pre>
-<p>Similarly, <code>IsFive</code> is a predicate that states that its argument is <code>5</code>:</p>
+<p>同様に、<code>IsFive</code> はその引数が <code>5</code> であることを述べる述語です：</p>
 <pre><code class="language-lean">inductive IsFive : Nat → Prop where
   | isFive : IsFive 5
 </code></pre>
-<p>If a number is three, then the result of adding two to it should be five.
-This can be expressed as a theorem statement:</p>
+<p>もし数が3であるなら、それに2を加えた結果は5でなければなりません。これは定理の文として表現できます：</p>
 <pre><code class="language-leantac">theorem three_plus_two_five : IsThree n → IsFive (n + 2) := by
   skip
 </code></pre>
-<p>The resulting goal has a function type:</p>
+<p>結果のゴールは関数型を持っています：</p>
 <pre><code class="language-output error">unsolved goals
 n : Nat
 ⊢ IsThree n → IsFive (n + 2)
 </code></pre>
-<p>Thus, the <code>intro</code> tactic can be used to convert the argument into an assumption:</p>
+<p>したがって、<code>intro</code> タクティクを使用して引数を前提に変換できます：</p>
 <pre><code class="language-leantac">theorem three_plus_two_five : IsThree n → IsFive (n + 2) := by
   intro three
 </code></pre>
@@ -12246,57 +12244,51 @@ n : Nat
 three : IsThree n
 ⊢ IsFive (n + 2)
 </code></pre>
-<p>Given the assumption that <code>n</code> is three, it should be possible to use the constructor of <code>IsFive</code> to complete the proof:</p>
+<p><code>n</code> が3であるという前提が与えられた場合、<code>IsFive</code> のコンストラクタを使用して証明を完了できるはずです：</p>
 <pre><code class="language-leantac">theorem three_plus_two_five : IsThree n → IsFive (n + 2) := by
   intro three
   constructor
 </code></pre>
-<p>However, this results in an error:</p>
+<p>しかし、これによりエラーが発生します：</p>
 <pre><code class="language-output error">tactic 'constructor' failed, no applicable constructor found
 n : Nat
 three : IsThree n
 ⊢ IsFive (n + 2)
 </code></pre>
-<p>This error occurs because <code>n + 2</code> is not definitionally equal to <code>5</code>.
-In an ordinary function definition, dependent pattern matching on the assumption <code>three</code> could be used to refine <code>n</code> to <code>3</code>.
-The tactic equivalent of dependent pattern matching is <code>cases</code>, which has a syntax similar to that of <code>induction</code>:</p>
+<p>このエラーは、<code>n + 2</code> が <code>5</code> と定義的に等しくないためです。通常の関数定義では、前提の <code>three</code> 上の依存パターンマッチングを使用して <code>n</code> を <code>3</code> に細分化できます。依存パターンマッチングのタクティクの相当物は <code>cases</code> で、その構文は <code>induction</code> と似ています：</p>
 <pre><code class="language-leantac">theorem three_plus_two_five : IsThree n → IsFive (n + 2) := by
   intro three
   cases three with
   | isThree =&gt; skip
 </code></pre>
-<p>In the remaining case, <code>n</code> has been refined to <code>3</code>:</p>
+<p>残りのケースでは、<code>n</code> は <code>3</code> に細分化されました：</p>
 <pre><code class="language-output error">unsolved goals
 case isThree
 ⊢ IsFive (3 + 2)
 </code></pre>
-<p>Because <code>3 + 2</code> is definitionally equal to <code>5</code>, the constructor is now applicable:</p>
+<p><code>3 + 2</code> が定義的に <code>5</code> に等しいため、コンストラクタは今適用可能です：</p>
 <pre><code class="language-leantac">theorem three_plus_two_five : IsThree n → IsFive (n + 2) := by
   intro three
   cases three with
   | isThree =&gt; constructor
 </code></pre>
-<p>The standard false proposition <code>False</code> has no constructors, making it impossible to provide direct evidence for.
-The only way to provide evidence for <code>False</code> is if an assumption is itself impossible, similarly to how <code>nomatch</code> can be used to mark code that the type system can see is unreachable.
-As described in <a href="programs-proofs/../props-proofs-indexing.html#connectives">the initial Interlude on proofs</a>, the negation <code>Not A</code> is short for <code>A → False</code>.
-<code>Not A</code> can also be written <code>¬A</code>.</p>
-<p>It is not the case that four is three:</p>
+<p>標準の偽の命題 <code>False</code> にはコンストラクタが存在せず、それに対する直接の証拠を提供することは不可能です。 <code>False</code> に証拠を提供する唯一の方法は、前提自体が不可能である場合で、これは型システムが到達不可能と見なすことができるコードをマークするために <code>nomatch</code> を使用する方法と似ています。 <a href="programs-proofs/../props-proofs-indexing.html#connectives">証明の最初の余興</a> で説明されているように、否定 <code>Not A</code> は <code>A → False</code> の省略形です。 <code>Not A</code> はまた <code>¬A</code> と書くこともできます。</p>
+<p>4が3であるわけではありません：</p>
 <pre><code class="language-leantac">theorem four_is_not_three : ¬ IsThree 4 := by
   skip
 </code></pre>
-<p>The initial proof goal contains <code>Not</code>:</p>
+<p>最初の証明目標には <code>Not</code> が含まれています：</p>
 <pre><code class="language-output error">unsolved goals
 ⊢ ¬IsThree 4
 </code></pre>
-<p>The fact that it's actually a function type can be exposed using <code>simp</code>:</p>
+<p>実際には関数型であることを示すために <code>simp</code> を使用できます：</p>
 <pre><code class="language-leantac">theorem four_is_not_three : ¬ IsThree 4 := by
   simp [Not]
 </code></pre>
 <pre><code class="language-output error">unsolved goals
 ⊢ IsThree 4 → False
 </code></pre>
-<p>Because the goal is a function type, <code>intro</code> can be used to convert the argument into an assumption.
-There is no need to keep <code>simp</code>, as <code>intro</code> can unfold the definition of <code>Not</code> itself:</p>
+<p>ゴールが関数型であるため、引数を前提に変換するために <code>intro</code> を使用できます。 <code>Not</code> の定義自体を展開するために <code>simp</code> を保持する必要はありません：</p>
 <pre><code class="language-leantac">theorem four_is_not_three : ¬ IsThree 4 := by
   intro h
 </code></pre>
@@ -12304,53 +12296,43 @@ There is no need to keep <code>simp</code>, as <code>intro</code> can unfold the
 h : IsThree 4
 ⊢ False
 </code></pre>
-<p>In this proof, the <code>cases</code> tactic solves the goal immediately:</p>
+<p>この証明では、<code>cases</code> タクティクがゴールを即座に解決します：</p>
 <pre><code class="language-leantac">theorem four_is_not_three : ¬ IsThree 4 := by
   intro h
   cases h
 </code></pre>
-<p>Just as a pattern match on a <code>Vect String 2</code> doesn't need to include a case for <code>Vect.nil</code>, a proof by cases over <code>IsThree 4</code> doesn't need to include a case for <code>isThree</code>.</p>
-<h3 id="inequality-of-natural-numbers"><a class="header" href="#inequality-of-natural-numbers">Inequality of Natural Numbers</a></h3>
-<p>The definition of <code>Nat.le</code> has a parameter and an index:</p>
+<p><code>Vect String 2</code> のパターンマッチには <code>Vect.nil</code> のケースを含める必要はないように、<code>IsThree 4</code> の場合も <code>isThree</code> のケースを含める必要はありません。</p>
+<h3 id="自然数の不等式inequality-of-natural-numbers"><a class="header" href="#自然数の不等式inequality-of-natural-numbers">自然数の不等式（Inequality of Natural Numbers）</a></h3>
+<p><code>Nat.le</code> の定義にはパラメーターとインデックスがあります：</p>
 <pre><code class="language-lean">inductive Nat.le (n : Nat) : Nat → Prop
   | refl : Nat.le n n
   | step : Nat.le n m → Nat.le n (m + 1)
 </code></pre>
-<p>The parameter <code>n</code> is the number that should be smaller, while the index is the number that should be greater than or equal to <code>n</code>.
-The <code>refl</code> constructor is used when both numbers are equal, while the <code>step</code> constructor is used when the index is greater than <code>n</code>.</p>
-<p>From the perspective of evidence, a proof that \( n \leq k \) consists of finding some number \( d \) such that \( n + d = m \).
-In Lean, the proof then consists of a <code>Nat.le.refl</code> constructor wrapped by \( d \) instances of <code>Nat.le.step</code>.
-Each <code>step</code> constructor adds one to its index argument, so \( d \) <code>step</code> constructors adds \( d \) to the larger number.
-For example, evidence that four is less than or equal to seven consists of three <code>step</code>s around a <code>refl</code>:</p>
+<p>パラメーター <code>n</code> は小さくすべき数で、インデックスは <code>n</code> 以上であるべき数です。 <code>refl</code> コンストラクタは両方の数が等しい場合に使用され、<code>step</code> コンストラクタはインデックスが <code>n</code> より大きい場合に使用されます。</p>
+<p>証拠の観点から言えば、\( n \leq k \) を証明するには、\( n + d = m \) となる \( d \) という数を見つけることが必要です。Leanでは、証明は <code>Nat.le.refl</code> コンストラクタが \( d \) 個の <code>Nat.le.step</code> で囲まれたもので構成されます。各 <code>step</code> コンストラクタはそのインデックス引数に1を追加し、大きな数に \( d \) を追加します。たとえば、4が7以下である証拠は、<code>refl</code> の周りに3つの <code>step</code> があるものです：</p>
 <pre><code class="language-lean">theorem four_le_seven : 4 ≤ 7 :=
   open Nat.le in
   step (step (step refl))
 </code></pre>
-<p>The strict less-than relation is defined by adding one to the number on the left:</p>
+<p>厳密な不等関係は、左側の数に1を加えることで定義されます：</p>
 <pre><code class="language-lean">def Nat.lt (n m : Nat) : Prop :=
   Nat.le (n + 1) m
 
 instance : LT Nat where
   lt := Nat.lt
 </code></pre>
-<p>Evidence that four is strictly less than seven consists of two <code>step</code>'s around a <code>refl</code>:</p>
+<p>4が厳密に7より小さいという証拠は、<code>refl</code> の周りに2つの <code>step</code> があるものです：</p>
 <pre><code class="language-lean">theorem four_lt_seven : 4 &lt; 7 :=
   open Nat.le in
   step (step refl)
 </code></pre>
-<p>This is because <code>4 &lt; 7</code> is equivalent to <code>5 ≤ 7</code>.</p>
-<h2 id="proving-termination"><a class="header" href="#proving-termination">Proving Termination</a></h2>
-<p>The function <code>Array.map</code> transforms an array with a function, returning a new array that contains the result of applying the function to each element of the input array.
-Writing it as a tail-recursive function follows the usual pattern of delegating to a function that passes the output array in an accumulator.
-The accumulator is initialized with an empty array.
-The accumulator-passing helper function also takes an argument that tracks the current index into the array, which starts at <code>0</code>:</p>
+<p>これは <code>4 &lt; 7</code> は <code>5 ≤ 7</code> と等価であるためです。</p>
+<h2 id="停止を証明するproving-termination"><a class="header" href="#停止を証明するproving-termination">停止を証明する（Proving Termination）</a></h2>
+<p>関数 <code>Array.map</code> は関数で配列を変換し、入力配列の各要素に関数を適用した結果を含む新しい配列を返します。これを末尾再帰関数として記述する場合、通常のパターンに従い、アキュムレータ内で出力配列を渡す関数に委任します。アキュムレータは空の配列で初期化されます。アキュムレータを渡すヘルパー関数はまた、配列内の現在のインデックスを追跡する引数も取り、これは <code>0</code> から始まります：</p>
 <pre><code class="language-lean">def Array.map (f : α → β) (arr : Array α) : Array β :=
   arrayMapHelper f arr Array.empty 0
 </code></pre>
-<p>The helper should, at each iteration, check whether the index is still in bounds.
-If so, it should loop again with the transformed element added to the end of the accumulator and the index incremented by <code>1</code>.
-If not, then it should terminate and return the accumulator.
-An initial implementation of this code fails because Lean is unable to prove that the array index is valid:</p>
+<p>ヘルパー関数は、各反復でインデックスが範囲内にあるかどうかを確認する必要があります。もし範囲内にある場合、変換された要素をアキュムレータの末尾に追加し、インデックスを <code>1</code> 増やして再度ループする必要があります。範囲内にない場合、終了し、アキュムレータを返す必要があります。このコードの初期の実装は、Leanが配列のインデックスが有効であることを証明できないため失敗します：</p>
 <pre><code class="language-lean">def arrayMapHelper (f : α → β) (arr : Array α) (soFar : Array β) (i : Nat) : Array β :=
   if i &lt; arr.size then
     arrayMapHelper f arr (soFar.push (f arr[i])) (i + 1)
@@ -12369,15 +12351,13 @@ soFar : Array β
 i : Nat
 ⊢ i &lt; Array.size arr
 </code></pre>
-<p>However, the conditional expression already checks the precise condition that the array index's validity demands (namely, <code>i &lt; arr.size</code>).
-Adding a name to the <code>if</code> resolves the issue, because it adds an assumption that the array indexing tactic can use:</p>
+<p>ただし、条件式は既に配列のインデックスの有効性が要求する正確な条件をチェックしています（つまり、<code>i &lt; arr.size</code>）。<code>if</code> に名前を追加することで問題を解決できます。これは、配列インデックスの前提条件を使用できるようにする前提条件を追加するからです：</p>
 <pre><code class="language-lean">def arrayMapHelper (f : α → β) (arr : Array α) (soFar : Array β) (i : Nat) : Array β :=
   if inBounds : i &lt; arr.size then
     arrayMapHelper f arr (soFar.push (f arr[i])) (i + 1)
   else soFar
 </code></pre>
-<p>Lean does not, however, accept the modified program, because the recursive call is not made on an argument to one of the input constructors.
-In fact, both the accumulator and the index grow, rather than shrinking:</p>
+<p>しかし、修正されたプログラムはLeanに受け入れられません。なぜなら再帰呼び出しが入力コンストラクタの引数の一つで行われていないからです。実際、アキュムレータとインデックスの両方が増加し、減少しないからです：</p>
 <pre><code class="language-output error">fail to show termination for
   arrayMapHelper
 with errors
@@ -12389,27 +12369,21 @@ structural recursion cannot be used
 
 failed to prove termination, use `termination_by` to specify a well-founded relation
 </code></pre>
-<p>Nevertheless, this function terminates, so simply marking it <code>partial</code> would be unfortunate.</p>
-<p>Why does <code>arrayMapHelper</code> terminate?
-Each iteration checks whether the index <code>i</code> is still in bounds for the array <code>arr</code>.
-If so, <code>i</code> is incremented and the loop repeats.
-If not, the program terminates.
-Because <code>arr.size</code> is a finite number, <code>i</code> can be incremented only a finite number of times.
-Even though no argument to the function decreases on each call, <code>arr.size - i</code> decreases toward zero.</p>
-<p>Lean can be instructed to use another expression for termination by providing a <code>termination_by</code> clause at the end of a definition.
-The <code>termination_by</code> clause has two components: names for the function's arguments and an expression using those names that should decrease on each call.
-For <code>arrayMapHelper</code>, the final definition looks like this:</p>
+<p>それにもかかわらず、この関数は終了するので、単にそれを <code>partial</code> とマークするのは不適切です。</p>
+<p>なぜ <code>arrayMapHelper</code> は終了するのでしょうか？</p>
+<p>各ループでは、インデックス <code>i</code> が配列 <code>arr</code> の範囲内にあるかどうかを確認します。もし範囲内にあれば、<code>i</code> が増加し、ループが繰り返されます。範囲外の場合、プログラムは終了します。なぜなら <code>arr.size</code> は有限の数値であり、<code>i</code> は有限の回数しか増加しないからです。関数の各呼び出しで関数の引数が減少しないとしても、<code>arr.size - i</code> はゼロに向かって減少します。</p>
+<p>Leanは、定義の末尾に <code>termination_by</code> 句を提供することで終了に別の式を使用するよう指示できます。<code>termination_by</code> 句には2つのコンポーネントがあります：関数の引数の名前と、それらの名前を使用した式で、各呼び出しで減少する必要があります。<code>arrayMapHelper</code> の最終的な定義は次のようになります：</p>
 <pre><code class="language-lean">def arrayMapHelper (f : α → β) (arr : Array α) (soFar : Array β) (i : Nat) : Array β :=
   if inBounds : i &lt; arr.size then
     arrayMapHelper f arr (soFar.push (f arr[i])) (i + 1)
   else soFar
 termination_by arrayMapHelper _ arr _ i _ =&gt; arr.size - i
 </code></pre>
-<p>A similar termination proof can be used to write <code>Array.find</code>, a function that finds the first element in an array that satisfies a Boolean function and returns both the element and its index:</p>
+<p>同様の停止性証明を使用して、<code>Array.find</code> を記述できます。これは、ブール関数を満たす最初の要素を配列内で見つけ、その要素とそのインデックスの両方を返す関数です：</p>
 <pre><code class="language-lean">def Array.find (arr : Array α) (p : α → Bool) : Option (Nat × α) :=
   findHelper arr p 0
 </code></pre>
-<p>Once again, the helper function terminates because <code>arr.size - i</code> decreases as <code>i</code> increases:</p>
+<p>再び、ヘルパー関数は <code>arr.size - i</code> が <code>i</code> の増加と共に減少するため、終了します：</p>
 <pre><code class="language-lean">def findHelper (arr : Array α) (p : α → Bool) (i : Nat) : Option (Nat × α) :=
   if h : i &lt; arr.size then
     let x := arr[i]
@@ -12419,15 +12393,21 @@ termination_by arrayMapHelper _ arr _ i _ =&gt; arr.size - i
   else none
 termination_by findHelper arr p i =&gt; arr.size - i
 </code></pre>
-<p>Not all termination arguments are as quite as simple as this one.
-However, the basic structure of identifying some expression based on the function's arguments that will decrease in each call occurs in all termination proofs.
-Sometimes, creativity can be required in order to figure out just why a function terminates, and sometimes Lean requires additional proofs in order to accept the termination argument.</p>
-<h2 id="exercises-22"><a class="header" href="#exercises-22">Exercises</a></h2>
+<p>すべての終了引数がこのものほど単純でないこともあります。ただし、関数の引数に基づいて各呼び出しで減少する式を識別する基本的な構造は、すべての停止性証明で発生します。時には、関数がなぜ終了するのかを理解するために創造性が必要であり、Leanは終了引数を受け入れるために追加の証明が必要なこともあります。</p>
+<h2 id="演習exercises-4"><a class="header" href="#演習exercises-4">演習（Exercises）</a></h2>
 <ul>
-<li>Implement a <code>ForM (Array α)</code> instance on arrays using a tail-recursive accumulator-passing function and a <code>termination_by</code> clause.</li>
-<li>Implement a function to reverse arrays using a tail-recursive accumulator-passing function that <em>doesn't</em> need a <code>termination_by</code> clause.</li>
-<li>Reimplement <code>Array.map</code>, <code>Array.find</code>, and the <code>ForM</code> instance using <code>for ... in ...</code> loops in the identity monad and compare the resulting code.</li>
-<li>Reimplement array reversal using a <code>for ... in ...</code> loop in the identity monad. Compare it to the tail-recursive function.</li>
+<li>
+<p>配列に対する末尾再帰のアキュムレータパッシング関数と <code>termination_by</code> 句を使用して、配列に対する <code>ForM (Array α)</code> インスタンスを実装してください。</p>
+</li>
+<li>
+<p>末尾再帰のアキュムレータパッシング関数を使用して、配列を反転する（逆順にする）関数を実装してください。この場合、<code>termination_by</code> 句は必要ありません。</p>
+</li>
+<li>
+<p><code>Array.map</code>、<code>Array.find</code>、および <code>ForM</code> インスタンスを、恒等モナド内の <code>for ... in ...</code> ループを使用して再実装し、結果のコードを比較してください。</p>
+</li>
+<li>
+<p>恒等モナド内の <code>for ... in ...</code> ループを使用して、配列の逆転を再実装してください。これを末尾再帰関数と比較してください。</p>
+</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="more-inequalities"><a class="header" href="#more-inequalities">More Inequalities</a></h1>
 <p>Lean's built-in proof automation is sufficient to check that <code>arrayMapHelper</code> and <code>findHelper</code> terminate.
@@ -13099,7 +13079,7 @@ This, <code>n = Nat.succ n'</code>, and <code>Nat.succ n'</code> is clearly grea
     1 + div (n - k) k ok
 termination_by div n k ok =&gt; n
 </code></pre>
-<h2 id="exercises-23"><a class="header" href="#exercises-23">Exercises</a></h2>
+<h2 id="exercises-20"><a class="header" href="#exercises-20">Exercises</a></h2>
 <p>Prove the following theorems:</p>
 <ul>
 <li>For all natural numbers \( n \), \( 0 &lt; n + 1 \).</li>
@@ -13141,7 +13121,7 @@ termination_by findHelper arr p i =&gt; arr.size - i
 def Array.find (arr : Array α) (p : α → Bool) : Option (Fin arr.size × α) :=
   findHelper arr p 0
 </code></pre>
-<h2 id="exercise-1"><a class="header" href="#exercise-1">Exercise</a></h2>
+<h2 id="exercise"><a class="header" href="#exercise">Exercise</a></h2>
 <p>Write a function <code>Fin.next? : Fin n → Option (Fin n)</code> that returns the next largest <code>Fin</code> when it would be in bounds, or <code>none</code> if not.
 Check that</p>
 <pre><code class="language-lean">#eval (3 : Fin 8).next?
@@ -13965,7 +13945,7 @@ When running <code>sort --shared</code>, the array is copied as needed to preser
 Lean also attempts to &quot;recycle&quot; constructors whose reference counts are about to fall to zero, reusing them instead of allocating new data.
 This means, for instance, that <code>List.map</code> will mutate a linked list in place, at least in cases when nobody could possibly notice.
 One of the most important steps in optimizing hot loops in Lean code is making sure that the data being modified is not referred to from multiple locations.</p>
-<h2 id="exercises-24"><a class="header" href="#exercises-24">Exercises</a></h2>
+<h2 id="exercises-21"><a class="header" href="#exercises-21">Exercises</a></h2>
 <ul>
 <li>
 <p>Write a function that reverses arrays. Test that if the input array has a reference count of one, then your function does not allocate a new array.</p>
@@ -14016,7 +13996,7 @@ This means that <code>true</code>, <code>false</code>, and <code>none</code> are
 <tr><td>Proofs of propositions</td><td>Whatever data is suggested by the proposition when considered as a type of evidence</td><td>Erased completely</td></tr>
 </tbody></table>
 </div>
-<h2 id="exercise-2"><a class="header" href="#exercise-2">Exercise</a></h2>
+<h2 id="exercise-1"><a class="header" href="#exercise-1">Exercise</a></h2>
 <p>The <a href="programs-proofs/../type-classes/pos.html">definition of <code>Pos</code></a> does not take advantage of Lean's compilation of <code>Nat</code> to an efficient type.
 At run time, it is essentially a linked list.
 Alternatively, a subtype can be defined that allows Lean's fast <code>Nat</code> type to be used internally, as described <a href="programs-proofs/../functor-applicative-monad/applicative.html#subtypes">in the initial section on subtypes</a>.
@@ -14024,7 +14004,7 @@ At run time, the proof will be erased.
 Because the resulting structure has only a single data field, it is represented as that field, which means that this new representation of <code>Pos</code> is identical to that of <code>Nat</code>.</p>
 <p>After proving the theorem <code>∀ {n k : Nat}, n ≠ 0 → k ≠ 0 → n + k ≠ 0</code>, define instances of <code>ToString</code>, and <code>Add</code> for this new representation of <code>Pos</code>. Then, define an instance of <code>Mul</code>, proving any necessary theorems along the way.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="summary-6"><a class="header" href="#summary-6">Summary</a></h1>
-<h2 id="tail-recursion-1"><a class="header" href="#tail-recursion-1">Tail Recursion</a></h2>
+<h2 id="tail-recursion"><a class="header" href="#tail-recursion">Tail Recursion</a></h2>
 <p>Tail recursion is recursion in which the results of recursive calls are returned immediately, rather than being used in some other way.
 These recursive calls are called <em>tail calls</em>.
 Tail calls are interesting because they can be compiled to a jump instruction rather than a call instruction, and the current stack frame can be re-used instead of pushing a new frame.
@@ -14074,7 +14054,7 @@ Any proof that relies on <code>sorry</code> includes a warning in Lean.</p>
 The <code>sorry</code> tactic can prove <em>any</em> statement, even false statements.
 Proving that <code>3 &lt; 2</code> can cause an out-of-bounds array access to persist to runtime, unexpectedly crashing a program.
 Using <code>sorry</code> is convenient during development, but keeping it in the code is dangerous.</p>
-<h2 id="proving-termination-1"><a class="header" href="#proving-termination-1">Proving Termination</a></h2>
+<h2 id="proving-termination"><a class="header" href="#proving-termination">Proving Termination</a></h2>
 <p>When a recursive function does not use structural recursion, Lean cannot automatically determine that it terminates.
 In these situations, the function could just be marked <code>partial</code>.
 However, it is also possible to provide a proof that the function terminates.</p>
