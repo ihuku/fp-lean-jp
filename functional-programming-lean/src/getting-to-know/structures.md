@@ -1,16 +1,11 @@
-# Structures
+# 構造体（Structures）
 
-The first step in writing a program is usually to identify the problem domain's concepts, and then find suitable representations for them in code.
-Sometimes, a domain concept is a collection of other, simpler, concepts.
-In that case, it can be convenient to group these simpler components together into a single "package", which can then be given a meaningful name.
-In Lean, this is done using _structures_, which are analogous to `struct`s in C or Rust and `record`s in C#.
+プログラムを書く際の最初のステップは通常、問題領域の概念を特定し、それらをコード内で適切に表現する方法を見つけることです。時に、ある問題領域の概念は、他のより単純な概念の集合であることがあります。その場合、これらより単純な要素を一つの「パッケージ」としてまとめ、それに意味のある名前を付けることが便利です。Leanでは、これは「構造体 (structures)」を用いて行われ、これはCやRustの`struct`やC#の`record`と類似しています。
 
-Defining a structure introduces a completely new type to Lean that can't be reduced to any other type.
-This is useful because multiple structures might represent different concepts that nonetheless contain the same data.
-For instance, a point might be represented using either Cartesian or polar coordinates, each being a pair of floating-point numbers.
-Defining separate structures prevents API clients from confusing one for another.
+構造を定義することは、Leanに完全に新しい型を導入することを意味し、他の型に還元できません。これは、異なる概念を表現する複数の構造が同じデータを含むような場面を考えると、有用なものになります。例えば、点は直交座標または極座標を使用して表現できますが、データとしては、どちらも浮動小数点数のペアとなるでしょう。別々の構造を定義することで、APIクライアントがそれらを混同しないようにするのに役立ちます。
 
-Lean's floating-point number type is called `Float`, and floating-point numbers are written in the usual notation.
+Leanの浮動小数点数型は`Float`と呼ばれ、浮動小数点数は通常の表記法で書かれます。
+
 ```lean
 {{#example_in Examples/Intro.lean onePointTwo}}
 ```
@@ -29,7 +24,9 @@ Lean's floating-point number type is called `Float`, and floating-point numbers 
 ```output info
 {{#example_out Examples/Intro.lean zeroPointZero}}
 ```
-When floating point numbers are written with the decimal point, Lean will infer the type `Float`. If they are written without it, then a type annotation may be necessary.
+
+浮動小数点数が小数点を伴って書かれている場合、Leanは型`Float`を自動的に推論します。小数点を伴わない場合、型の注釈が必要かもしれません。
+
 ```lean
 {{#example_in Examples/Intro.lean zeroNat}}
 ```
@@ -44,39 +41,41 @@ When floating point numbers are written with the decimal point, Lean will infer 
 {{#example_out Examples/Intro.lean zeroFloat}}
 ```
 
-
-A Cartesian point is a structure with two `Float` fields, called `x` and `y`.
-This is declared using the `structure` keyword.
+直交座標点は、`x` と `y` と呼ばれる2つの「Float」フィールドを持つ構造です。
+これは`structure`キーワードを使用して宣言されます。
 
 ```lean
 {{#example_decl Examples/Intro.lean Point}}
 ```
 
-After this declaration, `Point` is a new structure type.
-The final line, which says `deriving Repr`, asks Lean to generate code to display values of type `Point`.
-This code is used by `#eval` to render the result of evaluation for consumption by programmers, analogous to the `repr` function in Python.
-It is also possible to override the compiler's generated display code.
+この宣言の後、`Point` は新しい構造型です。
+最後の行は「deriving Repr」と書かれており、Leanに対して型 `Point` の値を表示するコードを生成するように求めています。
+このコードは、プログラマが評価結果を表示するために使用され、Pythonの「repr」関数に類似しています。
+また、コンパイラが生成した表示コードを上書きすることも可能です。
 
-The typical way to create a value of a structure type is to provide values for all of its fields inside of curly braces.
-The origin of a Cartesian plane is where `x` and `y` are both zero:
+構造型の値を作成する一般的な方法は、波括弧内でそのすべてのフィールドに値を提供することです。
+直交座標平面の原点は、`x` と `y` が両方ともゼロの場所です。
 
 ```lean
 {{#example_decl Examples/Intro.lean origin}}
 ```
 
-If the `deriving Repr` line in `Point`'s definition were omitted, then attempting `{{#example_in Examples/Intro.lean PointNoRepr}}` would yield an error similar to that which occurs when omitting a function's argument:
+`Point`の定義内の`deriving Repr`行が省略された場合、`{{#example_in Examples/Intro.lean PointNoRepr}}` を試みると、関数の引数を省略した場合に発生するのと似たエラーが発生します。
+
 ```output error
 {{#example_out Examples/Intro.lean PointNoRepr}}
 ```
-That message is saying that the evaluation machinery doesn't know how to communicate the result of evaluation back to the user.
 
-Happily, with `deriving Repr`, the result of `{{#example_in Examples/Intro.lean originEval}}` looks very much like the definition of `origin`.
+そのメッセージは、評価の結果をユーザーに伝える方法が評価機構にわからないことを示しています。
+
+幸運なことに、「deriving Repr」を使用すると、`{{#example_in Examples/Intro.lean originEval}}` の結果は、`origin` の定義と非常に似ています。
+
 ```output info
 {{#example_out Examples/Intro.lean originEval}}
 ```
 
-Because structures exist to "bundle up" a collection of data, naming it and treating it as a single unit, it is also important to be able to extract the individual fields of a structure.
-This is done using dot notation, as in C, Python, or Rust.
+構造がデータのコレクションを「まとめて」1つの単位として扱うために存在するため、構造体の個々のフィールドを取り出すことも重要です。
+これは、C、Python、またはRustのように、ドット記法を使用して行われます。
 
 ```lean
 {{#example_in Examples/Intro.lean originx}}
@@ -92,23 +91,25 @@ This is done using dot notation, as in C, Python, or Rust.
 {{#example_out Examples/Intro.lean originy}}
 ```
 
-This can be used to define functions that take structures as arguments.
-For instance, addition of points is performed by adding the underlying coordinate values.
-It should be the case that `{{#example_in Examples/Intro.lean addPointsEx}}` yields
+これは、構造体を引数として受け取る関数を定義するために使用できます。
+たとえば、点の加算は基になる座標値を足すことで実行されます。
+`{{#example_in Examples/Intro.lean addPointsEx}}` が以下のような結果を示すはずです。
+
 ```output info
 {{#example_out Examples/Intro.lean addPointsEx}}
 ```
-The function itself takes two `Points` as arguments, called `p1` and `p2`.
-The resulting point is based on the `x` and `y` fields of both `p1` and `p2`:
+
+この関数自体は、`p1` と `p2` と呼ばれる2つの`Points`を引数として受け取ります。
+生成される点は、`p1` と `p2` の両方の`x`と`y`のフィールドに基づいています：
 ```lean
 {{#example_decl Examples/Intro.lean addPoints}}
 ```
 
-Similarly, the distance between two points, which is the square root of the sum of the squares of the differences in their `x` and `y` components, can be written:
+同様に、2つの点間の距離、つまり`x`と`y`の成分の差の二乗の合計の平方根は、次のように記述できます：
 ```lean
 {{#example_decl Examples/Intro.lean distance}}
 ```
-For example, the distance between (1, 2) and (5, -1) is 5:
+たとえば、(1, 2) と (5, -1) の間の距離は5です：
 ```lean
 {{#example_in Examples/Intro.lean evalDistance}}
 ```
@@ -116,26 +117,24 @@ For example, the distance between (1, 2) and (5, -1) is 5:
 {{#example_out Examples/Intro.lean evalDistance}}
 ```
 
-
-Multiple structures may have fields with the same names.
-For instance, a three-dimensional point datatype may share the fields `x` and `y`, and be instantiated with the same field names:
+複数の構造体は同じ名前のフィールドを持つことがあります。
+たとえば、三次元の点データ型はフィールド`x`と`y`を共有し、同じフィールド名でインスタンス化できます：
 ```lean
 {{#example_decl Examples/Intro.lean Point3D}}
 
 {{#example_decl Examples/Intro.lean origin3D}}
 ```
-This means that the structure's expected type must be known in order to use the curly-brace syntax.
-If the type is not known, Lean will not be able to instantiate the structure.
-For instance,
+これは、波括弧の構文を使用するために、構造の予想される型を知っている必要があることを意味します。型が不明な場合、Leanは構造をインスタンス化できません。
+例えば、
 ```lean
 {{#example_in Examples/Intro.lean originNoType}}
 ```
-leads to the error
+これはエラーを引き起こします
 ```output error
 {{#example_out Examples/Intro.lean originNoType}}
 ```
 
-As usual, the situation can be remedied by providing a type annotation.
+通常通り、型注釈を提供することでこの状況を改善できます。
 ```lean
 {{#example_in Examples/Intro.lean originWithAnnot}}
 ```
@@ -143,7 +142,7 @@ As usual, the situation can be remedied by providing a type annotation.
 {{#example_out Examples/Intro.lean originWithAnnot}}
 ```
 
-To make programs more concise, Lean also allows the structure type annotation inside the curly braces.
+プログラムをより簡潔にするために、Leanは波括弧内で構造体の型注釈を許可します。
 ```lean
 {{#example_in Examples/Intro.lean originWithAnnot2}}
 ```
@@ -151,36 +150,37 @@ To make programs more concise, Lean also allows the structure type annotation in
 {{#example_out Examples/Intro.lean originWithAnnot2}}
 ```
 
-## Updating Structures
+## 構造体の更新（Updating Structures）
 
-Imagine a function `zeroX` that replaces the `x` field of a `Point` with `0.0`.
-In most programming language communities, this sentence would mean that the memory location pointed to by `x` was to be overwritten with a new value.
-However, Lean does not have mutable state.
-In functional programming communities, what is almost always meant by this kind of statement is that a fresh `Point` is allocated with the `x` field pointing to the new value, and all other fields pointing to the original values from the input.
-One way to write `zeroX` is to follow this description literally, filling out the new value for `x` and manually transferring `y`:
+`Point` の `x` フィールドを `0.0` で置き換える関数 `zeroX` を想像してみてください。
+ほとんどのプログラミング言語コミュニティでは、この文は `x` が指すメモリ位置が新しい値で上書きされることを意味するでしょう。
+しかし、Lean には可変状態がありません。
+関数型プログラミングコミュニティでは、ほとんどの場合、この種の文によって意味されるのは、新しい `x` フィールドを持つ新しい `Point` が割り当てられ、他のすべてのフィールドは入力からの元の値を指すことです。
+`zeroX` を書く方法の一つは、この説明を文字通りに実行し、新しい `x` の値を埋めて `y` を手動で転送することです：
 ```lean
 {{#example_decl Examples/Intro.lean zeroXBad}}
 ```
-This style of programming has drawbacks, however.
-First off, if a new field is added to a structure, then every site that updates any field at all must be updated, causing maintenance difficulties.
-Secondly, if the structure contains multiple fields with the same type, then there is a real risk of copy-paste coding leading to field contents being duplicated or switched.
-Finally, the program becomes long and bureaucratic.
+しかし、このプログラミングスタイルには欠点があります。
+まず第一に、構造に新しいフィールドが追加されると、すべてのフィールドを更新するすべての場所を更新する必要があり、保守の難しさが生じます。
+第二に、構造に同じ型の複数のフィールドが含まれている場合、コピーアンドペーストのコーディングによってフィールドの内容が重複したり入れ替わったりするリスクがあります。
+最後に、プログラムは長くて煩雑になります。
 
-Lean provides a convenient syntax for replacing some fields in a structure while leaving the others alone.
-This is done by using the `with` keyword in a structure initialization.
-The source of unchanged fields occurs before the `with`, and the new fields occur after.
-For instance, `zeroX` can be written with only the new `x` value:
+Lean は、構造体内の一部のフィールドを置き換えながら他のフィールドをそのままにするための便利な構文を提供しています。
+これは、構造体の初期化で `with` キーワードを使用して行われます。
+変更されていないフィールドの情報は `with` の前に来て、新しいフィールドはその後に続きます。
+たとえば、`zeroX` は新しい `x` 値のみで書くことができます：
 
 ```lean
 {{#example_decl Examples/Intro.lean zeroX}}
 ```
 
-Remember that this structure update syntax does not modify existing values—it creates new values that share some fields with old values.
-For instance, given the point `fourAndThree`:
+この構造体の更新構文は既存の値を変更するのではなく、古い値と一部のフィールドを共有する新しい値を作成することを覚えておいてください。
+例えば、点 `fourAndThree` が与えられた場合：
 ```lean
 {{#example_decl Examples/Intro.lean fourAndThree}}
 ```
-evaluating it, then evaluating an update of it using `zeroX`, then evaluating it again yields the original value:
+それを評価し、次に `zeroX` を使用して更新し、再度評価すると元の値が返されます：
+
 ```lean
 {{#example_in Examples/Intro.lean fourAndThreeEval}}
 ```
@@ -200,50 +200,55 @@ evaluating it, then evaluating an update of it using `zeroX`, then evaluating it
 {{#example_out Examples/Intro.lean fourAndThreeEval}}
 ```
 
-One consequence of the fact that structure updates do not modify the original structure is that it becomes easier to reason about cases where the new value is computed from the old one.
-All references to the old structure continue to refer to the same field values in all of the new values provided.
+構造体の更新が元の構造を変更しないという事実の結果の一つは、新しい値が古い値から計算される場合の理由付けが容易になることです。
+新しい値が提供される場合でも、古い構造へのすべての参照は同じフィールドの値を参照し続けます。
 
 
 
+## 構造体の裏側（Behind the Scenes）
 
-## Behind the Scenes
+すべての構造体には「コンストラクタ (constructor)」があります。
+ここでの用語「コンストラクタ」は混乱の原因となるかもしれません。
+JavaやPythonなどの言語のコンストラクタとは異なり、Leanのコンストラクタはデータ型の初期化時に実行される任意のコードではありません。
+代わりに、コンストラクタは単に新たに割り当てられたデータ構造に格納されるデータを収集するものです。
+カスタムコンストラクタを提供してデータを前処理するか無効な引数を拒否することはできません。
+これは、言葉「コンストラクタ」が2つの文脈で異なるが関連する意味を持つケースです。
 
-Every structure has a _constructor_.
-Here, the term "constructor" may be a source of confusion.
-Unlike constructors in languages such as Java or Python, constructors in Lean are not arbitrary code to be run when a datatype is initialized.
-Instead, constructors simply gather the data to be stored in the newly-allocated data structure.
-It is not possible to provide a custom constructor that pre-processes data or rejects invalid arguments.
-This is really a case of the word "constructor" having different, but related, meanings in the two contexts.
+デフォルトで、構造体`S`のコンストラクタの名前は`S.mk`となります。
+ここで、`S`は名前空間修飾子であり、`mk`はコンストラクタ自体の名前です。
+波括弧の初期化構文を使用する代わりに、コンストラクタは直接適用することもできます。
 
-
-By default, the constructor for a structure named `S` is named `S.mk`.
-Here, `S` is a namespace qualifier, and `mk` is the name of the constructor itself.
-Instead of using curly-brace initialization syntax, the constructor can also be applied directly.
 ```lean
 {{#example_in Examples/Intro.lean checkPointMk}}
 ```
-However, this is not generally considered to be good Lean style, and Lean even returns its feedback using the standard structure initializer syntax.
+
+ただし、これは一般的には良いLeanのスタイルとは考えられておらず、Leanは標準の構造体の初期化構文を使用してフィードバックを返します。
+
 ```output info
 {{#example_out Examples/Intro.lean checkPointMk}}
 ```
 
-Constructors have function types, which means they can be used anywhere that a function is expected.
-For instance, `Point.mk` is a function that accepts two `Float`s (respectively `x` and `y`) and returns a new `Point`.
+コンストラクタは関数型を持っており、これは関数が期待される場所でどこでも使用できることを意味します。
+例えば、`Point.mk` は2つの「Float」（それぞれ `x` と `y`）を受け入れ、新しい「Point」を返す関数です。
+
 ```lean
 {{#example_in Examples/Intro.lean Pointmk}}
 ```
 ```output info
 {{#example_out Examples/Intro.lean Pointmk}}
 ```
-To override a structure's constructor name, write it with two colons at the beginning.
-For instance, to use `Point.point` instead of `Point.mk`, write:
+
+構造体のコンストラクタ名を上書きするには、名前の冒頭にコロンを2つ付けて書きます。
+例えば、`Point.mk` の代わりに `Point.point` を使用するには、次のように記述します：
+
 ```lean
 {{#example_decl Examples/Intro.lean PointCtorName}}
 ```
 
-In addition to the constructor, an accessor function is defined for each field of a structure.
-These have the same name as the field, in the structure's namespace.
-For `Point`, accessor functions `Point.x` and `Point.y` are generated.
+コンストラクタのほかに、構造体の各フィールドに対してアクセッサ関数が定義されます。
+これらは構造体の名前空間内でフィールドと同じ名前を持っています。
+`Point`の場合、アクセッサ関数として`Point.x`と`Point.y`が生成されます。
+
 ```lean
 {{#example_in Examples/Intro.lean Pointx}}
 ```
@@ -258,47 +263,50 @@ For `Point`, accessor functions `Point.x` and `Point.y` are generated.
 {{#example_out Examples/Intro.lean Pointy}}
 ```
 
-In fact, just as the curly-braced structure construction syntax is converted to a call to the structure's constructor behind the scenes, the syntax `p1.x` in the prior definition of `addPoints` is converted into a call to the `Point.x` accessor.
-That is, `{{#example_in Examples/Intro.lean originx}}` and `{{#example_in Examples/Intro.lean originx1}}` both yield
+実際、波括弧で囲んだ構造の構築構文が裏で構造体のコンストラクタの呼び出しに変換されるのと同様に、前述の「addPoints」の定義内の「p1.x」という構文は「Point.x」アクセッサの呼び出しに変換されます。
+つまり、`{{#example_in Examples/Intro.lean originx}}` と `{{#example_in Examples/Intro.lean originx1}}` はどちらも次の結果を示します：
 ```output info
 {{#example_out Examples/Intro.lean originx1}}
 ```
 
-Accessor dot notation is usable with more than just structure fields.
-It can also be used for functions that take any number of arguments.
-More generally, accessor notation has the form `TARGET.f ARG1 ARG2 ...`.
-If `TARGET` has type `T`, the function named `T.f` is called.
-`TARGET` becomes its leftmost argument of type `T`, which is often but not always the first one, and `ARG1 ARG2 ...` are provided in order as the remaining arguments.
-For instance, `String.append` can be invoked from a string with accessor notation, even though `String` is not a structure with an `append` field.
+アクセッサのドット表記は、構造体のフィールドだけでなく、任意の数の引数を取る関数にも使用できます。
+より一般的に、アクセッサ表記は `TARGET.f ARG1 ARG2 ...` の形を持ちます。
+`TARGET` の型が `T` である場合、`T.f` という名前の関数が呼び出されます。
+`TARGET` は、通常は最初の引数ですが、必ずしも最初の引数ではない場合があり、`ARG1 ARG2 ...` は残りの引数として順番に提供されます。
+例えば、`String.append` はアクセッサ表記から文字列から呼び出すことができます。`String` は `append` フィールドを持つ構造体ではないにもかかわらずです。
 ```lean
 {{#example_in Examples/Intro.lean stringAppendDot}}
 ```
 ```output info
 {{#example_out Examples/Intro.lean stringAppendDot}}
 ```
-In that example, `TARGET` represents `"one string"` and `ARG1` represents `" and another"`.
+この例では、`TARGET` は `"one string"` を表し、`ARG1` は `" and another"` を表します。
 
-The function `Point.modifyBoth` (that is, `modifyBoth` defined in the `Point` namespace) applies a function to both fields in a `Point`:
+関数 `Point.modifyBoth`（つまり、`Point`名前空間で定義された`modifyBoth`）は、`Point` の両方のフィールドに関数を適用します：
 ```lean
 {{#example_decl Examples/Intro.lean modifyBoth}}
 ```
-Even though the `Point` argument comes after the function argument, it can be used with dot notation as well:
+関数の引数が後に続くにもかかわらず、アクセッサ表記を使用しても構いません：
 ```lean
 {{#example_in Examples/Intro.lean modifyBothTest}}
 ```
 ```output info
 {{#example_out Examples/Intro.lean modifyBothTest}}
 ```
-In this case, `TARGET` represents `fourAndThree`, while `ARG1` is `Float.floor`.
-This is because the target of the accessor notation is used as the first argument in which the type matches, not necessarily the first argument.
+この場合、`TARGET` は `fourAndThree` を表し、`ARG1` は `Float.floor` を表します。
+これは、アクセッサ表記の対象は、型が一致する最初の引数として使用されるためであり、必ずしも最初の引数ではないことに注意してください。
 
-## Exercises
+## 演習（Exercises）
 
- * Define a structure named `RectangularPrism` that contains the height, width, and depth of a rectangular prism, each as a `Float`.
- * Define a function named `volume : RectangularPrism → Float` that computes the volume of a rectangular prism.
- * Define a structure named `Segment` that represents a line segment by its endpoints, and define a function `length : Segment → Float` that computes the length of a line segment. `Segment` should have at most two fields.
- * Which names are introduced by the declaration of `RectangularPrism`?
- * Which names are introduced by the following declarations of `Hamster` and `Book`? What are their types?
+* `RectangularPrism` という名前の構造体を定義してください。この構造体は直方体の高さ、幅、奥行きをそれぞれ `Float` 型で含む必要があります。
+
+* `volume : RectangularPrism → Float` という名前の関数を定義してください。この関数は直方体の体積を計算する必要があります。
+
+* `Segment` という名前の構造体を定義してください。この構造体は線分をその端点で表現する必要があり、`length : Segment → Float` という名前の関数を定義してください。この関数は線分の長さを計算する必要があります。また、`Segment` は最大で2つのフィールドを持つべきです。
+
+* `RectangularPrism` の宣言によって導入される名前は何でしょうか？
+
+* `Hamster` と `Book` の後続の宣言によって導入される名前は何でしょうか？また、それらの型は何でしょうか？
 
 ```lean
 {{#example_decl Examples/Intro.lean Hamster}}

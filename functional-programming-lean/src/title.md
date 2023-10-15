@@ -8,6 +8,25 @@
 
 This is a free book on using Lean 4 as a programming language. All code samples are tested with Lean 4 release `{{#lean_version}}`.
 
+
+## 日本語版について
+非公式日本語訳です。以下の章は一通り翻訳済みです。
+
+- Getting to Know Lean
+  - Structures
+  - Datatypes and Patterns
+
+- Hello, World!
+  - Running a Program
+  - Step By Step
+  - Starting a Project
+  - Worked Example: cat
+  - Additional Conveniences
+  - Summary
+
+- Interlude: Propositions, Proofs, and Indexing）
+
+
 ## Release history
 
 ### October, 2023

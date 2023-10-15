@@ -1,178 +1,192 @@
-# Worked Example: `cat`
+# 実例：`cat`（Worked Example: `cat`）
 
-The standard Unix utility `cat` takes a number of command-line options, followed by zero or more input files.
-If no files are provided, or if one of them is a dash (`-`), then it takes the standard input as the corresponding input instead of reading a file.
-The contents of the inputs are written, one after the other, to the standard output.
-If a specified input file does not exist, this is noted on standard error, but `cat` continues concatenating the remaining inputs.
-A non-zero exit code is returned if any of the input files do not exist.
+標準のUnixユーティリティである `cat` は、いくつかのコマンドラインオプションと、ゼロ個以上の入力ファイルを受け取ります。
+ファイルが提供されないか、提供されたファイルの1つがダッシュ（`-`）である場合、対応する入力としてファイルを読み取る代わりに標準入力を受け取ります。
+入力の内容は、一つの入力の後にもう一つの入力が続く形で標準出力に書き込まれます。
+指定された入力ファイルが存在しない場合、これは標準エラーに注意されますが、`cat` は残りの入力を連結し続けます。
+入力ファイルのいずれかが存在しない場合、ゼロでない終了コードが返されます。
 
-This section describes a simplified version of `cat`, called `feline`.
-Unlike commonly-used versions of `cat`, `feline` has no command-line options for features such as numbering lines, indicating non-printing characters, or displaying help text.
-Furthermore, it cannot read more than once from a standard input that's associated with a terminal device.
+このセクションでは、`cat` の簡略版である `feline` を説明します。
+一般的に使用される `cat` のように、`feline` には行に番号をつけたり、非表示文字を示したり、ヘルプテキストを表示するためのコマンドラインオプションはありません。
+さらに、端末デバイスに関連付けられた標準入力から複数回読み取ることはできません。
 
-To get the most benefit from this section, follow along yourself.
-It's OK to copy-paste the code examples, but it's even better to type them in by hand.
-This makes it easier to learn the mechanical process of typing in code, recovering from mistakes, and interpreting feedback from the compiler.
+このセクションから最大の利益を得るためには、自分で進行しながら進めてください。
+コードの例をコピーアンドペーストしても問題ありませんが、手動でコードを入力したほうがさらに良いでしょう。
+これにより、コードの入力プロセス、エラーからの回復、コンパイラからのフィードバックの解釈が容易になります。
 
 ## Getting started
 
-The first step in implementing `feline` is to create a package and decide how to organize the code.
-In this case, because the program is so simple, all the code will be placed in `Main.lean`.
-The first step is to run `lake new feline`.
-Edit the Lakefile to remove the library, and delete the generated library code and the reference to it from `Main.lean`.
-Once this has been done, `lakefile.lean` should contain:
+`feline` の実装の最初のステップは、パッケージを作成し、コードの組織方法を決定することです。
+この場合、プログラムが非常にシンプルであるため、すべてのコードは `Main.lean` に配置されます。
+最初のステップは、`lake new feline` を実行することです。
+Lakefileを編集してライブラリを削除し、生成されたライブラリコードとその参照を `Main.lean` から削除します。
+これが完了したら、`lakefile.lean` は次のようになるはずです：
 
 ```lean
 {{#include ../../../examples/feline/1/lakefile.lean}}
 ```
 
-and `Main.lean` should contain something like:
+そして `Main.lean` は次のような内容になるはずです：
 ```lean
 {{#include ../../../examples/feline/1/Main.lean}}
 ```
-Alternatively, running `lake new feline exe` instructs `lake` to use a template that does not include a library section, making it unnecessary to edit the file.
 
-Ensure that the code can be built by running `{{#command {feline/1} {feline/1} {lake build} }}`.
+または、`lake new feline exe` を実行することで、ライブラリセクションを含まないテンプレートを使用するように `lake` に指示でき、ファイルを編集する必要がなくなります。
+
+コードをビルドできることを確認するために、次のコマンドを実行してください： `{{#command {feline/1} {feline/1} {lake build} }}`
 
 
-## Concatenating Streams
+## ストリームの連結（Concatenating Streams）
 
-Now that the basic skeleton of the program has been built, it's time to actually enter the code.
-A proper implementation of `cat` can be used with infinite IO streams, such as `/dev/random`, which means that it can't read its input into memory before outputting it.
-Furthermore, it should not work one character at a time, as this leads to frustratingly slow performance.
-Instead, it's better to read contiguous blocks of data all at once, directing the data to the standard output one block at a time.
+プログラムの基本的な骨組みができたので、実際にコードを入力する時がきました。
+`cat` の適切な実装は `/dev/random` などの無限のIOストリームで使用できます。つまり、出力する前に入力をメモリに読み込むことはできません。
+さらに、1文字ずつ処理するべきではありません。なぜなら、これは非常に遅いパフォーマンスをもたらすからです。
+代わりに、データを連続したブロックとして一度に読み取り、データを標準出力にブロックごとに送る方が良いです。
 
-The first step is to decide how big of a block to read.
-For the sake of simplicity, this implementation uses a conservative 20 kilobyte block.
-`USize` is analogous to `size_t` in C—it's an unsigned integer type that is big enough to represent all valid array sizes.
+最初のステップは、どれだけの大きさのブロックを読むかを決定することです。
+単純さのために、この実装では慎重な20キロバイトのブロックを使用しています。
+`USize` は C の `size_t` に似ており、すべての有効な配列サイズを表現できる十分に大きな符号なし整数型です。
+
 ```lean
 {{#include ../../../examples/feline/2/Main.lean:bufsize}}
 ```
 
-### Streams
+### ストリーム（Streams）
 
-The main work of `feline` is done by `dump`, which reads input one block at a time, dumping the result to standard output, until the end of the input has been reached:
+`feline` の主な作業は `dump` によって行われ、入力を1つのブロックずつ読み込み、その結果を標準出力にダンプし、入力の終わりに達するまで続けます：
+
 ```lean
 {{#include ../../../examples/feline/2/Main.lean:dump}}
 ```
-The `dump` function is declared `partial`, because it calls itself recursively on input that is not immediately smaller than an argument.
-When a function is declared to be partial, Lean does not require a proof that it terminates.
-On the other hand, partial functions are also much less amenable to proofs of correctness, because allowing infinite loops in Lean's logic would make it unsound.
-However, there is no way to prove that `dump` terminates, because infinite input (such as from `/dev/random`) would mean that it does not, in fact, terminate.
-In cases like this, there is no alternative to declaring the function `partial`.
 
-The type `IO.FS.Stream` represents a POSIX stream.
-Behind the scenes, it is represented as a structure that has one field for each POSIX stream operation.
-Each operation is represented as an IO action that provides the corresponding operation:
+`dump` 関数は `partial` で宣言されています。なぜなら、引数よりも直ちに小さくない入力に対して再帰的に自分自身を呼び出すからです。
+関数が `partial` と宣言されると、Leanはそれが終了することの証明を必要としません。
+一方、部分関数は正当性の証明には適しておらず、Leanの論理に無限ループを許可することは非常に非合理です。
+ただし、`dump` が終了することを証明する方法はないため、（`/dev/random`などの）無限の入力がある場合、実際には終了しないことになります。
+このような場合、関数を `partial` と宣言する以外の方法はありません。
+
+型 `IO.FS.Stream` はPOSIXストリームを表します。
+内部的には、それは各POSIXストリーム操作に対応する1つのフィールドを持つ構造体として表現されます。
+各操作は、対応する操作を提供するIOアクションとして表現されます：
+
 ```lean
 {{#example_decl Examples/Cat.lean Stream}}
 ```
-The Lean compiler contains `IO` actions (such as `IO.getStdout`, which is called in `dump`) to get streams that represent standard input, standard output, and standard error.
-These are `IO` actions rather than ordinary definitions because Lean allows these standard POSIX streams to be replaced in a process, which makes it easier to do things like capturing the output from a program into a string by writing a custom `IO.FS.Stream`.
 
-The control flow in `dump` is essentially a `while` loop.
-When `dump` is called, if the stream has reached the end of the file, `pure ()` terminates the function by returning the constructor for `Unit`.
-If the stream has not yet reached the end of the file, one block is read, and its contents are written to `stdout`, after which `dump` calls itself directly.
-The recursive calls continue until `stream.read` returns an empty byte array, which indicates that the end of the file has been reached.
+Leanコンパイラには、標準入力、標準出力、標準エラーを表すストリームを取得するための `IO` アクション（`dump` で呼び出される `IO.getStdout` など）が含まれています。
+これらは通常の定義ではなく `IO` アクションです。なぜなら Lean はこれらの標準のPOSIXストリームをプロセス内で置き換えることを許可しており、これによりプログラムの出力を文字列にキャプチャするなどの作業が簡単になります。
 
-When an `if` expression occurs as a statement in a `do`, as in `dump`, each branch of the `if` is implicitly provided with a `do`.
-In other words, the sequence of steps following the `else` are treated as a sequence of `IO` actions to be executed, just as if they had a `do` at the beginning.
-Names introduced with `let` in the branches of the `if` are visible only in their own branches, and are not in scope outside of the `if`.
+`dump` 内の制御フローは基本的に `while` ループです。
+`dump` が呼び出されると、ストリームがファイルの終わりに達している場合、`pure ()` は `Unit` のコンストラクタを返すことで関数を終了させます。
+ストリームがファイルの終わりに達していない場合、1つのブロックが読み取られ、その内容が `stdout` に書き込まれた後、`dump` は直接自分自身を呼び出します。
+再帰呼び出しは、`stream.read` が空のバイト配列を返すまで続き、これはファイルの終わりに達したことを示します。
 
-There is no danger of running out of stack space while calling `dump` because the recursive call happens as the very last step in the function, and its result is returned directly rather than being manipulated or computed with.
-This kind of recursion is called _tail recursion_, and it is described in more detail [later in this book](../programs-proofs/tail-recursion.md).
-Because the compiled code does not need to retain any state, the Lean compiler can compile the recursive call to a jump.
+`if` 式が `do` のステートメントとして現れる場合、例えば `dump` のように、`if` の各ブランチは暗黙的に `do` が提供されます。
+つまり、`else` の後に続く手順は、`do` の開始があるかのように実行される `IO` アクションのシーケンスとして扱われます。
+`if` のブランチ内で `let` で導入された名前は、それぞれのブランチ内でのみ見え、`if` の外部のスコープにはありません。
 
-If `feline` only redirected standard input to standard output, then `dump` would be sufficient.
-However, it also needs to be able to open files that are provided as command-line arguments and emit their contents.
-When its argument is the name of a file that exists, `fileStream` returns a stream that reads the file's contents.
-When the argument is not a file, `fileStream` emits an error and returns `none`.
+`dump` を呼び出す際にスタック領域が枯渇する心配はありません。なぜなら、再帰呼び出しは関数内の非常に最後のステップとして行われ、その結果は操作や計算に利用されるのではなく、直接返されるからです。この種の再帰は「テール再帰」と呼ばれ、[この本の後の部分](../programs-proofs/tail-recursion.md)で詳しく説明されています。
+コンパイルされたコードは状態を保持する必要がないため、Leanコンパイラは再帰呼び出しをジャンプにコンパイルできます。
+
+もし `feline` が標準入力を標準出力にリダイレクトするだけであれば、`dump` は十分です。
+しかし、コマンドライン引数として提供されたファイルを開いてその内容を出力できる必要もあります。
+引数が存在するファイルの名前の場合、`fileStream` はそのファイルの内容を読むストリームを返します。
+引数がファイルでない場合、`fileStream` はエラーを発生させて `none` を返します。
+
 ```lean
 {{#include ../../../examples/feline/2/Main.lean:fileStream}}
 ```
-Opening a file as a stream takes two steps.
-First, a file handle is created by opening the file in read mode.
-A Lean file handle tracks an underlying file descriptor.
-When there are no references to the file handle value, a finalizer closes the file descriptor.
-Second, the file handle is given the same interface as a POSIX stream using `IO.FS.Stream.ofHandle`, which fills each field of the `Stream` structure with the corresponding `IO` action that works on file handles.
 
-### Handling Input
+ファイルをストリームとして開くには2つのステップが必要です。
+まず、ファイルハンドルが読み込みモードでファイルを開くことによってファイルハンドルが作成されます。
+Leanファイルハンドルは、基になるファイルディスクリプタを追跡します。
+ファイルハンドル値への参照がない場合、ファイルディスクリプタを閉じるファイナライザが実行されます。
+次に、ファイルハンドルに `IO.FS.Stream.ofHandle` を使用して、`Stream` 構造の各フィールドに対応するファイルハンドルで動作する `IO` アクションを提供します。
 
-The main loop of `feline` is another tail-recursive function, called `process`.
-In order to return a non-zero exit code if any of the inputs could not be read, `process` takes an argument `exitCode` that represents the current exit code for the whole program.
-Additionally, it takes a list of input files to be processed.
+
+### 入力の処理（Handling Input）
+
+`feline` のメインループは、別のテール再帰関数である `process` です。
+入力が読み取れない場合に非ゼロの終了コードを返すために、`process` はプログラム全体の現在の終了コードを表す引数 `exitCode` を取ります。
+さらに、処理されるべき入力ファイルのリストを受け取ります。
+
 ```lean
 {{#include ../../../examples/feline/2/Main.lean:process}}
 ```
-Just as with `if`, each branch of a `match` that is used as a statement in a `do` is implicitly provided with its own `do`.
 
-There are three possibilities.
-One is that no more files remain to be processed, in which case `process` returns the error code unchanged.
-Another is that the specified filename is `"-"`, in which case `process` dumps the contents of the standard input and then processes the remaining filenames.
-The final possibility is that an actual filename was specified.
-In this case, `fileStream` is used to attempt to open the file as a POSIX stream.
-Its argument is encased in `⟨ ... ⟩` because a `FilePath` is a single-field structure that contains a string.
-If the file could not be opened, it is skipped, and the recursive call to `process` sets the exit code to `1`.
-If it could, then it is dumped, and the recursive call to `process` leaves the exit code unchanged.
+`if` と同様に、`do` のステートメントとして使用される `match` の各ブランチは、それぞれ独自の `do` が暗黙的に提供されます。
 
-`process` does not need to be marked `partial` because it is structurally recursive.
-Each recursive call is provided with the tail of the input list, and all Lean lists are finite.
-Thus, `process` does not introduce any non-termination.
+3つの可能性があります。
+1つは、処理するファイルがもう残っていない場合で、その場合、`process` はエラーコードを変更せずに返します。
+もう一つは、指定されたファイル名が `"-"` の場合、`process` は標準入力の内容をダンプし、その後残りのファイル名を処理します。
+最後の可能性は、実際のファイル名が指定された場合です。
+この場合、ファイルをPOSIXストリームとして開くために `fileStream` が使用されます。
+その引数は `FilePath` で囲まれています。なぜなら、`FilePath` は文字列を含む単一のフィールド構造体であるからです。
+ファイルを開けない場合はスキップされ、`process` の再帰呼び出しは終了コードを `1` に設定します。
+開けた場合、ファイルはダンプされ、`process` の再帰呼び出しは終了コードを変更しません。
+
+`process` には `partial` のマークが必要ありません。なぜなら、それは構造的に再帰的であるからです。
+各再帰呼び出しは入力リストの残り部分で提供され、すべてのLeanリストは有限です。
+したがって、`process` は非終了を導入しません。
+
 
 ### Main
 
-The final step is to write the `main` action.
-Unlike prior examples, `main` in `feline` is a function.
-In Lean, `main` can have one of three types:
- * `main : IO Unit` corresponds to programs that cannot read their command-line arguments and always indicate success with an exit code of `0`,
- * `main : IO UInt32` corresponds to `int main(void)` in C, for programs without arguments that return exit codes, and
- * `main : List String → IO UInt32` corresponds to `int main(int argc, char **argv)` in C, for programs that take arguments and signal success or failure.
+最後のステップは `main` アクションを記述することです。
+以前の例とは異なり、`feline` の `main` は関数です。
+Leanでは、`main` には3つのタイプがあります：
+ * `main : IO Unit` は、コマンドライン引数を読み込むことができないプログラムに対応し、常に終了コード `0` で成功を示します。
+ * `main : IO UInt32` は、引数を取らずに終了コードを返すプログラムに対応し、Cの `int main(void)` に対応します。
+ * `main : List String → IO UInt32` は、引数を取り、成功または失敗を示すプログラムに対応し、Cの `int main(int argc, char **argv)` に対応します。
 
-If no arguments were provided, `feline` should read from standard input as if it were called with a single `"-"` argument.
-Otherwise, the arguments should be processed one after the other.
+引数が提供されない場合、`feline` は単一の `"-"` 引数で呼び出されたかのように標準入力から読み込むべきです。
+それ以外の場合、引数は順番に処理されるべきです。
+
 ```lean
 {{#include ../../../examples/feline/2/Main.lean:main}}
 ```
 
 
-## Meow!
+## ニャー！（Meow!）
 
-To check whether `feline` works, the first step is to build it with `{{#command {feline/2} {feline/2} {lake build} }}`.
-First off, when called without arguments, it should emit what it receives from standard input.
-Check that
+## ミャオ！
+
+`feline` が正しく動作するかどうかを確認するために、最初のステップは `{{#command {feline/2} {feline/2} {lake build} }}` を使ってビルドすることです。
+まず、引数なしで呼び出された場合、標準入力から受け取った内容を出力するべきです。
+次のコマンドを確認してください：
 ```
 {{#command {feline/2} {feline/2} {echo "It works!" | ./build/bin/feline} }}
 ```
-emits `{{#command_out {feline/2} {echo "It works!" | ./build/bin/feline} }}`.
+が `{{#command_out {feline/2} {echo "It works!" | ./build/bin/feline} }}` を出力するか確認してください。
 
-Secondly, when called with files as arguments, it should print them.
-If the file `test1.txt` contains
+次に、ファイルを引数として呼び出された場合、それらを印刷するべきです。
+ファイル `test1.txt` に次の内容が含まれている場合：
 ```
 {{#include ../../../examples/feline/2/test1.txt}}
 ```
-and `test2.txt` contains
+そして `test2.txt` に次の内容が含まれている場合：
 ```
 {{#include ../../../examples/feline/2/test2.txt}}
 ```
-then the command
+次のコマンド：
 ```
 {{#command {feline/2} {feline/2} {./build/bin/feline test1.txt test2.txt} }}
 ```
-should emit
+は次の内容を出力するべきです：
 ```
 {{#command_out {feline/2} {./build/bin/feline test1.txt test2.txt} {feline/2/expected/test12.txt} }}
 ```
 
-Finally, the `-` argument should be handled appropriately.
+最後に、`-` 引数は適切に処理されるべきです。
 ```
 {{#command {feline/2} {feline/2} {echo "and purr" | ./build/bin/feline test1.txt - test2.txt} }}
 ```
-should yield
+は次の内容を出力すべきです：
 ```
 {{#command_out {feline/2} {echo "and purr" | ./build/bin/feline test1.txt - test2.txt} {feline/2/expected/test1purr2.txt}}}
 ```
 
-## Exercise
+## 演習（Exercise）
 
-Extend `feline` with support for usage information.
-The extended version should accept a command-line argument `--help` that causes documentation about the available command-line options to be written to standard output.
+`feline` を使用情報のサポートと拡張してください。
+拡張バージョンは、コマンドライン引数 `--help` を受け入れ、利用可能なコマンドラインオプションに関するドキュメンテーションを標準出力に書き込むようにする必要があります。

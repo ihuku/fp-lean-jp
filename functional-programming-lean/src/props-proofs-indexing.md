@@ -1,189 +1,209 @@
-# Interlude: Propositions, Proofs, and Indexing
+# 間奏: 命題、証明、およびインデックス（Interlude: Propositions, Proofs, and Indexing）
 
-Like many languages, Lean uses square brackets for indexing into arrays and lists.
-For instance, if `woodlandCritters` is defined as follows:
+Leanは多くの言語と同様に、配列やリストへのインデックスに角かっこを使用します。
+例えば、`woodlandCritters`が以下のように定義されている場合：
+
 ```lean
 {{#example_decl Examples/Props.lean woodlandCritters}}
 ```
-then the individual components can be extracted:
+
+個々のコンポーネントは以下のように抽出できます：
+
 ```lean
 {{#example_decl Examples/Props.lean animals}}
 ```
-However, attempting to extract the fourth element results in a compile-time error, rather than a run-time error:
+
+しかし、4番目の要素を抽出しようとすると、実行時のエラーではなく、コンパイル時のエラーが発生します：
+
 ```lean
 {{#example_in Examples/Props.lean outOfBounds}}
 ```
 ```output error
 {{#example_out Examples/Props.lean outOfBounds}}
 ```
-This error message is saying Lean tried to automatically mathematically prove that `3 < List.length woodlandCritters`, which would mean that the lookup was safe, but that it could not do so.
-Out-of-bounds errors are a common class of bugs, and Lean uses its dual nature as a programming language and a theorem prover to rule out as many as possible.
 
-Understanding how this works requires an understanding of three key ideas: propositions, proofs, and tactics.
+このエラーメッセージは、Leanが自動的に `3 < List.length woodlandCritters` を数学的に証明しようと試みたことを示しており、これは参照が安全であることを意味しますが、それができなかったことを示しています。
+範囲外のエラーは一般的なバグの一種であり、Leanはプログラム言語と定理証明器としての二重の性質を活かして、できる限りこれを排除しようとします。
 
-## Propositions and Proofs
+これがどのように機能するかを理解するには、「命題」、「証明」、および「戦術」という、3つの重要な概念を理解する必要があります。
 
-A _proposition_ is a statement that can be true or false.
-All of the following are propositions:
+## 命題と証明（Propositions and Proofs）
+
+命題（proposition）は真または偽であると言える文です。
+以下はすべて命題です：
 
  * 1 + 1 = 2
- * Addition is commutative
- * There are infinitely many prime numbers
+ * 足し算は可換である
+ * 無限に多くの素数が存在する
  * 1 + 1 = 15
- * Paris is the capital of France
- * Buenos Aires is the capital of South Korea
- * All birds can fly
+ * パリはフランスの首都である
+ * ブエノスアイレスは韓国の首都である
+ * すべての鳥は飛べる
 
-On the other hand, nonsense statements are not propositions.
-None of the following are propositions:
+一方、無意味な文は命題ではありません。
+以下はすべて命題ではありません：
 
  * 1 + green = ice cream
- * All capital cities are prime numbers
- * At least one gorg is a fleep
+ * すべての首都は素数である
+ * 少なくとも1つのゴーグはフリープである
 
-Propositions come in two varieties: those that are purely mathematical, relying only on our definitions of concepts, and those that are facts about the world.
-Theorem provers like Lean are concerned with the former category, and have nothing to say about the flight capabilities of penguins or the legal status of cities.
+命題は2つの種類に分かれます：数学的に完全に定義された概念に依存するものと、世界に関する事実に関するものです。
+Leanのような定理証明器は前者のカテゴリに関心を寄せており、ペンギンの飛行能力や都市の法的地位については何も言うことがありません。
 
-A _proof_ is a convincing argument that a proposition is true.
-For mathematical propositions, these arguments make use of the definitions of the concepts that are involved as well as the rules of logical argumentation.
-Most proofs are written for people to understand, and leave out many tedious details.
-Computer-aided theorem provers like Lean are designed to allow mathematicians to write proofs while omitting many details, and it is the software's responsibility to fill in the missing explicit steps.
-This decreases the likelihood of oversights or mistakes.
+_証明（proof）_ は命題が真であるという説得力のある議論です。
+数学的な命題の場合、これらの議論は関連する概念の定義と論理的論証のルールを使用します。
+ほとんどの証明は他の人が理解できるように書かれ、多くの煩わしい詳細は省略されます。
+Leanのようなコンピュータ支援定理証明器は、数学者が多くの詳細を省略しながら証明を書くことを可能にするように設計されており、欠落している明示的なステップをソフトウェアが補完する責任があります。
+これにより、見落としやミスの発生率が低下します。
 
-In Lean, a program's type describes the ways it can be interacted with.
-For instance, a program of type `Nat → List String` is a function that takes a `Nat` argument and produces a list of strings.
-In other words, each type specifies what counts as a program with that type.
+Leanでは、プログラムの型がそれと対話できる方法を記述します。
+たとえば、型が `Nat → List String` のプログラムは、`Nat` 引数を受け取り、文字列のリストを生成する関数です。
+言い換えれば、各型はその型のプログラムとして何を考慮するかを指定します。
 
-In Lean, propositions are in fact types.
-They specify what counts as evidence that the statement is true.
-The proposition is proved by providing this evidence.
-On the other hand, if the proposition is false, then it will be impossible to construct this evidence.
+Leanでは、実際の命題は実際には型です。
+それらは文が真であるという証拠として何が考慮されるかを指定します。
+命題はこの証拠を提供することによって証明されます。
+一方、命題が偽である場合、この証拠を構築することは不可能です。
 
-For example, the proposition "1 + 1 = 2" can be written directly in Lean.
-The evidence for this proposition is the constructor `rfl`, which is short for _reflexivity_:
+例えば、命題 "1 + 1 = 2" はLeanで直接書くことができます。
+この命題の証拠は、_反射性（reflexivity）_ の略であるコンストラクタ `rfl` です：
+
 ```lean
 {{#example_decl Examples/Props.lean onePlusOneIsTwo}}
 ```
-On the other hand, `rfl` does not prove the false proposition "1 + 1 = 15":
+
+一方、`rfl` は偽の命題 "1 + 1 = 15" を証明しません：
+
 ```lean
 {{#example_in Examples/Props.lean onePlusOneIsFifteen}}
 ```
 ```output error
 {{#example_out Examples/Props.lean onePlusOneIsFifteen}}
 ```
-This error message indicates that `rfl` can prove that two expressions are equal when both sides of the equality statement are already the same number.
-Because `1 + 1` evaluates directly to `2`, they are considered to be the same, which allows `onePlusOneIsTwo` to be accepted.
-Just as `Type` describes types such as `Nat`, `String`, and `List (Nat × String × (Int → Float))` that represent data structures and functions, `Prop` describes propositions.
 
-When a proposition has been proven, it is called a _theorem_.
-In Lean, it is conventional to declare theorems with the `theorem` keyword instead of `def`.
-This helps readers see which declarations are intended to be read as mathematical proofs, and which are definitions.
-Generally speaking, with a proof, what matters is that there is evidence that a proposition is true, but it's not particularly important _which_ evidence was provided.
-With definitions, on the other hand, it matters very much which particular value is selected—after all, a definition of addition that always returns `0` is clearly wrong.
+このエラーメッセージは、`rfl` が等式文の両側がすでに同じ数値であるときに2つの式が等しいことを証明できることを示しており、`1 + 1` が直接 `2` に評価されるため、それらは同じと考えられるため、`onePlusOneIsTwo` が受け入れられるとされています。
+`Type` がデータ構造と関数を表す型（`Nat`、`String`、`List (Nat × String × (Int → Float))`など）を説明するのと同様に、`Prop` は命題を説明します。
 
-The prior example could be rewritten as follows:
+命題が証明されたとき、それを _定理（theorem）_ と呼びます。
+Leanでは、定義の代わりに `def` の代わりに `theorem` キーワードを使用するのが通例です。
+これにより、読者はどの宣言が数学的な証明として読むことを意図しているか、または定義であるかを見分けるのに役立ちます。
+一般的に、証明において重要なのは命題が真である証拠があることであり、提供された具体的な証拠はそれほど重要ではありませんが、一方、定義においては、選択される特定の値が非常に重要です。結局、常に `0` を返す足し算の定義は明らかに誤っています。
+
+前の例は以下のように書き直すことができます：
+
 ```lean
 {{#example_decl Examples/Props.lean onePlusOneIsTwoProp}}
 ```
 
 ## Tactics
 
-Proofs are normally written using _tactics_, rather than by providing evidence directly.
-Tactics are small programs that construct evidence for a proposition.
-These programs run in a _proof state_ that tracks the statement that is to be proved (called the _goal_) along with the assumptions that are available to prove it.
-Running a tactic on a goal results in a new proof state that contains new goals.
-The proof is complete when all goals have been proven.
+通常、証明は証拠を直接提供するのではなく、_戦術（tactics）_ を使用して書かれます。
+戦術は命題の証拠を構築する小さなプログラムです。
+これらのプログラムは、証明されるべき文（_ゴール（goal）_ と呼ばれる）とそれを証明するために使用できる仮定を追跡する _証明状態（proof state）_ で実行されます。
+ゴールに対して戦術を実行すると、新しい証明状態が生成され、新しいゴールが含まれます。
+全てのゴールが証明されると、証明が完了します。
 
-To write a proof with tactics, begin the definition with `by`.
-Writing `by` puts Lean into tactic mode until the end of the next indented block.
-While in tactic mode, Lean provides ongoing feedback about the current proof state.
-Written with tactics, `onePlusOneIsTwo` is still quite short:
+戦術を使用して証明を書く場合、定義を `by` で始めます。
+`by` を書くことで、Leanは次のインデントされたブロックの終わりまで戦術モードに入ります。
+戦術モードでは、Leanは現在の証明状態に関する進行中のフィードバックを提供します。
+戦術を使用して書かれた場合、`onePlusOneIsTwo` はまだ非常に短くなります：
+
 ```leantac
 {{#example_decl Examples/Props.lean onePlusOneIsTwoTactics}}
 ```
-The `simp` tactic, short for "simplify", is the workhorse of Lean proofs.
-It rewrites the goal to as simple a form as possible, taking care of parts of the proof that are small enough.
-In particular, it proves simple equality statements.
-Behind the scenes, a detailed formal proof is constructed, but using `simp` hides this complexity.
 
-Tactics are useful for a number of reasons:
- 1. Many proofs are complicated and tedious when written out down to the smallest detail, and tactics can automate these uninteresting parts.
- 2. Proofs written with tactics are easier to maintain over time, because flexible automation can paper over small changes to definitions.
- 3. Because a single tactic can prove many different theorems, Lean can use tactics behind the scenes to free users from writing proofs by hand. For instance, an array lookup requires a proof that the index is in bounds, and a tactic can typically construct that proof without the user needing to worry about it.
+`simp` 戦術（"simplify"、「簡略化」の略）は、Leanの証明の中核です。
+これはゴールをできるだけ簡単な形に書き換え、証明の一部を処理します。
+特に、単純な等式文を証明します。
+裏では詳細な形式的証明が構築されていますが、`simp`はこの複雑さを隠します。
 
-Behind the scenes, indexing notation uses a tactic to prove that the user's lookup operation is safe.
-This tactic is `simp`, configured to take certain arithmetic identities into account.
+戦術はいくつかの理由で役立ちます：
+1. 多くの証明は最も細かい詳細まで書き出すと複雑で面倒であり、戦術はこれらの面白みのない部分を自動化できます。
+2. 戦術を使用して書かれた証明は、時間の経過とともに簡単に保守できるため、柔軟な自動化が定義のわずかな変更を補完できます。
+3. 単一の戦術で多くの異なる定理を証明できるため、Leanはユーザーが手動で証明を書く必要がないように裏で戦術を使用できます。たとえば、配列の検索にはインデックスが境界内にあることを証明する必要があり、通常、ユーザーが心配する必要はありません。
+
+裏では、インデックス記法はユーザーの検索操作が安全であることを証明するために戦術を使用します。
+この戦術は、特定の算術的同一性を考慮に入れるように設定された `simp`戦術です。
 
 
-## Connectives
+## 接続詞（Connectives）
 
-The basic building blocks of logic, such as "and", "or", "true", "false", and "not", are called _logical connectives_.
-Each connective defines what counts as evidence of its truth.
-For example, to prove a statement "_A_ and _B_", one must prove both _A_ and _B_.
-This means that evidence for "_A_ and _B_" is a pair that contains both evidence for _A_ and evidence for _B_.
-Similarly, evidence for "_A_ or _B_" consists of either evidence for _A_ or evidence for _B_.
+論理の基本的な構成要素、例えば「かつ」、「または」、「真」、「偽」、および「否定」は _論理的な接続詞_ と呼ばれます。
+各接続詞はその真実性の証拠として何を考慮するかを定義します。
+例えば、文 "_A_ かつ _B_" を証明するには、_A_ と _B_ の両方を証明する必要があります。
+これは "_A_ かつ _B_" の証拠が _A_ の証拠と _B_ の証拠の両方を含むペアであることを意味します。
+同様に、"_A_ または _B_" の証拠は _A_ の証拠または _B_ の証拠から成り立っています。
 
-In particular, most of these connectives are defined like datatypes, and they have constructors.
-If `A` and `B` are propositions, then "`A` and `B`" (written `{{#example_in Examples/Props.lean AndProp}}`) is a proposition.
-Evidence for `A ∧ B` consists of the constructor `{{#example_in Examples/Props.lean AndIntro}}`, which has the type `{{#example_out Examples/Props.lean AndIntro}}`.
-Replacing `A` and `B` with concrete propositions, it is possible to prove `{{#example_out Examples/Props.lean AndIntroEx}}` with `{{#example_in Examples/Props.lean AndIntroEx}}`.
-Of course, `simp` is also powerful enough to find this proof:
+特に、これらの接続詞のほとんどはデータ型のように定義され、それぞれのコンストラクタを持っています。
+もし、`A` と `B` が命題であるなら、"`A` かつ `B`"（`{{#example_in Examples/Props.lean AndProp}}` と書かれる）は命題です。
+`A ∧ B` の証拠はコンストラクタ `{{#example_in Examples/Props.lean AndIntro}}` から成り立ち、その型は `{{#example_out Examples/Props.lean AndIntro}}` です。
+具体的な命題で `A` と `B` を置き換えることで、`{{#example_out Examples/Props.lean AndIntroEx}}` を `{{#example_in Examples/Props.lean AndIntroEx}}` で証明することができます。
+もちろん、`simp` もこの証明を見つけるのに十分な力を持っています：
+
 ```leantac
 {{#example_decl Examples/Props.lean AndIntroExTac}}
 ```
 
-Similarly, "`A` or `B`" (written `{{#example_in Examples/Props.lean OrProp}}`) has two constructors, because a proof of "`A` or `B`" requires only that one of the two underlying propositions be true.
-There are two constructors: `{{#example_in Examples/Props.lean OrIntro1}}`, with type `{{#example_out Examples/Props.lean OrIntro1}}`, and `{{#example_in Examples/Props.lean OrIntro2}}`, with type `{{#example_out Examples/Props.lean OrIntro2}}`.
+同様に、"`A` または `B`"（`{{#example_in Examples/Props.lean OrProp}}` と書かれる）は、その下にある命題のうち少なくとも1つが真であることを証明するために、2つのコンストラクタを持っています。
+2つのコンストラクタがあります：`{{#example_in Examples/Props.lean OrIntro1}}`（型は `{{#example_out Examples/Props.lean OrIntro1}}`）と `{{#example_in Examples/Props.lean OrIntro2}}`（型は `{{#example_out Examples/Props.lean OrIntro2}}`）です。
 
-Implication (if _A_ then _B_) is represented using functions.
-In particular, a function that transforms evidence for _A_ into evidence for _B_ is itself evidence that _A_ implies _B_.
-This is different from the usual description of implication, in which `A → B` is shorthand for `¬A ∨ B`, but the two formulations are equivalent.
+含意（もし _A_ ならば _B_）は関数を使用して表されます。
+具体的には、_A_ の証拠を _B_ の証拠に変換する関数は、それ自体が _A_ が _B_ を含意する証拠であると言えます。
+これは通常の含意の説明と異なり、ここでは `A → B` が `¬A ∨ B` の略記であるのではなく、2つの定式が同等であるということです。
 
-Because evidence for an "and" is a constructor, it can be used with pattern matching.
-For instance, a proof that _A_ and _B_ implies _A_ or _B_ is a function that pulls the evidence of _A_ (or of _B_) out of the evidence for _A_ and _B_, and then uses this evidence to produce evidence of _A_ or _B_:
+「かつ」の証拠はコンストラクタであるため、パターンマッチングと一緒に使用できます。
+例えば、_A_ かつ _B_ が _A_ または _B_ を意味することを証明するには、_A_ と _B_ の証拠から _A_ または _B_ の証拠を取り出し、それを使用して _A_ または _B_ の証拠を生成する関数が必要です：
+
 ```lean
 {{#example_decl Examples/Props.lean andImpliesOr}}
 ```
 
-
-| Connective      | Lean Syntax | Evidence     |
+| 接続詞        | Leanの構文 | 証拠          |
 |-----------------|-------------|--------------|
-| True            | `True`      | `True.intro : True` |
-| False           | `False`     | No evidence  |
-| _A_ and _B_     | `A ∧ B`     | `And.intro : A → B → A ∧ B` |
-| _A_ or _B_      | `A ∨ B`     | Either `Or.inl : A → A ∨ B` or `Or.inr : B → A ∨ B` |
-| _A_ implies _B_ | `A → B`     | A function that transforms evidence of _A_ into evidence of _B_ |
-| not _A_         | `¬A`        | A function that would transform evidence of _A_ into evidence of `False` |
+| 真（True）     | `True`      | `True.intro : True` |
+| 偽（False）    | `False`     | 証拠なし     |
+| _A_ かつ _B_   | `A ∧ B`     | `And.intro : A → B → A ∧ B` |
+| _A_ または _B_ | `A ∨ B`     | `Or.inl : A → A ∨ B` または `Or.inr : B → A ∨ B` |
+| _A_ ならば _B_ | `A → B`     | _A_ の証拠を _B_ の証拠に変換する関数 |
+| 否定（not _A_）| `¬A`        | _A_ の証拠を `False` の証拠に変換する関数 |
 
-The `simp` tactic can prove theorems that use these connectives.
-For example:
+`simp` 戦術はこれらの接続詞を使用する定理を証明することができます。
+例えば以下のような形です：
+
 ```leantac
 {{#example_decl Examples/Props.lean connectives}}
 ```
 
-## Evidence as Arguments
 
-While `simp` does a great job proving propositions that involve equalities and inequalities of specific numbers, it is not very good at proving statements that involve variables.
-For instance, `simp` can prove that `4 < 15`, but it can't easily tell that because `x < 4`, it's also true that `x < 15`.
-Because index notation uses `simp` behind the scenes to prove that array access is safe, it can require a bit of hand-holding.
+## 引数としての証拠（Evidence as Arguments）
 
-One of the easiest ways to make indexing notation work well is to have the function that performs a lookup into a data structure take the required evidence of safety as an argument.
-For instance, a function that returns the third entry in a list is not generally safe because lists might contain zero, one, or two entries:
+`simp` は特定の数値の等式と不等式を含む命題を証明するのに優れていますが、変数を含む文を証明するのは得意ではありません。
+たとえば、`simp` は `4 < 15` を証明できますが、`x < 4` だからといって `x < 15` が真であることを容易に判別できません。
+インデックス表記は、配列アクセスが安全であることを証明するために裏で `simp` を使用するため、少し手間がかかることがあります。
+
+インデックス表記をうまく機能させる最も簡単な方法の1つは、データ構造に対するルックアップを実行する関数が安全性の証拠を必要とする引数として受け取ることです。
+たとえば、リスト内の3番目のエントリを返す関数は一般的には安全ではありません、なぜならリストにはゼロ、一つ、または二つのエントリが含まれているかもしれないからです：
+
 ```lean
 {{#example_in Examples/Props.lean thirdErr}}
 ```
+
 ```output error
 {{#example_out Examples/Props.lean thirdErr}}
 ```
-However, the obligation to show that the list has at least three entries can be imposed on the caller by adding an argument that consists of evidence that the indexing operation is safe:
+
+しかし、リストが少なくとも3つのエントリを持つことを示す義務は、インデックス操作が安全である証拠から成る引数を追加することで呼び出し元に課せることができます：
+
 ```lean
 {{#example_decl Examples/Props.lean third}}
 ```
-In this example, `xs.length > 2` is not a program that checks _whether_ `xs` has more than 2 entries.
-It is a proposition that could be true or false, and the argument `ok` must be evidence that it is true.
 
-When the function is called on a concrete list, its length is known.
-In these cases, `by simp` can construct the evidence automatically:
+この例では、`xs.length > 2` は `xs` が2つ以上のエントリを持っているかどうかをチェックする _プログラム_ ではありません。
+それは真または偽であるかもしれない命題であり、引数 `ok` はそれが真である証拠である必要があります。
+
+関数が具体的なリストで呼び出されると、その長さは既知です。
+これらの場合、`by simp` は証拠を自動的に構築できます：
+
 ```leantac
 {{#example_in Examples/Props.lean thirdCritters}}
 ```
@@ -191,67 +211,91 @@ In these cases, `by simp` can construct the evidence automatically:
 {{#example_out Examples/Props.lean thirdCritters}}
 ```
 
-## Indexing Without Evidence
 
-In cases where it's not practical to prove that an indexing operation is in bounds, there are other alternatives.
-Adding a question mark results in an `Option`, where the result is `some` if the index is in bounds, and `none` otherwise.
-For example:
+## 証拠なしでのインデックス（Indexing Without Evidence）
+
+インデックス操作が境界内であることを証明するのが実用的でない場合、他の代替手段があります。
+疑問符を追加することで、結果がインデックスが境界内の場合に `some` になり、それ以外の場合に `none` になる `Option` が生成されます。
+たとえば：
+
 ```lean
 {{#example_decl Examples/Props.lean thirdOption}}
 
 {{#example_in Examples/Props.lean thirdOptionCritters}}
 ```
+
 ```output info
 {{#example_out Examples/Props.lean thirdOptionCritters}}
 ```
+
 ```lean
 {{#example_in Examples/Props.lean thirdOptionTwo}}
 ```
+
 ```output info
 {{#example_out Examples/Props.lean thirdOptionTwo}}
 ```
 
-There is also a version that crashes the program when the index is out of bounds, rather than returning an `Option`:
+また、インデックスが境界外の場合に `Option` を返す代わりに、プログラムをクラッシュさせるバージョンもあります：
+
 ```lean
 {{#example_in Examples/Props.lean crittersBang}}
 ```
+
 ```output info
 {{#example_out Examples/Props.lean crittersBang}}
 ```
-Be careful!
-Because code that is run with `#eval` runs in the context of the Lean compiler, selecting the wrong index can crash your IDE.
 
-## Messages You May Meet
+ご注意ください！
+`#eval` で実行されるコードはLeanコンパイラのコンテキストで実行されるため、誤ったインデックスを選択するとIDEがクラッシュする可能性があります。
 
-In addition to the error that occurs when Lean is unable to find compile-time evidence that an indexing operation is safe, polymorphic functions that use unsafe indexing may produce the following message:
+
+## 遭遇するかもしれないメッセージ（Messages You May Meet）
+
+インデックス操作が安全であることのコンパイル時の証拠を見つけることができない場合に発生するエラーに加えて、危険なインデックスを使用する多相関数は以下のメッセージを生成する可能性があります：
+
 ```lean
 {{#example_in Examples/Props.lean unsafeThird}}
 ```
+
 ```output error
 {{#example_out Examples/Props.lean unsafeThird}}
 ```
-This is due to a technical restriction that is part of keeping Lean usable as both a logic for proving theorems and a programming language.
-In particular, only programs whose types contain at least one value are allowed to crash.
-This is because a proposition in Lean is a kind of type that classifies evidence of its truth.
-False propositions have no such evidence.
-If a program with an empty type could crash, then that crashing program could be used as a kind of fake evidence for a false proposition.
 
-Internally, Lean contains a table of types that are known to have at least one value.
-This error is saying that some arbitrary type `α` is not necessarily in that table.
-The next chapter describes how to add to this table, and how to successfully write functions like `unsafeThird`.
+これは、Leanを定理の証明のための論理として使用することとプログラミング言語として使用することの両方ができるように保つ一部の技術的制限に起因しています。
+特に、少なくとも1つの値を含む型を持つプログラムだけがクラッシュすることを許可されています。
+これは、Leanの命題はその真実性の証拠を分類する種類の型であるためです。
+偽の命題にはそのような証拠はありません。
+空の型を持つプログラムがクラッシュできる場合、そのクラッシングプログラムは偽の命題の種類の偽の証拠として使用できる可能性があります。
 
-Adding whitespace between a list and the brackets used for lookup can cause another message:
+内部的に、Leanは少なくとも1つの値を持つとして知られている型のテーブルを持っています。
+このエラーは、ある任意の型 `α` がそのテーブルに必ずしも含まれていないことを示しています。
+次の章では、このテーブルに追加する方法や、`unsafeThird` のような関数を正常に書く方法について説明されています。
+
+リストとルックアップに使用される角括弧の間にスペースを追加すると、別のメッセージを発生させることがあります：
+
 ```lean
 {{#example_in Examples/Props.lean extraSpace}}
 ```
+
 ```output error
 {{#example_out Examples/Props.lean extraSpace}}
 ```
-Adding a space causes Lean to treat the expression as a function application, and the index as a list that contains a single number.
-This error message results from having Lean attempt to treat `woodlandCritters` as a function.
 
-## Exercises
+スペースを追加することにより、Leanは式を関数適用として扱い、インデックスを単一の数値を含むリストとして扱おうとします。
+このエラーメッセージは、Leanが `woodlandCritters` を関数として扱おこうと試みることによって発生します。
 
-* Prove the following theorems using `rfl`: `2 + 3 = 5`, `15 - 8 = 7`, `"Hello, ".append "world" = "Hello, world"`. What happens if `rfl` is used to prove `5 < 18`? Why?
-* Prove the following theorems using `by simp`: `2 + 3 = 5`, `15 - 8 = 7`, `"Hello, ".append "world" = "Hello, world"`, `5 < 18`.
-* Write a function that looks up the fifth entry in a list. Pass the evidence that this lookup is safe as an argument to the function.
+
+## 演習（Exercises）
+
+* `rfl` を使用して以下の定理を証明してください。
+    - `2 + 3 = 5`
+    - `15 - 8 = 7`
+    - `"Hello, ".append "world" = "Hello, world"`
+    - `5 < 18`（`rfl` を使用してこれ証明しようとするとどうなるでしょうか？ また、何故このようなことが起こるのでしょうか？）
+* `by simp` を使用して以下の定理を証明してください。
+    - `2 + 3 = 5`
+    - `15 - 8 = 7`
+    - `"Hello, ".append "world" = "Hello, world"`
+    - `5 < 18`
+* リスト内の5番目のエントリを検索する関数を書いてください。この検索が安全であることの証拠を関数への引数として渡してください。

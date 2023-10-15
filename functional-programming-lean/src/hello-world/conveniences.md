@@ -1,75 +1,92 @@
-# Additional Conveniences
+# 追加の話題（Additional Conveniences）
 
+## ネストされたアクション（Nested Actions）
 
-## Nested Actions
+`feline`の多くの関数では、`IO`アクションの結果に名前が付けられ、それがすぐにかつ一度だけ使用される繰り返しのパターンが見られます。例えば、`dump`の場合：
 
-Many of the functions in `feline` exhibit a repetitive pattern in which an `IO` action's result is given a name, and then used immediately and only once.
-For instance, in `dump`:
 ```lean
 {{#include ../../../examples/feline/2/Main.lean:dump}}
 ```
-the pattern occurs for `stdout`:
+
+このパターンは`stdout`の場合にも発生します：
+
 ```lean
 {{#include ../../../examples/feline/2/Main.lean:stdoutBind}}
 ```
-Similarly, `fileStream` contains the following snippet:
+
+同様に、`fileStream`には次のコードスニペットが含まれています：
+
 ```lean
 {{#include ../../../examples/feline/2/Main.lean:fileExistsBind}}
 ```
 
-When Lean is compiling a `do` block, expressions that consist of a left arrow immediately under parentheses are lifted to the nearest enclosing `do`, and their results are bound to a unique name.
-This unique name replaces the origin of the expression.
-This means that `dump` can also be written as follows:
+Leanが`do`ブロックをコンパイルする際、括弧の下にある左矢印からなる式は、最も近い包含の`do`に持ち上げられ、その結果は一意の名前にバインドされます。
+この一意の名前は式の元を置き換えます。
+つまり、`dump`は以下のようにも書くことができます：
+
 ```lean
 {{#example_decl Examples/Cat.lean dump}}
 ```
-This version of `dump` avoids introducing names that are used only once, which can greatly simplify a program.
-`IO` actions that Lean lifts from a nested expression context are called _nested actions_.
 
-`fileStream` can be simplified using the same technique:
+このバージョンの`dump`は、一度だけ使用される名前を導入しないため、プログラムを大幅に簡略化できます。
+Leanがネストされた式コンテキストから持ち上げる`IO`アクションは _ネストされたアクション_ と呼ばれます。
+
+同じテクニックを使用して`fileStream`を簡素化できます：
+
 ```lean
 {{#example_decl Examples/Cat.lean fileStream}}
 ```
-In this case, the local name of `handle` could also have been eliminated using nested actions, but the resulting expression would have been long and complicated.
-Even though it's often good style to use nested actions, it can still sometimes be helpful to name intermediate results.
 
-It is important to remember, however, that nested actions are only a shorter notation for `IO` actions that occur in a surrounding `do` block.
-The side effects that are involved in executing them still occur in the same order, and execution of side effects is not interspersed with the evaluation of expressions.
-For an example of where this might be confusing, consider the following helper definitions that return data after announcing to the world that they have been executed:
+この場合、`handle`のローカル名もネストされたアクションを使用して削除できましたが、その結果の式は長く複雑になりました。
+ネストされたアクションを使用することが一般的に良いスタイルであるにもかかわらず、中間結果に名前を付けることが時々役立つこともあります。
+
+ただし、ネストされたアクションは、周囲の`do`ブロック内で発生する`IO`アクションの短縮表記に過ぎないことを覚えておくことが重要です。
+これらを実行する際に関与する副作用は、依然として同じ順序で発生し、副作用の実行は式の評価と交互に行われるわけではありません。
+これが混乱の原因となる可能性がある例を考えてみましょう。以下のヘルパー定義を考えてみてください。これらの定義は実行されたことを世界に宣言した後にデータを返します：
+
 ```lean
 {{#example_decl Examples/Cat.lean getNumA}}
 
 {{#example_decl Examples/Cat.lean getNumB}}
 ```
-These definitions are intended to stand in for more complicated `IO` code that might validate user input, read a database, or open a file.
 
-A program that prints `0` when number A is five, or number `B` otherwise, can be written as follows:
+これらの定義は、ユーザー入力を検証したり、データベースを読み取ったり、ファイルを開いたりするかもしれない、より複雑な`IO`コードの代わりに立つものです。
+
+数Aが5の場合に0を出力し、それ以外の場合に数Bを出力するプログラムは、次のように書くことができます：
+
 ```lean
 {{#example_decl Examples/Cat.lean testEffects}}
 ```
-However, this program probably has more side effects (such as prompting for user input or reading a database) than was intended.
-The definition of `getNumA` makes it clear that it will always return `5`, and thus the program should not read number B.
-However, running the program results in the following output:
+
+しかし、このプログラムはおそらく意図したよりも多くの副作用（ユーザー入力のプロンプトやデータベースの読み取りなど）を持っている可能性があります。
+`getNumA`の定義は、常に`5`を返すことを明示しており、したがってプログラムは数Bを読み取る必要はありません。
+しかし、プログラムを実行すると、次の出力が得られます：
+
 ```output info
 {{#example_out Examples/Cat.lean runTest}}
 ```
-`getNumB` was executed because `test` is equivalent to this definition:
+
+`getNumB`が実行されたのは、`test`が次の定義と同等であるためです：
+
 ```lean
 {{#example_decl Examples/Cat.lean testEffectsExpanded}}
 ```
-This is due to the rule that nested actions are lifted to the _closest enclosing_ `do` block.
-The branches of the `if` were not implicitly wrapped in `do` blocks because the `if` is not itself a statement in the `do` block—the statement is the `let` that defines `a`.
-Indeed, they could not be wrapped this way, because the type of the conditional expression is `Nat`, not `IO Nat`.
 
-## Flexible Layouts for `do`
+これは、ネストされたアクションが最も近い包含する`do`ブロックに持ち上げられるというルールに起因しています。
+`if`のブランチは`do`ブロック内の文ではないため、暗黙のうちに`do`ブロックでラップされなかったのです。宣言されているのは`a`を定義する`let`です。
+実際、このようにラップすることはできなかったのです。なぜなら、条件式の型は`Nat`であり、`IO Nat`ではないからです。
 
-In Lean, `do` expressions are whitespace-sensitive.
-Each `IO` action or local binding in the `do` is expected to start on its own line, and they should all have the same indentation.
-Almost all uses of `do` should be written this way.
-In some rare contexts, however, manual control over whitespace and indentation may be necessary, or it may be convenient to have multiple small actions on a single line.
-In these cases, newlines can be replaced with a semicolon and indentation can be replaced with curly braces.
 
-For instance, all of the following programs are equivalent:
+## `do`の柔軟なレイアウト（Flexible Layouts for `do`）
+
+Leanでは、`do` 式は空白に敏感です。
+`do`内の各`IO`アクションまたはローカルバインディングは、独自の行で開始されることが期待され、それらはすべて同じインデントを持つべきです。
+ほとんどの場合、`do`はこの方法で書かれるべきです。
+しかしながら、一部のまれなコンテキストでは、空白とインデントを手動で制御する必要があるか、または1行に複数の小さなアクションを配置するのが便利な場合があります。
+これらの場合、改行をセミコロンに置き換え、インデントを中括弧に置き換えることができます。
+
+たとえば、以下のプログラムはすべて等価です：
+
 ```lean
 {{#example_decl Examples/Cat.lean helloOne}}
 
@@ -78,28 +95,32 @@ For instance, all of the following programs are equivalent:
 {{#example_decl Examples/Cat.lean helloThree}}
 ```
 
-Idiomatic Lean code uses curly braces with `do` very rarely.
+イディオマティックなLeanコードでは、`do`に中括弧をほとんど使用しません。
 
-## Running `IO` Actions With `#eval`
+## `#eval`を使用した`IO`アクションの実行（Running `IO` Actions With `#eval`）
 
-Lean's `#eval` command can be used to execute `IO` actions, rather than just evaluating them.
-Normally, adding a `#eval` command to a Lean file causes Lean to evaluate the provided expression, convert the resulting value to a string, and provide that string as a tooltip and in the info window.
-Rather than failing because `IO` actions can't be converted to strings, `#eval` executes them, carrying out their side effects.
-If the result of execution is the `Unit` value `()`, then no result string is shown, but if it is a type that can be converted to a string, then Lean displays the resulting value.
+Leanの`#eval`コマンドは、`IO`アクションを実行するために使用できます。評価だけでなく、実行も行います。
+通常、Leanファイルに`#eval`コマンドを追加すると、Leanは提供された式を評価し、その結果の値を文字列に変換し、その文字列をツールチップと情報ウィンドウで提供します。
+`IO`アクションは文字列に変換できないため、代わりに`#eval`はそれらを実行し、副作用を実行します。
+実行の結果が`Unit`値`()`である場合、結果の文字列は表示されませんが、文字列に変換できる型である場合、Leanは結果の値を表示します。
 
-This means that, given the prior definitions of `countdown` and `runActions`,
+これは、`countdown`と`runActions`の以前の定義が与えられた場合、次のように表示されます：
+
 ```lean
 {{#example_in Examples/HelloWorld.lean evalDoesIO}}
 ```
-displays
+
+出力は次の通りです：
+
 ```output info
 {{#example_out Examples/HelloWorld.lean evalDoesIO}}
 ```
-This is the output produced by running the `IO` action, rather than some opaque representation of the action itself.
-In other words, for `IO` actions, `#eval` both _evaluates_ the provided expression and _executes_ the resulting action value.
 
-Quickly testing `IO` actions with `#eval` can be much more convenient that compiling and running whole programs.
-However, there are some limitations.
-For instance, reading from standard input simply returns empty input.
-Additionally, the `IO` action is re-executed whenever Lean needs to update the diagnostic information that it provides to users, and this can happen at unpredictable times.
-An action that reads and writes files, for instance, may do so at inconvenient times.
+これは、`IO`アクションを実行した結果の出力であり、アクション自体の不透明な表現ではありません。
+つまり、`IO`アクションに関して、`#eval`は提供された式を「評価」し、結果のアクション値を「実行」します。
+
+`#eval`を使用して迅速に`IO`アクションをテストすることは、プログラム全体をコンパイルおよび実行するよりもはるかに便利な場合があります。
+ただし、いくつかの制限があります。
+たとえば、標準入力から読み取るだけでは空の入力が返されます。
+さらに、Leanがユーザーに提供する診断情報を更新する必要があるときに、`IO`アクションは再実行され、これは予測不可能なタイミングで発生する可能性があります。
+ファイルの読み取りと書き込みを行うアクションは、適切でないタイミングで実行されるかもしれません。

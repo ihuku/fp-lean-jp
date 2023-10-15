@@ -1,108 +1,105 @@
-# Starting a Project
+# プロジェクトを開始する（Starting a Project）
 
-As a program written in Lean becomes more serious, an ahead-of-time compiler-based workflow that results in an executable becomes more attractive.
-Like other languages, Lean has tools for building multiple-file packages and managing dependencies.
-The standard Lean build tool is called Lake (short for "Lean Make"), and it is configured in Lean.
-Just as Lean contains a special-purpose language for writing programs with effects (the `do` language), Lake contains a special-purpose language for configuring builds.
-These languages are referred to as _embedded domain-specific languages_ (or sometimes _domain-specific embedded languages_, abbreviated EDSL or DSEL).
-They are _domain-specific_ in the sense that they are used for a particular purpose, with concepts from some sub-domain, and they are typically not suitable for general-purpose programming.
-They are _embedded_ because they occur inside another language's syntax.
-While Lean contains rich facilities for creating EDSLs, they are beyond the scope of this book.
+Leanというプログラムがより本格的になるにつれて、実行可能ファイルが生成される事前コンパイラベースのワークフローがより魅力的になります。
+他の言語と同様に、Leanには複数のファイルからなるパッケージを構築し依存関係を管理するためのツールがあります。
+標準のLeanビルドツールは「Lake（「Lean Make」の略）」と呼ばれ、Leanで構成されています。
+Leanには、効果を持つプログラムを書くための特別な目的の言語である「do」言語が含まれているように、Lakeにもビルドの構成を行うための特別な目的の言語が含まれています。
+これらの言語は「組み込みドメイン固有言語（embedded domain-specific languages）」（または「ドメイン固有組み込み言語」、EDSLまたはDSELと略すこともあります）と呼ばれています。
+これらは特定の目的に使用され、特定のサブドメインの概念に関連しており、一般的な汎用プログラミングには適していないことが一般的です。
+これらは、他の言語の構文の内部で発生するため、「組み込み」されています。
+LeanにはEDSLを作成するための豊富な機能が備わっていますが、それらはこの本の範囲外です。
 
-## First steps
+## 最初のステップ（First steps）
 
-To get started with a project that uses Lake, use the command `{{#command {first-lake} {lake} {lake new greeting} }}` in a directory that does not already contain a file or directory called `greeting`.
-This creates a directory called `greeting` that contains the following files:
+Lakeを使用するプロジェクトを始めるには、すでに「greeting」という名前のファイルやディレクトリを含まないディレクトリで、次のコマンドを使用してください：`{{#command {first-lake} {lake} {lake new greeting} }}`。
+これにより、`greeting`という名前のディレクトリが作成され、次のファイルが含まれます：
 
- * `Main.lean` is the file in which the Lean compiler will look for the `main` action.
- * `Greeting.lean` and `Greeting/Basic.lean` are the scaffolding of a support library for the program.
- * `lakefile.lean` contains the configuration that `lake` needs to build the application.
- * `lean-toolchain` contains an identifier for the specific version of Lean that is used for the project.
+ * `Main.lean`はLeanコンパイラが「main」アクションを検索するファイルです。
+ * `Greeting.lean`と`Greeting/Basic.lean`はプログラムのサポートライブラリの骨組みです。
+ * `lakefile.lean`にはアプリケーションをビルドするために`lake`が必要とする構成が含まれています。
+ * `lean-toolchain`にはプロジェクトで使用されるLeanの特定バージョンの識別子が含まれています。
 
-Additionally, `lake new` initializes the project as a Git repository and configures its `.gitignore` file to ignore intermediate build products.
-Typically, the majority of the application logic will be in a collection of libraries for the program, while `Main.lean` will contain a small wrapper around these pieces that does things like parsing command lines and executing the central application logic.
-To create a project in an already-existing directory, run `lake init` instead of `lake new`.
+さらに、`lake new`はプロジェクトをGitリポジトリとして初期化し、中間ビルド製品を無視するための`.gitignore`ファイルを構成します。
+通常、アプリケーションの大部分のロジックはプログラムのライブラリのコレクションに含まれ、`Main.lean`にはこれらの部分をパースしてコマンドラインを実行し、中心のアプリケーションロジックを実行する小さなラッパーが含まれます。
+既存のディレクトリでプロジェクトを作成する場合は、`lake new`の代わりに`lake init`を実行してください。
 
-By default, the library file `Greeting/Basic.lean` contains a single definition:
+デフォルトでは、ライブラリファイルである `Greeting/Basic.lean` には単一の定義が含まれています：
+
 ```lean
 {{#file_contents {lake} {first-lake/greeting/Greeting/Basic.lean} {first-lake/expected/Greeting/Basic.lean}}}
 ```
-The library file `Greeting.lean` imports `Greeting/Basic.lean`:
+
+ライブラリファイル `Greeting.lean` は `Greeting/Basic.lean` をインポートしています：
+
 ```lean
 {{#file_contents {lake} {first-lake/greeting/Greeting.lean} {first-lake/expected/Greeting.lean}}}
 ```
-This means that everything defined in `Greetings/Basic.lean` is also available to files that import `Greetings.lean`.
-In `import` statements, dots are interpreted as directories on disk.
-Placing guillemets around a name, as in `«Greeting»`, allow it to contain spaces or other characters that are normally not allowed in Lean names, and it allows reserved keywords such as `if` or `def` to be used as ordinary names by writing `«if»` or `«def»`.
-This prevents issues when the package name provided to `lake new` contains such characters.
 
-The executable source `Main.lean` contains:
+これは、`Greetings.lean` をインポートするファイルにとっても `Greetings/Basic.lean` で定義されているものが利用可能であることを意味します。`import` ステートメントでは、ドットはディスク上のディレクトリとして解釈されます。名前の周りにギロメ（«Greeting»）を配置することにより、通常はLeanの名前で許可されていないスペースや他の文字を含めることができ、また、`if` や `def` などの予約語を `«if»` や `«def»` と書いて通常の名前として使用できます。これにより、`lake new` に提供されたパッケージ名にそのような文字が含まれている場合の問題を防ぎます。
+
+実行可能ソースである `Main.lean` には以下が含まれています：
+
 ```lean
 {{#file_contents {lake} {first-lake/greeting/Main.lean} {first-lake/expected/Main.lean}}}
 ```
-Because `Main.lean` imports `Greetings.lean` and `Greetings.lean` imports `Greetings/Basic.lean`, the definition of `hello` is available in `main`.
 
-To build the package, run the command `{{#command {first-lake/greeting} {lake} {lake build} }}`.
-After a number of build commands scroll by, the resulting binary has been placed in `build/bin`.
-Running `{{#command {first-lake/greeting} {lake} {./build/bin/greeting} }}` results in `{{#command_out {lake} {./build/bin/greeting} }}`.
+`Main.lean` は `Greetings.lean` と `Greetings.lean` は `Greetings/Basic.lean` をインポートするため、`hello` の定義は `main` で利用可能です。
 
-## Lakefiles
+パッケージをビルドするには、次のコマンドを実行します：`{{#command {first-lake/greeting} {lake} {lake build} }}`。
+いくつかのビルドコマンドが表示された後、生成されたバイナリは `build/bin` に配置されます。
+`{{#command {first-lake/greeting} {lake} {./build/bin/greeting} }}` を実行すると、`{{#command_out {lake} {./build/bin/greeting} }}` が表示されます。
 
-A `lakefile.lean` describes a _package_, which is a coherent collection of Lean code for distribution, analogous to an `npm` or `nuget` package or a Rust crate.
-A package may contain any number of libraries or executables.
-While the [documentation for Lake](https://github.com/leanprover/lake#readme) describes the available options in a lakefile, it makes use of a number of Lean features that have not yet been described here.
-The generated `lakefile.lean` contains the following:
+
+## Lakefile（Lakefiles）
+
+`lakefile.lean` は、配布用のLeanコードの一貫したコレクションである _パッケージ_ を記述します。これは、`npm`や`nuget`パッケージやRustのクレートに類似するものです。パッケージには任意の数のライブラリや実行可能ファイルを含めることができます。[Lakeのドキュメンテーション](https://github.com/leanprover/lake#readme)では、lakefile内の利用可能なオプションについて説明していますが、ここでまだ説明されていないLeanのいくつかの機能を使用しています。生成された `lakefile.lean` には以下が含まれます：
+
 ```lean
 {{#file_contents {lake} {first-lake/greeting/lakefile.lean} {first-lake/expected/lakefile.lean}}}
 ```
 
-This initial Lakefile consists of three items:
- * a _package_ declaration, named `greeting`,
- * a _library_ declaration, named `Greeting`, and
- * an _executable_, also named `greeting`.
+この初期のLakefileには、次の3つの項目が含まれています：
+ * `greeting` という名前の _パッケージ_ 宣言
+ * `Greeting` という名前の _ライブラリ_ 宣言
+ * `greeting` という名前の _実行可能ファイル_
 
-Each of these names is enclosed in guillemets to allow users more freedom in picking package names.
+これらの名前は、パッケージ名を選ぶ際にユーザーにより多くの自由を与えるためにギロメで囲まれています。
 
-Each Lakefile will contain exactly one package, but any number of libraries or executables.
-Additionally, Lakefiles may contain _external libraries_, which are libraries not written in Lean to be statically linked with the resulting executable, _custom targets_, which are build targets that don't fit naturally into the library/executable taxonomy, _dependencies_, which are declarations of other Lean packages (either locally or from remote Git repositories), and _scripts_, which are essentially `IO` actions (similar to `main`), but that additionally have access to metadata about the package configuration.
-The items in the Lakefile allow things like source file locations, module hierarchies, and compiler flags to be configured.
-Generally speaking, however, the defaults are reasonable.
+各Lakefileには正確に1つのパッケージが含まれますが、任意の数のライブラリや実行可能ファイルが含まれることがあります。さらに、Lakefileには _外部ライブラリ_（Leanで書かれていない結果の実行可能ファイルに静的リンクするためのライブラリ）、_カスタムターゲット_（ライブラリ/実行可能ファイルのタクソノミーに適合しないビルドターゲット）、_依存関係_（ローカルまたはリモートGitリポジトリからの他のLeanパッケージの宣言）、および _スクリプト_（基本的には `main` に似た `IO` アクション）が含まれることがあります。Lakefile内の項目によって、ソースファイルの場所、モジュール階層、およびコンパイラフラグなどが設定できます。一般的には、デフォルト値が妥当です。
 
-Libraries, executables, and custom targets are all called _targets_.
-By default, `lake build` builds those targets that are annotated with `@[default_target]`.
-This annotation is an _attribute_, which is metadata that can be associated with a Lean declaration.
-Attributes are similar to Java annotations or C# and Rust attributes.
-They are used pervasively throughout Lean.
-To build a target that is not annotated with `@[default_target]`, specify the target's name as an argument after `lake build`.
+ライブラリ、実行可能ファイル、およびカスタムターゲットはすべて _ターゲット_ と呼ばれます。デフォルトでは、`lake build` は `@[default_target]` で注釈付けされたターゲットをビルドします。この注釈は _属性_ で、Leanの宣言に関連付けることができるメタデータです。属性は、JavaのアノテーションやC#およびRustの属性に似ており、Lean全体で広く使用されています。`@[default_target]` で注釈付けされていないターゲットをビルドするには、`lake build`の後にターゲットの名前を引数として指定します。
+
 
 ## Libraries and Imports
 
-A Lean library consists of a hierarchically organized collection of source files from which names can be imported, called _modules_.
-By default, a library has a single root file that matches its name.
-In this case, the root file for the library `Greeting` is `Greeting.lean`.
-The first line of `Main.lean`, which is `import Greeting`, makes the contents of `Greeting.lean` available in `Main.lean`.
+## ライブラリとインポート
 
-Additional module files may be added to the library by creating a directory called `Greeting` and placing them inside.
-These names can be imported by replacing the directory separator with a dot.
-For instance, creating the file `Greeting/Smile.lean` with the contents:
+Leanのライブラリは、名前をインポートできるソースファイルの階層的に整理されたコレクションから成り立っており、これは _モジュール_ と呼ばれています。
+デフォルトでは、ライブラリには名前と一致する単一のルートファイルがあります。
+この場合、ライブラリ `Greeting` のルートファイルは `Greeting.lean` です。
+`Main.lean` の最初の行、すなわち `import Greeting` は、`Main.lean` で `Greeting.lean` の内容を使用できるようにします。
+
+ライブラリには、ディレクトリ `Greeting` を作成し、その中に追加のモジュールファイルを配置することで追加のモジュールファイルを追加できます。
+これらの名前は、ディレクトリ区切り文字をドットに置き換えることでインポートできます。
+たとえば、ファイル `Greeting/Smile.lean` を以下の内容で作成すると：
 ```lean
 {{#file_contents {lake} {second-lake/greeting/Greeting/Smile.lean}}}
 ```
-means that `Main.lean` can use the definition as follows:
+`Main.lean` は次のようにその定義を使用できます：
 ```lean
 {{#file_contents {lake} {second-lake/greeting/Main.lean}}}
 ```
 
-The module name hierarchy is decoupled from the namespace hierarchy.
-In Lean, modules are units of code distribution, while namespaces are units of code organization.
-That is, names defined in the module `Greeting.Smile` are not automatically in a corresponding namespace `Greeting.Smile`.
-Modules may place names into any namespace they like, and the code that imports them may `open` the namespace or not.
-`import` is used to make the contents of a source file available, while `open` makes names from a namespace available in the current context without prefixes.
-In the Lakefile, the line `import Lake` makes the contents of the `Lake` module available, while the line `open Lake DSL` makes the contents of the `Lake` and `Lake.DSL` namespaces available without any prefixes.
-`Lake.DSL` is opened because opening `Lake` makes `Lake.DSL` available as just `DSL`, just like all other names in the `Lake` namespace.
-The `Lake` module places names into both the `Lake` and `Lake.DSL` namespaces.
+モジュール名の階層は、ネームスペースの階層とは切り離されています。
+Leanでは、モジュールはコードの配布単位であり、ネームスペースはコードの組織単位です。
+つまり、モジュール `Greeting.Smile` で定義された名前は自動的に対応するネームスペース `Greeting.Smile` にはありません。
+モジュールは任意のネームスペースに名前を配置でき、それらをインポートするコードはネームスペースを `open` してもしなくても構いません。
+`import` はソースファイルの内容を使用可能にするために使用され、`open` はネームスペースからの名前を接頭辞なしで現在のコンテキストで使用可能にします。
+Lakefileでは、`import Lake` の行は `Lake` モジュールの内容を使用可能にし、`open Lake DSL` の行は `Lake` と `Lake.DSL` ネームスペースの内容を接頭辞なしで使用可能にします。
+`Lake.DSL` は `Lake` を `Lake.DSL` として使用可能にすることによって開かれ、他のすべての名前と同様に `Lake` ネームスペース内のすべての名前が `DSL` として使用可能になります。
+`Lake` モジュールは名前を `Lake` および `Lake.DSL` ネームスペースの両方に配置します。
 
-Namespaces may also be opened _selectively_, making only some of their names available without explicit prefixes.
-This is done by writing the desired names in parentheses.
-For example, `Nat.toFloat` converts a natural number to a `Float`.
-It can be made available as `toFloat` using `open Nat (toFloat)`.
+ネームスペースは、明示的な接頭辞なしで一部の名前のみを使用可能にするよう _選択的に_ 開くことができます。
+これは、所望の名前を括弧で囲んで書くことで行います。
+たとえば、`Nat.toFloat` は自然数を `Float` に変換します。
+`open Nat (toFloat)` を使用して、`toFloat` を `toFloat` として利用可能にすることができます。
